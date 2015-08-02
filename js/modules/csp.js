@@ -1,11 +1,10 @@
 /**
  * Hold on to your butts, I'm writing a constraint solver in JavaScript.
  * I know.
- * @flow
  */
 define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 	//hidden helper methods go hereish
-	function strFormat(string :String, args){
+	function strFormat(string, args){
     return string.replace(/{(\d+)}/g, function(match, number) {
       return typeof args[number] != 'undefined'
         ? args[number]
@@ -14,7 +13,7 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
     });
 	}
 
-	function randomInteger(low :Number, high :Number){
+	function randomInteger(low, high){
 		return (Math.random() % (high - low)) + low; //does this even?
 	}
 	var CSP = Class.extend({
@@ -128,7 +127,7 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 			}
 		},
 
-		pushChoice : function(format :String, args :Array<String>){
+		pushChoice : function(format, args){
 			//this uses a String.format function.  Doing so in Javascript is messsssssy
 			//see the helper function at the top of this Class
 			var choice = strFormat(format, args);
@@ -185,7 +184,7 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 			}
 		},
 
-		makeConsistent : function(fail :Boolean){
+		makeConsistent : function(fail){
 			while(this.pending.length > 0){
 				var constraint = this.pending.pop();
 				constraint.queued = false;
@@ -201,11 +200,11 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 			}
 		},
 
-		currentlyPropagating : function(c :Constraint){
+		currentlyPropagating : function(c){
 			return this.currentConstraint == c;
 		},
 
-		queuedConstraint : function(c :Constraint){
+		queuedConstraint : function(c){
 			this.pending.push(c);
 		},
 
@@ -240,7 +239,7 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 			}
 		},
 
-		memorize : function(functionName :String, function :Function, arguments :Array<object>){
+		memorize : function(functionName, function, arguments){
 			return this.memoTable.memorize(fucntionName, functoin, arguments);
 		}
 	});
