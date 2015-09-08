@@ -12,12 +12,12 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
     PowerConstraint = ScalarArithmaticConstraints.PowerConstraint;
 
     //useful constructors... might need to shfit these to the bottom and/or add them as static methods
-    var makeFloatVariableWithInterval = function(name, p, initialValue){
-        return new FloatVariable(name, p, initialValue.allValues);
+    var makeInfinateFloatVariable = function(name, p){
+        return new FloatVariable(name, p, Interval.allValues);
     }
 
     var makeFloatVariableWithBounds = function(name, p, lower, upper){
-        return makeFloatVariableWithInterval(name, p, new Interval(lower, upper));
+        return new FloatVariable(name, p, new Interval(lower, upper));
     }
 
     var constant = function(p, c){
@@ -34,18 +34,18 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
         },
 
         initializeStartingWidth : function(){
-            this.startingWidth = this.value.startingWidth;
+            this.startingWidth = this.value().startingWidth;
         },
 
         relativeMeasure : function(){
-            return this.value.width / this.startingWidth;
+            return this.value().width / this.startingWidth;
         },
 
         //C# has some compiler problems here.  It's likely we won't have that problems
         //therefore, I'm only implementing the variable<interval> version
         mustEqual : function(v){
             if (v instanceof Variable){
-                v.mustBeContainedIn(this.value);
+                v.mustBeContainedIn(this.value());
                 this._super(v);
             }else if (v.constructor === Number){
                 //This is our final condition-- also Javascript is awesome
@@ -55,7 +55,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
 
         mustBeContainedIn : function(i){
             csp.assertConfigurationPhase();
-            Interval intersection = Interval.intersection(this.value, i);
+            Interval intersection = Interval.intersection(this.value(), i);
             if(intersection.empty()){
                 throw "Argument out of current range of variable";
             }
@@ -63,19 +63,19 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
         },
 
         narrowTo : function(restriction, fail){
-            if(this.value.isUnique()){
-                if(restriction.nearlyContains(this.value, MathUtil.defaultEpsilon)){
+            if(this.value().isUnique()){
+                if(restriction.nearlyContains(this.value(), MathUtil.defaultEpsilon)){
                     return;
                 }else{
                     fail[0] = true;
-                    console.log(this.name + ": " + this.value + " -> Empty          " + restriction);
+                    console.log(this.name + ": " + this.value() + " -> Empty          " + restriction);
                     return;
                 }
             }
 
-            var oldValue = this.value;
-            if(!restriction.contains(this.value)){
-                var newValue = Interval.intersection(this.currentValue.value, restriction);
+            var oldValue = this.value();
+            if(!restriction.contains(this.value())){
+                var newValue = Interval.intersection(this.currentValue.get(), restriction);
                 if(newValue.nearlyUnique()){
                     newValue = new Interval(newValue.midpoint())
                 }
@@ -88,7 +88,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
                 if(newValue.empty()){
                     fail[0] = true;
                 }else{
-                    var propigate = (newValue.width / this.value.width) < 0.99;
+                    var propigate = (newValue.width / this.value().width) < 0.99;
                     this.currentValue.value = newValue;
                     if(propigate){
                         for(var index = 0, len = this.constraints.length, index < len; index++){
@@ -100,7 +100,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
         },
 
         narrowToUnion : function(a, b, fail){
-            this.narrowTo(Interval.unionOfIntersections(this.value, a, b), fail);
+            this.narrowTo(Interval.unionOfIntersections(this.value(), a, b), fail);
         },
 
         narrowToQuotent : function(numerator, denominator, fail){
@@ -147,9 +147,9 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
             }
             var sqrt = new Interval(Math.sqrt(lower), Math.sqrt(upper));
             var restriction;
-            if (this.value.crossesZero()){
-                restriction = Interval.unionOfIntersections(this.value, sqrt, Interval.invert(sqrt));
-            }else if(this.value.upper <= 0){
+            if (this.value().crossesZero()){
+                restriction = Interval.unionOfIntersections(this.value(), sqrt, Interval.invert(sqrt));
+            }else if(this.value().upper <= 0){
                 //current value is strictly negative
                 restriction = Interval.invert(sqrt);
             }else{
@@ -167,7 +167,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
             var fail = [false]; //we need fail to be passed by reference... which means wrapping it in an object.
                                 //TODO: wrap in a null object and not an array to carry less bullshit along for the ride
 
-            var randElement = this.value.randomElement();
+            var randElement = this.value().randomElement();
             this.csp.pushChoice("Guess {0}={1}", this.name, randElement);
             this.narrowTo(new Interval(randomElement), fail);
             //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
@@ -175,34 +175,34 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
 
             //currently interpeting this line as pulling a random number generator as part of the CSP
             if(Math.random() & 1 == 0){
-                this.csp.pushChoice("Lower half {0} to {1}", this.name, this.value.lowerHalf());
-                this.narrowTo(this.value.lowerHalf(), fail);
+                this.csp.pushChoice("Lower half {0} to {1}", this.name, this.value().lowerHalf());
+                this.narrowTo(this.value().lowerHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yeild false;
 
-                this.csp.pushChoice("Upper half {0} to {1}", this.name, this.value.upperHalf());
-                this.narrowTo(this.value.upperHalf(), fail);
+                this.csp.pushChoice("Upper half {0} to {1}", this.name, this.value().upperHalf());
+                this.narrowTo(this.value().upperHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yeild false;
             }else{
                 this.csp.pushChoice("Upper half {0} to {1}", this.name, this.value.upperHalf());
-                this.narrowTo(this.value.upperHalf(), fail);
+                this.narrowTo(this.value().upperHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yeild false;
 
-                this.csp.pushChoice("Lower half {0} to {1}", this.name, this.value.lowerHalf());
-                this.narrowTo(this.value.lowerHalf(), fail);
+                this.csp.pushChoice("Lower half {0} to {1}", this.name, this.value().lowerHalf());
+                this.narrowTo(this.value().lowerHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yeild false;
             }
         },
 
         isUnique : function(){
-            return this.value.isUnique();
+            return this.value().isUnique();
         },
 
         uniqueValue : function(){
-            return this.value.uniqueValue();
+            return this.value().uniqueValue();
         }
     });
 
@@ -214,7 +214,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
 
     function add(a, b){
         var funct = function(){
-            var sum = new FloatVariable("sum", a.csp, a.value + b.value);
+            var sum = new FloatVariable("sum", a.csp, Interval.add(a.value(), b.value()));
             new SumConstraint(sum, a, b);
             return sum;
         };
@@ -224,7 +224,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
 
     function subtract(a, b){
         var funct = function(){
-            var difference = new FloatVariable("difference", a.csp, a.value * b.value);
+            var difference = new FloatVariable("difference", a.csp, Interval.subtract(a.value(), b.value()));
             new DifferenceConstraint(difference, a, b);
             return difference;
         }
@@ -234,7 +234,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
 
     function multiply(a, b){
         var funct = function(){
-            var product = new FloatVariable("product", a.csp, a.value, b.value);
+            var product = new FloatVariable("product", a.csp, Interval.multiply(a.value(), b.value()));
             new ProductConstraint(product, a, b);
             return product;
         }

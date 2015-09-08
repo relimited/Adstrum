@@ -40,9 +40,9 @@ define(["inheritance", "restorable"], function(Inheritance, Restorable){
 
 		value : function(){
 			if(this.forwardingPointer == this){
-				return this.currentValue.value;
+				return this.currentValue.get();
 			}else{
-				return this.canonicalVariable().currentValue.value;
+				return this.canonicalVariable().currentValue.get();
 			}
 		},
 

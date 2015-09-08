@@ -19,21 +19,21 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
 
         propagate : function(fail){
             if(this.narrowedVariable != this.sum){
-                this.sum.narrowTo(this.a.value + this.b.value, fail);
+                this.sum.narrowTo(this.a.value() + this.b.value(), fail);
                 if(fail[0]){
                     return;
                 }
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(this.sum.value - this.b.value, fail);
+                this.a.narrowTo(this.sum.value() - this.b.value(), fail);
                 if(fail[0]){
                     return;
                 }
             }
 
             if(this.narrowedVariable != this.b){
-                this.b.narrowTo(this.sum.value - this.a.value, fail);
+                this.b.narrowTo(this.sum.value() - this.a.value(), fail);
             }
         }
     });
@@ -55,17 +55,17 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
 
         propagate : function(fail){
             if(this.narrowedVariable != this.difference){
-                this.difference.narrowTo(this.a.value - this.b.value, fail);
+                this.difference.narrowTo(this.a.value() - this.b.value(), fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(this.difference.value + this.b.value, fail);
+                this.a.narrowTo(this.difference.value() + this.b.value(), fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.b){
-                this.b.narrowTo(this.difference.value + this.a.value, fail);
+                this.b.narrowTo(this.difference.value() + this.a.value(), fail);
             }
         }
     });
@@ -87,17 +87,17 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
 
         propagate : function(fail){
             if(this.narrowedVariable != this.product){
-                this.product.narrowTo(this.a.value * this.b.value, fail);
+                this.product.narrowTo(this.a.value() * this.b.value(), fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowToQuotent(this.product.value, this.b.value, fail);
+                this.a.narrowToQuotent(this.product.value(), this.b.value(), fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.b){
-                this.b.narrowToQuotent(this.product.value, this.a.value, fail);
+                this.b.narrowToQuotent(this.product.value(), this.a.value(), fail);
             }
         }
     });
@@ -118,12 +118,12 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
 
         propigate : function(fail){
             if(this.narrowedVariable != this.product){
-                this.product.narrowTo(this.a.value * k, fail);
+                this.product.narrowTo(this.a.value() * k, fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(this.prodcuct.value * (1 / k), fail);
+                this.a.narrowTo(this.prodcuct.value() * (1 / k), fail);
             }
         }
     });
@@ -145,17 +145,17 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
 
         propagate : function(fail){
             if(this.narrowedVariable != this.quotient){
-                this.quotient.narrowToQuotient(this.a.value, this.b.value, fail);
+                this.quotient.narrowToQuotient(this.a.value(), this.b.value(), fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(this.quotient.value * this.b.value, fail);
+                this.a.narrowTo(this.quotient.value() * this.b.value(), fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.b){
-                this.b.narrowToQuotient(this.a.value, this.quotient.value, fail);
+                this.b.narrowToQuotient(this.a.value(), this.quotient.value(), fail);
             }
         }
     });
@@ -176,23 +176,23 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
 
         propagate : function(fail){
             if(this.narrowedVariable != this.power){
-                this.power.narrowTo(Math.pow(this.a.value, this.exponent), fail);
+                this.power.narrowTo(Math.pow(this.a.value(), this.exponent), fail);
                 if(fail[0]){ return; };
             }
 
             //We want to repropagate in case this is an even power and we just split on a
-            if((exponent % 2 == 0) && this.a.value.lower < 0){
-                if (this.a.value.upper <= 0){
+            if((exponent % 2 == 0) && this.a.value().lower < 0){
+                if (this.a.value().upper <= 0){
                     //a is non-positive
-                    this.a.narrowTo(Interval.invert(Interval.invPower(power.value, exponent)). fail);
+                    this.a.narrowTo(Interval.invert(Interval.invPower(power.value(), exponent)). fail);
                 }else{
                     // even inverse power of an interval that crosses zero
-                    var bound = Interval.invPower(power.value, exponent).upper;
+                    var bound = Interval.invPower(power.value(), exponent).upper;
                     this.a.narrowTo(new Interval(Interval.invert(bound), bound), fail);
                 }
             }else{
                 //a is already non-negative or exponent is odd (and so function is monotone)
-                this.a.narrowTo(Interval.invPower(this.power.value, this.exponent), fail);
+                this.a.narrowTo(Interval.invPower(this.power.value(), this.exponent), fail);
             }
         }
     });
