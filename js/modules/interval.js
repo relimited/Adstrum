@@ -4,7 +4,7 @@
  */
 define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, SearchHint, MathUtil, CSP){'use strict';
 	var Interval = Class.extend({
-		init : function(lowerBound :Number, upperBound :Number){
+		init : function(lowerBound, upperBound){
 
 			if(lowerBound === Number.NaN){
 				throw{
@@ -55,7 +55,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 			return this.lower > this.upper;
 		},
 
-		contains : function(value :Number){
+		contains : function(value){
 			return this.lower <= value && value <= this.upper;
 		},
 
@@ -88,12 +88,12 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 			return this.lower == 0 && this.upper == 0;
 		},
 
-		contains : function(i :Interval){
+		contains : function(i){
 			//TODO: add type checking on i (interval)
 			return this.lower <= i.lower && i.upper <= this.upper;
 		},
 
-		nearlyContains : function(i :Interval, epsilon :Number){
+		nearlyContains : function(i, epsilon){
 			//TODO type check i (Interval), epsilon (double)
 			return MathUtil.nearlyLE(this.lower, i.lower, epsilon) && MathUtil.nearlyGE(this.upper, i.upper, epsilon);
 		},
@@ -194,7 +194,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	Interval.minPracticalDouble = -Number.MAX_VALUE * 0.5; //javascript is weird
 
 	//special constructors
-	function fromUnsortedBounds(a :Number,b :Number){
+	function fromUnsortedBounds(a, b){
 		 if (a > b){
          	return new Interval(b, a);
          }else{
@@ -204,7 +204,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	}
 	Interval.fromUnsortedBounds = fromUnsortedBounds;
 
-	function singleton(a :Number){
+	function singleton(a){
 		//TODO: add type checking that a is a double
 		return new Interval(a, a);
 	}
@@ -213,16 +213,16 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	/**
 	 * Min helper function
 	 */
-	function min(a :Number, b :Number, c :Number, d :Number){
+	function min(a, b, c, d){
 		return Math.min(Math.min(a, b), Math.min(c, d));
 	}
 
 	//helper max function
-	function max(a :Number,b :Number,c :Number,d :Number){
+	function max(a, b, c, d){
 		return Math.max(Math.max(a, b), Math.max(c, d));
 	}
 
-	function propagatePositiveInfinity(x :Number, otherwise :Number){
+	function propagatePositiveInfinity(x, otherwise){
     	if(x == Number.POSITIVE_INFINITY){
     		return x;
     	}else{
@@ -231,7 +231,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
     }
     Interval.proagatePositiveInfinity = propagatePositiveInfinity;
 
-    function propagateNegativeInfinity(x :Number, otherwise :Number){
+    function propagateNegativeInfinity(x, otherwise){
     	if(x == Number.NEGATIVE_INFINITY){
     		return x;
     	}else{
@@ -240,12 +240,12 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
     }
 	Interval.propagateNegativeInfinity = propagateNegativeInfinity;
 
-	function intersection (a :Interval, b :Interval){
+	function intersection (a, b ){
 		return new Interval(Math.max(a.lower, b.lower), Math.min(a.upper, b.upper));
 	}
 	Interval.intersection = intersection;
 
-	function unionBound (a :Interval, b :Interval){
+	function unionBound (a, b){
 		if (a.empty()){
         	return b;
         }
@@ -259,18 +259,18 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	}
 	Interval.unionBound = unionBound;
 
-	function unionOfIntersections(intersector :Interval, a :Interval,b :Interval){
+	function unionOfIntersections(intersector, a, b){
 		return unionBound(intersection(intersector, a), intersection(intersector, b));
 	}
 
 	//because this is a javascript implementation, we can't redefine operators like Craft can.  Interval.maththing is the syntax to get at that
-	function add(a :Interval,b :Interval){
+	function add(a, b ){
 		//TODO: type check on intersector, a and b (interval)
 		return new Interval(a.lower + b.lower, a.upper + b.upper);
 	}
 	Interval.add = add;
 
-	function subtract(a :Interval,b :Interval){
+	function subtract(a, b){
 		//TODO: type check on intersector, a and b (interval)
 		return new Interval(
         	propagateNegativeInfinity(alLower, a.lower - b.upper),
@@ -282,13 +282,13 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	 * Additive Inverse of A
  	 * @param {Interval} a
 	 */
-	function invert(a :Interval){
+	function invert(a){
 		//TODO: type check on a (interval)
 		return new Interval(-a.lower, -a.upper);
 	}
 	Interval.invert = invert;
 
-	function multiply(a :Interval,b :Interval){
+	function multiply(a, b){
 		//TODO: type check on intersector, a and b (interval)
 		return new Interval(
                	min(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower),
@@ -301,7 +301,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
  	 * @param {Interval} a the interval to multiply by K
  	 * @param {Object} k constant to multiply to a
 	 */
-	function multiplyIntervalByConstant(a :Interval,k :Number){
+	function multiplyIntervalByConstant(a, k){
 		 return new Interval(
                 Math.min(a.lower * k, a.upper * k),
                 Math.max(a.lower * k, a.upper * k));
@@ -312,7 +312,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
  	 * @param {Object} k
  	 * @param {Object} a
 	 */
-	function multiplyConstantByInterval(k :Number,a :Interval){
+	function multiplyConstantByInterval(k, a){
 		return multiplyIntervalByConsant(a,k);
 	}
 	Interval.multiplyConstantByInterval = multiplyConstantByInterval;
@@ -321,7 +321,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
  	 * @param {Interval} a operand?
  	 * @param {Interval} b dividend?
 	 */
-	function divide(a :Interval,b :Interval){
+	function divide(a, b){
 		//TODO: type check on intersector, a and b (interval)
 		//ReShaper comments here, which may mean I need to do something....
 		if(b.lower == 0){
@@ -343,7 +343,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	}
 	Interval.divide = divide;
 
-	function pow(a :Interval, exponent :Number){
+	function pow(a, exponent){
 		//TODO: type check on intersector, a (interval) and b (integer... this is actually important)
 		switch(exponent){
 			case 0:
@@ -380,12 +380,12 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
  	 * @param {Object} number
  	 * @param {Object} exponent
 	 */
-	function negativeTolerantPower(number :Number, exponent :Number){
+	function negativeTolerantPower(number, exponent){
 		//TODO: Math.sign DNE in Javascript
 		return Math.sign(number) * Math.pow(Math.abs(number), exponent);
 	}
 
-	function invPower(a :Interval, exponent :Number){
+	function invPower(a, exponent){
 		//TODO: type check on intersector, a (interval) and b (integer... this is actually important)
 		if(exponent == 1){
 			return a;
@@ -405,7 +405,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	}
 	Interval.invPower = invPower;
 
-	function positiveSqrt(a :Interval){
+	function positiveSqrt(a){
 		//TODO: type check on intersector, a (interval)
 		if(a.lower <= 0){
 			throw {
@@ -417,13 +417,13 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	Interval.positiveSqrt = positiveSqrt;
 
 	//A little awkward, but Interval.equals is eaten in the class definition :(
-	function equalOp(a :Interval, b :Interval){
+	function equalOp(a, b){
 		//reshaper comments
 		return a.lower == b.lower && a.upper == b.upper;
 	}
 	Interval.equalOp = equalOp;
 
-	function notEqualOp(a :Interval,b :Interval){
+	function notEqualOp(a, b){
 		//reshaper comments
 		return a.lower != b.lower || a.upper != b.upper;
 	}
