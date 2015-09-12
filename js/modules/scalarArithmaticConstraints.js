@@ -1,7 +1,7 @@
 /**
 *Scalar constraints for the CSP
 */
-define(['inheritance', 'constraint'], function(Inheritance, Constraint){
+define(['inheritance', 'js/modules/constraint', 'js/modules/Interval'], function(Inheritance, Constraint, Interval){
     var constraints = {};
     var SumConstraint = Constraint.extend({
         init : function(sum, a, b){
@@ -19,21 +19,21 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
 
         propagate : function(fail){
             if(this.narrowedVariable != this.sum){
-                this.sum.narrowTo(this.a.value() + this.b.value(), fail);
+                this.sum.narrowTo(Interval.add(this.a.value(), this.b.value()), fail);
                 if(fail[0]){
                     return;
                 }
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(this.sum.value() - this.b.value(), fail);
+                this.a.narrowTo(Interval.subtract(this.sum.value(), this.b.value()), fail);
                 if(fail[0]){
                     return;
                 }
             }
 
             if(this.narrowedVariable != this.b){
-                this.b.narrowTo(this.sum.value() - this.a.value(), fail);
+                this.b.narrowTo(Interval.subtract(this.sum.value(), this.a.value()), fail);
             }
         }
     });
@@ -55,23 +55,23 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
 
         propagate : function(fail){
             if(this.narrowedVariable != this.difference){
-                this.difference.narrowTo(this.a.value() - this.b.value(), fail);
+                this.difference.narrowTo(Interval.subtract(this.a.value(), this.b.value()), fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(this.difference.value() + this.b.value(), fail);
+                this.a.narrowTo(Interval.add(this.difference.value(), this.b.value()), fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.b){
-                this.b.narrowTo(this.difference.value() + this.a.value(), fail);
+                this.b.narrowTo(Interval.add(this.difference.value(), this.a.value()), fail);
             }
         }
     });
-    constraints.differneceConstraint = DifferenceConstraint;
+    constraints.DifferenceConstraint = DifferenceConstraint;
 
-    var productConstraint = Constraint.extend({
+    var ProductConstraint = Constraint.extend({
         init : function(product, a, b){
             this._super(product.csp);
             this.product = product;
@@ -87,7 +87,7 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
 
         propagate : function(fail){
             if(this.narrowedVariable != this.product){
-                this.product.narrowTo(this.a.value() * this.b.value(), fail);
+                this.product.narrowTo(Interval.multiply(this.a.value(), this.b.value()), fail);
                 if(fail[0]){ return; };
             }
 
@@ -116,14 +116,14 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
             this.a = this.registerCanonical(this.a);
         },
 
-        propigate : function(fail){
+        propagate : function(fail){
             if(this.narrowedVariable != this.product){
-                this.product.narrowTo(this.a.value() * k, fail);
+                this.product.narrowTo(Interval.multiplyIntervalByConstant(this.a.value(), k), fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(this.prodcuct.value() * (1 / k), fail);
+                this.a.narrowTo(Interval.multiplyIntervalByConstant(this.prodcuct.value(), (1 / k)), fail);
             }
         }
     });
@@ -150,7 +150,7 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(this.quotient.value() * this.b.value(), fail);
+                this.a.narrowTo(Interval.multiply(this.quotient.value(), this.b.value()), fail);
                 if(fail[0]){ return; };
             }
 
@@ -159,9 +159,9 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
             }
         }
     });
-    constraints.QuotientConstraint = QuotientConstraint;
+    constraints.QuotientConstraint = QuoitentConstraint;
 
-    var PowerConstraint = Constriant.extend({
+    var PowerConstraint = Constraint.extend({
         init : function(power, a, exponent){
             this._super(power.csp);
             this.power = power;
@@ -176,19 +176,19 @@ define(['inheritance', 'constraint'], function(Inheritance, Constraint){
 
         propagate : function(fail){
             if(this.narrowedVariable != this.power){
-                this.power.narrowTo(Math.pow(this.a.value(), this.exponent), fail);
+                this.power.narrowTo(Interval.pow(this.a.value(), this.exponent), fail);
                 if(fail[0]){ return; };
             }
 
             //We want to repropagate in case this is an even power and we just split on a
-            if((exponent % 2 == 0) && this.a.value().lower < 0){
+            if((this.exponent % 2 == 0) && this.a.value().lower < 0){
                 if (this.a.value().upper <= 0){
                     //a is non-positive
-                    this.a.narrowTo(Interval.invert(Interval.invPower(power.value(), exponent)). fail);
+                    this.a.narrowTo(Interval.invert(Interval.invPower(this.power.value(), this.exponent)). fail);
                 }else{
                     // even inverse power of an interval that crosses zero
-                    var bound = Interval.invPower(power.value(), exponent).upper;
-                    this.a.narrowTo(new Interval(Interval.invert(bound), bound), fail);
+                    var bound = Interval.invPower(this.power.value(), this.exponent).upper;
+                    this.a.narrowTo(new Interval(-bound, bound), fail);
                 }
             }else{
                 //a is already non-negative or exponent is odd (and so function is monotone)

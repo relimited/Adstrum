@@ -11,4 +11,5 @@ define(["inhertiance"], function(Inheritance){
 			//TODO: add in checking to make sure x,y and z are Interval objects
 		}
 	});
+	return BoundingBox;
 });

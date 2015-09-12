@@ -1,21 +1,25 @@
 /**
  * Implementation of a memory table in Javascript
  */
-define(["inheritance", "../shared/dictionary"], function(Inheritance, Dictionary){
+define(["inheritance", "../shared/dictionary"], function(Inheritance, Dictionary){'use strict';
 
 
   //Defining an 'inner class' here-- tuple isn't returned from this chunk, so it's only visible to the MemoTable.
   var Tuple = Class.extend({
-    init : function(arguments){
-      this.data = arguments;
+    init : function(args){
+        var compiled = []
+        for (var i = 0; i < args.length; i++){
+            compiled.push(args[i])
+        }
+        this.data = compiled;
     },
 
     equals : function(t){
       if(t == null || t.data.length != this.data.length){
         return false;
       }else{
-        for(index = 0, len = t.data.length; index < len; ++index){
-          if(!t.data[index].equals(this.data[i])){
+        for(var index = 0, len = t.data.length; index < len; ++index){
+          if(!(t.data[index] == this.data[index])){         //yes, this means that it won't work for objects.  I get it.
             return false;
           }
         }
@@ -33,23 +37,24 @@ define(["inheritance", "../shared/dictionary"], function(Inheritance, Dictionary
 
   var MemoTable = Class.extend({
     init : function(){
-      this.cache = new Dictionary(true);
+      this.cache = {};
     },
 
-    memorize : function(functionName, funct, arguments){
-      var tuple = new Tuple(arguments);
-      var table = this.cache.get(functionName);
+    memorize : function(functionName, funct, args){
+      var tuple = new Tuple(args);
+      var table = this.cache[functionName];
       if(table){
-        var memorizedValue = table.get(tuple);
-        if(memorizedValue){
-          return memorizedValue;
-        }
+          var memorizedValue = table.get(tuple);
+          if(memorizedValue){
+              return memorizedValue;
+          }
       }else{
-        table = new Dictionary(true);
-        this.cache.put(functionName, table);
-        table.put(tuple, funct);
-        return funct;
+          table = new Dictionary();
+          this.cache[functionName] = table;
       }
+      memorizedValue = funct();
+      table.put(tuple, memorizedValue);
+      return memorizedValue;
     }
   });
 

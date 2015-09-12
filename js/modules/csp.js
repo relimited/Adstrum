@@ -2,21 +2,18 @@
  * Hold on to your butts, I'm writing a constraint solver in JavaScript.
  * I know.
  */
-define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
+define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function(Inheritance, UndoStack, MemoTable){'use strict';
 	//hidden helper methods go hereish
 	function strFormat(string, args){
-    return string.replace(/{(\d+)}/g, function(match, number) {
-      return typeof args[number] != 'undefined'
-        ? args[number]
-        : match
-      ;
-    });
-	}
+    	return string.replace(/{(\d+)}/g, function(match, number) {
+      		return typeof args[number] != 'undefined'
+        		? args[number]
+        		: match
+      		;
+    	});
+	};
 
-	function randomInteger(low, high){
-		return (Math.random() % (high - low)) + low; //does this even?
-	}
-	var CSP = Class.extend({
+	var csp = Class.extend({
 		init : function(){
 			this.configurationPhase = true;
 			this.variables = [];
@@ -53,44 +50,45 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
           		this.clearPendingQueue();
           		//trying to eke out speed wherever we can, see
           		//http://stackoverflow.com/questions/9329446/for-each-over-an-array-in-javascript
-          		for (index = 0, len = this.constraints.length; index < len; ++index){
-          			this.pending.push(c);
+          		for (var index = 0, len = this.constraints.length; index < len; ++index){
+          			this.pending.push(this.constraints[index]);
           		}
 
-          		var fail = false;
+          		var fail = [false];
           		this.makeConsistent(fail);
-
-          		if (fail){
-          			throw new Exception("Initial configuration is unsatisfiable.");
+          		if (fail[0]){
+          			throw "Initial configuration is unsatisfiable.";
         		}
 
           		//trying to eke out speed wherever we can, see
           		//http://stackoverflow.com/questions/9329446/for-each-over-an-array-in-javascript
-          		for(index = 0, len = this.canonicalVariables.length; index < len; ++index){
+          		for(var index = 0, len = this.canonicalVariables.length; index < len; ++index){
           			this.canonicalVariables[index].initializeStartingWidth();
           		}
 
 				var solutionGen = this.solutions();
-          		if (!solutionGen.next().value){
-          			throw new Exception("No solution found");
+          		if (solutionGen.next().done){
+          			throw "No solution found";
           		}
 			}catch (e){
       			var retMsg = [];
-        		for(index = 0, len = choiceStack.length; index < len; ++index){
-        			retMsg.push(choiceStack[index]);
+        		for(var index = 0, len = this.choiceStack.length; index < len; ++index){
+        			retMsg.push(this.choiceStack[index]);
           			retMsg.push("\n");
         		}
-        		throw new Exception(retMsg.join(""), e);
+				retMsg.push(e);
+        		throw retMsg.join("");
     		}
 		},
 
 		solutions : function*(){
 			if (this.choiceStack.length > 200){
-      			throw new Exception("Size is too big for Craft to handle!");
+      			throw "Size is too big for Craft to handle!";
 			}
 
-      		if (this.solverSteps++ > MaxSteps){
-        		throw new Exception("The Craft solver ran for too many steps");
+			this.solverSteps = this.solverSteps + 1;
+      		if (this.solverSteps > this.maxSteps){
+        		throw "The Craft solver ran for too many steps";
 			}
 
 			/* DEBUG CODE
@@ -108,13 +106,14 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 				//#pragma warning disable 168
         		// ReSharper disable UnusedVariable
 				//this may need to be changed
-				for(index = 0, len = v.tryNarrowing().length; index < len; ++index){
+				var ignore;
+				while(!(v.tryNarrowing().next().done)){
 					//#pragma warning restore 168
-        			var fail = false;
+        			var fail = [false];
           			this.makeConsistent(fail);
-          			if (!fail){
+          			if (!fail[0]){
 						//#pragma warning disable 168
-						for (let ignore2 of this.solutions()) {
+						while (!(this.solutions().next().done)) {
 							// ReSharper restore UnusedVariable
 							//#pragma warning restore 168
 							yield false;
@@ -140,18 +139,18 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 			*/
 		},
 
-		choseVariable : function(){
+		chooseVariable : function(){
 			//there is a conditional compilation step here.  Javascript doesn't do that noise, so fuck em.
 			//This is the randomized variable choice option
 			this.nonUniqueVariables.length = 0; //if I can ensure that nothing else will reference this, setting it equal to [] is faster
-			for(index = 0, len = this.canonicalVariables.length; index < len; ++index){
+			for(var index = 0, len = this.canonicalVariables.length; index < len; ++index){
 				if(!this.canonicalVariables[index].isUnique()){
 					this.nonUniqueVariables.push(this.canonicalVariables[index]);
 				}
 			}
 			if(this.nonUniqueVariables.length > 0){
 				//probably want to not have a random number function as a property of this object
-				return this.nonUniqueVariables(this.randomInteger(0, this.nonUniqueVariables.length));
+				return this.nonUniqueVariables[Math.floor(Math.random()*this.nonUniqueVariables.length)];
 			}else{
 				return null;
 			}
@@ -172,15 +171,15 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 		},
 
 		testConsistency : function(){
-	  	this.startSolutionPhase();
-	    this.pending.length = 0; //USUAL LINES ABOUT CLEARING ARRAYS
-			for(index = 0, len = this.constraints.length; index < len; ++index){
+	  		this.startSolutionPhase();
+	    	this.pending.length = 0; //USUAL LINES ABOUT CLEARING ARRAYS
+			for(var index = 0, len = this.constraints.length; index < len; ++index){
 				this.pending.push(this.constraints[index]);
 			}
-			var fail = false;
+			var fail = [false];
 			this.makeConsistent(fail);
-			if(fail){
-				throw new Exception("No solution");
+			if(fail[0]){
+				throw "No solution";
 			}
 		},
 
@@ -190,10 +189,10 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 				constraint.queued = false;
 				this.currentConstraint = constraint;
 
-				console.log("Propigate " + constraint);
-				constraint.propigate(fail);
-				currentConstraint = null;
-				if(fail){
+				console.log("Propagate " + constraint);
+				constraint.propagate(fail);
+				this.currentConstraint = null;
+				if(fail[0]){
 					this.clearPendingQueue();
 					return; //not entirely sure why this is here, Ian.
 				}
@@ -204,17 +203,24 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 			return this.currentConstraint == c;
 		},
 
-		queuedConstraint : function(c){
+		queueConstraint : function(c){
 			this.pending.push(c);
 		},
 
+		clearPendingQueue : function(){
+			this.currentConstraint = null;
+			while(this.pending.length > 0){
+				this.pending.shift();
+				this.pending[0].queued = false;
+			}
+		},
 		//Ian does some weird C# magic here.
 
 		startSolutionPhase : function(){
 			if(this.configurationPhase){
 				this.configurationPhase = false;
 
-				for(index = 0, len = this.constraints.length; index < len; ++index){
+				for(var index = 0, len = this.constraints.length; index < len; ++index){
 					this.constraints[index].canonicalizeVariables();
 				}
 
@@ -229,20 +235,20 @@ define(["inheritance", "undoStack"], function(Inheritance, UndoStack){
 		//Some asserts to throw errors if we're not in the correct phase for the stunt
 		assertConfigurationPhase : function(){
 			if(!this.configurationPhase){
-				throw new Exception("Operation can only be performed before solving.");
+				throw "Operation can only be performed before solving.";
 			}
 		},
 
 		assertSolvingPhase : function(){
 			if(this.configurationPhase){
-				throw new Exception("Operation can only be performed during solving.");
+				throw "Operation can only be performed during solving.";
 			}
 		},
 
-		memorize : function(functionName, function, arguments){
-			return this.memoTable.memorize(fucntionName, functoin, arguments);
+		memorize : function(functionName, func, args){
+			return this.memoTable.memorize(functionName, func, args);
 		}
 	});
 
-	return CSP;
+	return csp;
 });

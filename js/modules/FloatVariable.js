@@ -2,10 +2,10 @@
 *A floating point variable in Craft-Speak
 */
 
-define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticConstraints'], function(Inheritance, Variable, Interval, MathUtil, ScalarArithmaticConstraints){
+define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules/mathUtil', 'js/modules/scalarArithmaticConstraints'], function(Inheritance, Variable, Interval, MathUtil, ScalarArithmaticConstraints){
     //split the arithmetic constraints into something useable.
     SumConstraint = ScalarArithmaticConstraints.SumConstraint;
-    DifferneceConstraint = ScalarArithmaticConstraints.DifferenceConstraint;
+    DifferenceConstraint = ScalarArithmaticConstraints.DifferenceConstraint;
     ProductConstraint = ScalarArithmaticConstraints.ProductConstraint;
     ConstantProductConstraint = ScalarArithmaticConstraints.ConstantProductConstraint;
     QuotientConstraint = ScalarArithmaticConstraints.QuotientConstraint;
@@ -30,7 +30,6 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
             this._super(name, p, p.intervalUndoStack, initialValue);
 
             this.startingWidth = 0;
-
         },
 
         initializeStartingWidth : function(){
@@ -38,7 +37,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
         },
 
         relativeMeasure : function(){
-            return this.value().width / this.startingWidth;
+            return this.value().width() / this.startingWidth;
         },
 
         //C# has some compiler problems here.  It's likely we won't have that problems
@@ -49,13 +48,13 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
                 this._super(v);
             }else if (v.constructor === Number){
                 //This is our final condition-- also Javascript is awesome
-                this.mustBeContainedIn(new Interval(v))
+                this.mustBeContainedIn(new Interval(v, v))
             }
         },
 
         mustBeContainedIn : function(i){
-            csp.assertConfigurationPhase();
-            Interval intersection = Interval.intersection(this.value(), i);
+            this.csp.assertConfigurationPhase();
+            intersection = Interval.intersection(this.value(), i);
             if(intersection.empty()){
                 throw "Argument out of current range of variable";
             }
@@ -77,21 +76,22 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
             if(!restriction.contains(this.value())){
                 var newValue = Interval.intersection(this.currentValue.get(), restriction);
                 if(newValue.nearlyUnique()){
-                    newValue = new Interval(newValue.midpoint())
+                    var mid = newValue.midpoint();
+                    newValue = new Interval(mid, mid);
                 }
 
                 //some stuff with search hints here.  Because conditional compilation is not my lyfe, I'm not putting it in
 
                 console.log(this.name + ": " + oldValue + " -> " + newValue + "         " + restriction +
-                                ", narrowed by " + (100 * (1-newValue.width/oldValue.width)));
+                                ", narrowed by " + (100 * (1-newValue.width() /oldValue.width())));
 
                 if(newValue.empty()){
                     fail[0] = true;
                 }else{
-                    var propigate = (newValue.width / this.value().width) < 0.99;
-                    this.currentValue.value = newValue;
-                    if(propigate){
-                        for(var index = 0, len = this.constraints.length, index < len; index++){
+                    var propagate = (newValue.width() / this.value().width()) < 0.99;
+                    this.currentValue.set(newValue);
+                    if(propagate){
+                        for(var index = 0, len = this.constraints.length; index < len; index++){
                             this.constraints[index].queuePropigation(this);
                         }
                     }
@@ -169,31 +169,31 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
 
             var randElement = this.value().randomElement();
             this.csp.pushChoice("Guess {0}={1}", this.name, randElement);
-            this.narrowTo(new Interval(randomElement), fail);
+            this.narrowTo(new Interval(randElement, randElement), fail);
             //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
-            yeild false;
+            yield false;
 
             //currently interpeting this line as pulling a random number generator as part of the CSP
             if(Math.random() & 1 == 0){
                 this.csp.pushChoice("Lower half {0} to {1}", this.name, this.value().lowerHalf());
                 this.narrowTo(this.value().lowerHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
-                yeild false;
+                yield false;
 
                 this.csp.pushChoice("Upper half {0} to {1}", this.name, this.value().upperHalf());
                 this.narrowTo(this.value().upperHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
-                yeild false;
+                return false;
             }else{
                 this.csp.pushChoice("Upper half {0} to {1}", this.name, this.value.upperHalf());
                 this.narrowTo(this.value().upperHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
-                yeild false;
+                yield false;
 
                 this.csp.pushChoice("Lower half {0} to {1}", this.name, this.value().lowerHalf());
                 this.narrowTo(this.value().lowerHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
-                yeild false;
+                return false;
             }
         },
 
@@ -218,7 +218,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
             new SumConstraint(sum, a, b);
             return sum;
         };
-        return this.csp.memorize("+", funct, a, b);
+        return a.csp.memorize("+", funct, [a, b]);
     }
     FloatVariable.add = add;
 
@@ -228,7 +228,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
             new DifferenceConstraint(difference, a, b);
             return difference;
         }
-        return this.csp.memorize("-", funct, a, b);
+        return a.csp.memorize("-", funct, [a, b]);
     }
     FloatVariable.subtract = subtract;
 
@@ -238,39 +238,44 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
             new ProductConstraint(product, a, b);
             return product;
         }
-        return this.csp.memorize("*", funct, a, b);
+        return a.csp.memorize("*", funct, [a, b]);
     }
     FloatVariable.multiply = multiply;
 
     function multiplyIntervalByConsant(k, a){
         var funct = function(){
-            var product = new FloatVariable("product", a.csp, k * a.value);
+            var product = new FloatVariable("product", a.csp, Interval.multiplyIntervalByConsant(a.value(), k));
             new ConstantProductConstraint(product, a, k);
             return product;
         }
-        return this.csp.memorize("*", funct, k, a);
+        return a.csp.memorize("*", funct, [a, k]);
     }
     FloatVariable.multiplyIntervalByConsant = multiplyIntervalByConsant;
 
     function divide(a, b){
         var funct = function(){
-            var quotent = new FloatVariable("quotient", a.csp, a.value / b.value);
+            var quotient = new FloatVariable("quotient", a.csp, Interval.divide(a.value(), b.value()));
             new QuotientConstraint(quotient, a, b);
             return quotient;
         }
-        return this.csp.memorize("/", funct, a, b);
+        return a.csp.memorize("/", funct, [a, b]);
     }
     FloatVariable.divide = divide;
 
     function pow(a, exponent){
         var funct = function(){
-            var power = new FloatVariable("power", a.csp, Math.pow(a.value, exponent));
+            var power = new FloatVariable("power", a.csp, Interval.pow(a.value(), exponent));
             new PowerConstraint(power, a, exponent);
             return power;
         }
-        return this.csp.memorize("^", funct, a, exponent);
+        return a.csp.memorize("^", funct, [a, exponent]);
     }
     FloatVariable.pow = pow;
+
+    //append static constructors.
+    FloatVariable.makeInfinateFloatVariable = makeInfinateFloatVariable;
+    FloatVariable.makeFloatVariableWithBounds =  makeFloatVariableWithBounds;
+    FloatVariable.constant = constant;
 
     return FloatVariable;
 });

@@ -1,6 +1,6 @@
 //Testing framework for intervals and interval arithmatic and such
 
-define(['inheritance', 'jasmine', '../modules/interval'], function(Inheritance, Jasmine, Interval){
+define(['inheritance', '../modules/interval'], function(Inheritance, Interval){
     describe("Testing Intervals", function(){
         it("Testing Empty Intervals", function(){
                 expect(new Interval(1, -1).empty()).toBe(true)
@@ -34,7 +34,7 @@ define(['inheritance', 'jasmine', '../modules/interval'], function(Inheritance, 
             expect(new Interval(1, 2).equals(Interval.intersection(new Interval(1, 2), new Interval(1, 3)))).toBe(true);
             expect(new Interval(1, 2).equals(Interval.intersection(new Interval(1, 2), new Interval(0, 2)))).toBe(true);
             expect(new Interval(2, 2).equals(Interval.intersection(new Interval(1, 2), new Interval(2, 4)))).toBe(true);
-            expect(Interval.intersection(new Interval(1, 2), new Interval(3, 4).empty())).toBe(true);
+            expect(Interval.intersection(new Interval(1, 2), new Interval(3, 4)).empty()).toBe(true);
         });
 
         it("Union Tests", function(){
@@ -91,4 +91,4 @@ define(['inheritance', 'jasmine', '../modules/interval'], function(Inheritance, 
             expect(new Interval(2, 3).equals(Interval.positiveSqrt(new Interval(4,9)))).toBe(true)
         });
     });
-}
+});

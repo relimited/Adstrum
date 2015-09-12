@@ -3,25 +3,31 @@
 require.config({
     paths : {
         'inheritance' : 'js/vendor/inheritance',
-        'jasmine-src' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine.js',
-        'jasmine-html' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine-html.js',
-        'jasmine-boot' : 'js/vendor/jasmine/lib/jasmine-2.3.4/boot.js'
+        'jasmine-src' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine',
+        'jasmine-html' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine-html',
+        'jasmine-boot' : 'js/vendor/jasmine/lib/jasmine-2.3.4/boot'
     },
-    shim : {
-        'jasmine' : {
-            deps: ['jasmine-src', 'jasmine-html', 'jasmine-boot'],
-            exports : 'Jasmine'
+    shim: {
+        'jasmine-html': {
+            deps : ['jasmine-src']
+        },
+        'jasmine-boot': {
+            deps : ['jasmine-src', 'jasmine-html']
         }
-    }
+  }
 });
 
-require(["./js/test/canonicalizationTests.js", "./js/test/intervalTests.js", "./js/test/restorableTests.js", "./js/test/scalarArithmeticTests.js"], function(CanonicalizationTests, IntervalTests, RestorableTests, ScalarArithmeticTests){'use strict';
-	//TODO: preprocessing goes here
+//bootstrap Jasmine
+require(['jasmine-boot'], function () {
+    require(["./js/test/canonicalizationTests.js", "./js/test/intervalTests.js", "./js/test/restorableTests.js", "./js/test/scalarArithmeticTests.js"], function(CanonicalizationTests, IntervalTests, RestorableTests, ScalarArithmeticTests){'use strict';
+        //TODO: preprocessing goes here
 
-	//CanonicalizationTests.runTests();
-    //IntervalTests.runTests();
-    //RestorableTests.runTests();
-    //ScalarArithmeticTests.runTests();
+        window.onload();
+        //CanonicalizationTests.runTests();
+        //IntervalTests.runTests();
+        //RestorableTests.runTests();
+        //ScalarArithmeticTests.runTests();
 
-	//TODO: postprocessing goes here
+        //TODO: postprocessing goes here
+    });
 });

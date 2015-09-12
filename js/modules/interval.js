@@ -2,7 +2,7 @@
  * Javascript implemtation of the Interval class from Craft
  * @flow
  */
-define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, SearchHint, MathUtil, CSP){'use strict';
+define(["inheritance", "js/modules/searchHint", "js/modules/mathUtil", "js/modules/csp"], function(Inheritance, SearchHint, MathUtil, CSP){'use strict';
 	var Interval = Class.extend({
 		init : function(lowerBound, upperBound){
 
@@ -56,7 +56,11 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		},
 
 		contains : function(value){
-			return this.lower <= value && value <= this.upper;
+			if (value instanceof Interval){
+				return this.lower <= value.lower && value.upper <= this.upper;
+			}else{
+				return this.lower <= value && value <= this.upper;
+			}
 		},
 
 		containsZero : function(){
@@ -88,11 +92,6 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 			return this.lower == 0 && this.upper == 0;
 		},
 
-		contains : function(i){
-			//TODO: add type checking on i (interval)
-			return this.lower <= i.lower && i.upper <= this.upper;
-		},
-
 		nearlyContains : function(i, epsilon){
 			//TODO type check i (Interval), epsilon (double)
 			return MathUtil.nearlyLE(this.lower, i.lower, epsilon) && MathUtil.nearlyGE(this.upper, i.upper, epsilon);
@@ -103,7 +102,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
             var range = (this.practicalUpper() - realLower);
             //TODO: assert not NaN and not positive infinity
 
-            var randomElement = realLower + (CSP.Random.NextDouble() * range);
+            var randomElement = realLower + (Math.random() * range);
             //TODO: assert not positive infinity and not negative infinity
 
             return randomElement;
@@ -182,11 +181,10 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 				return "[" + this.lower + ", " + this.upper + "]";
 			}
 		},
-		/*
+
 		nearlyUnique : function(){
 			return !this.empty() && MathUtil.nearlyEqual(this.lower, this.upper, MathUtil.defaultEpsilon);
 		}
-		*/
 	});
 	//static constants
 	Interval.allValues = new Interval(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY);
@@ -273,7 +271,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	function subtract(a, b){
 		//TODO: type check on intersector, a and b (interval)
 		return new Interval(
-        	propagateNegativeInfinity(alLower, a.lower - b.upper),
+        	propagateNegativeInfinity(a.lower, a.lower - b.upper),
             propagatePositiveInfinity(a.upper, a.upper - b.lower));
 	}
 	Interval.subtract = subtract;
@@ -328,7 +326,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 			if(b.upper == 0){
 				return Interval.allValues;
 			}else{
-				return new Interval(Math.Min(a.upper / b.upper, a.lower / b.upper), Number.POSITIVE_INFINITY);
+				return new Interval(Math.min(a.upper / b.upper, a.lower / b.upper), Number.POSITIVE_INFINITY);
 			}
 		}else if(b.upper == 0){
 			//ReShaper comment here
@@ -360,7 +358,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 					}else if(a.upper < 0){
 						return new Interval(Math.pow(a.upper, exponent), Math.pow(a.lower, exponent));
 					}else{
-						new Interval(
+						return new Interval(
                             0,
                             Math.max(Math.pow(a.upper, exponent), Math.pow(a.lower, exponent))
                             );

@@ -7,16 +7,32 @@ define(["inheritance"], function(Inheritance){
 
   //private inner structure.  Using a constructor to give initial values to things
   var StackBlock = function(vari){
-    oldFrame : vari.lastSaveFrame,
-    savedValue : vari.realValue,
-    variable : vari
+    this.oldFrame = vari.lastSaveFrame;
+    this.savedValue = vari.realValue;
+    this.variable = vari;
   }
 
   var UndoStack = Class.extend({
     init : function(vari){
       this.undoDataStack = []; //This needs to be of type StackBlock (these elements are stack blocks)
-      this.undoStackPointer;
-      this.framePointer;
+      this.undoStackPointer = 0;
+      this.framePointer = 0;
+    },
+
+    markStack : function(){
+        this.framePointer = this.undoStackPointer;
+        return this.framePointer;
+    },
+
+    restore : function(frame){
+        while(this.undoStackPointer > frame){
+            this.undoStackPointer = this.undoStackPointer - 1;
+            var popped = this.undoDataStack[this.undoStackPointer];
+            var v = popped.variable;
+            v.realValue = popped.savedValue;
+            v.lastSaveFrame = popped.oldFrame;
+        }
+        this.framePointer = frame;
     },
 
     //this really needs to be private
@@ -27,11 +43,13 @@ define(["inheritance"], function(Inheritance){
 
     maybeSave : function(rest){
       if(rest.lastSaveFrame != this.framePointer){
-        consoe.log("Save " + this.undoStackPointer + " <- " + rest.realValue);
+        console.log("Save " + this.undoStackPointer + " <- " + rest.realValue);
         this.undoDataStack[this.undoStackPointer] = new StackBlock(rest);
         this.undoStackPointer = this.undoStackPointer + 1;
         rest.lastSaveFrame = this.framePointer;
       }
     }
   });
+
+  return UndoStack;
 });

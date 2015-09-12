@@ -5,21 +5,35 @@
 * as keys
 */
 
-define([], {
+define(function(){
 var dict = function Dictionary(overwrite){
 	this.overwrite = overwrite === true;
 	var __k = [];
 	var __v = [];
 
+	findKey = function(key){
+		if (key.__proto__.hasOwnProperty('equals')){
+			for(var i = 0; i < __k.length; i++){
+				if(key.equals(__k[i])){
+					return i;
+				}
+			}
+			return -1;
+		}else{
+			return __k.indexOf(key)
+		}
+	}
+
 	this.put = function(key, value){
-		if(!this.overwrite || __k.indexOf(key) === -1){
+		idx = findKey(key);
+		if(!this.overwrite || idx === -1){
 			__k.push(key);
 			__v.push(value);
 		}
 	};
 
 	this.get = function(key){
-        var idx=__k.indexOf(key);
+        var idx = findKey(key);
 		if(idx >= 0){
             return __v[idx];
 		}

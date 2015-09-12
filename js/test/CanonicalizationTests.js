@@ -2,46 +2,56 @@
 * tests for veriable canonicalization.
 * canonicalization is a silly word
 */
-define(['inheritance', 'jasmine', '../modules/memoTable', '../modules/csp', '../modules/FloatVariable'], function(Inheritance, Jasmine, CSP, FloatVariable){
+define(['inheritance', '../modules/memoTable', '../modules/csp', '../modules/FloatVariable', '../modules/mathUtil'], function(Inheritance, MemoTable, CSP, FloatVariable, MathUtil){
     describe("Testing out variable canonicalization", function(){
         it("Caching Test", function(){
+            console.log("======================================");
+            console.log("Caching Test");
+            console.log("======================================");
             var i = 0;
-            var f = function(){};
+            var f = function(){return i + 1};
             var t = new MemoTable();
-
-            expect(t.memorize("x", f, 1).equals(t.memorize("x", f, 1))).toBe(true)
-            expect(t.memorize("x", f, 1).equals(t.memorize("x", f, 2))).toBe(false)
+            expect(t.memorize("x", f, [1]) == t.memorize("x", f, [1])).toBe(true)
+            i=i+1;
+            expect(t.memorize("x", f, [1]) == t.memorize("x", f, [2])).toBe(false)
         })
 
         it("Equality Constraint Test 1", function(){
-            var p = new CSP()
-            var a = new FloatVariable("a", p, 0, 1);
-            var b = new FloatVariable("b", p, 0, 1);
-            var c = new FloatVariable("c", p);
+            console.log("======================================");
+            console.log("Equality Constraint Test 1");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
+            var c = FloatVariable.makeInfinateFloatVariable("c", p);
+
             c.mustEqual(b);
             var sum = FloatVariable.add(a, b);
             sum.mustEqual(1);
 
             for(var i = 0; i < 10; i++){
                 p.newSolution();
-                expect(MathUtil.nearlyEqual(sum.uniqueValue, (a.uniqueValue + b.uniqueValue))).toBe(true);
-                expect(c.value == b.value).toBe(true);
+                expect(MathUtil.nearlyEqual(sum.uniqueValue(), (a.uniqueValue() + b.uniqueValue()))).toBe(true);
+                expect(c.value().equals(b.value())).toBe(true);
             }
         })
 
         it("Equality Constraint Test 2", function(){
+            console.log("======================================");
+            console.log("Equality Constraint Test 2");
+            console.log("======================================");
             var p = new CSP()
-            var a = new FloatVariable("a", p, 0, 1);
-            var b = new FloatVariable("b", p, 0, 1);
-            var c = new FloatVariable("c", p);
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
+            var c = FloatVariable.makeInfinateFloatVariable("c", p);
             c.mustEqual(b);
-            var sum = a.plus(b);
+            var sum = FloatVariable.add(a, b);
             sum.mustEqual(1);
 
             for(var i = 0; i < 10; i++){
                 p.newSolution();
-                expect(MathUtil.nearlyEqual(sum.uniqueValue, (a.uniqueValue + b.uniqueValue))).toBe(true);
-                expect(c.value == b.value).toBe(true);
+                expect(MathUtil.nearlyEqual(sum.uniqueValue(), (a.uniqueValue() + b.uniqueValue()))).toBe(true);
+                expect(c.value().equals(b.value())).toBe(true);
             }
         })
     })

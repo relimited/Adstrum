@@ -5,7 +5,7 @@ define([], function(){
   //may want to change this to a full inheritance.js class later.
   var SearchHint = {
     none : 0,
-    noGuess = null
+    noGuess : null
   };
 
   return SearchHint;

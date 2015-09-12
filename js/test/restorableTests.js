@@ -1,6 +1,6 @@
 
 
-define(['inheritance', 'jasmine', '../modules/undoStack', '../modules/restoreable'], function(Inheritance, Jasmine, UndoStack, Restorable){
+define(['inheritance', '../modules/undoStack', '../modules/restorable'], function(Inheritance, UndoStack, Restorable){
     describe("Testing Restorables", function(){
         it("Testing Initialized Values", function(){
             var s = new UndoStack();
@@ -37,4 +37,4 @@ define(['inheritance', 'jasmine', '../modules/undoStack', '../modules/restoreabl
             expect(a.get() == 0).toBe(true);
         })
     });
-}
+});

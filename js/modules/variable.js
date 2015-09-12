@@ -4,13 +4,13 @@
  * This is gonna be kinda gnarly, because of how abstract this is in Craft.
  */
 
-define(["inheritance", "restorable"], function(Inheritance, Restorable){
+define(["inheritance", "js/modules/restorable"], function(Inheritance, Restorable){
 
 	var Variable = Class.extend({
 		init : function(name, p){
 			//name: string, p: CSP
 			this.name = name;
-			p.variables.add(this); //TODO: this may become variables.push...
+			p.variables.push(this); //TODO: this may become variables.push...
 			this.csp = p;
 
 			this.constraints = [];
@@ -18,10 +18,10 @@ define(["inheritance", "restorable"], function(Inheritance, Restorable){
 
 		 addConstraint: function(constraint){
 			this.csp.assertSolvingPhase();
-			if(!this.isCannonical()){
+			if(!this.isCanonical()){
 				throw{"message" : "non-canon variable!"};
 			}
-			this.constraints.add(constraint);
+			this.constraints.push(constraint);
 		},
 
 		//there is some other stuff here, but pish.  This is JavaScript.  We don't need to define abstract functions
@@ -55,7 +55,7 @@ define(["inheritance", "restorable"], function(Inheritance, Restorable){
 		},
 
 		isCanonical : function(){
-		 	return forwardingPointer == this;
+		 	return this.forwardingPointer == this;
     },
 
     canonicalVariable : function(){

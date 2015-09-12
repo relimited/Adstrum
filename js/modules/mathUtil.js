@@ -4,7 +4,7 @@
 define([], function(){
 	var MathUtil = {
 		defaultEpsilon : 0.000001,
-		
+
 		nearlyEqual : function(a,b,epsilon){
 			if(epsilon !== undefined){
 				// Cribbed from http://doubleing-point-gui.de/errors/comparison/
@@ -31,7 +31,7 @@ define([], function(){
 				return MathUtil.nearlyEqual(a, b, MathUtil.defaultEpsilon);
 			}
 		},
-		
+
 		nearlyLE : function(a, b, epsilon){
             if (a <= b){  // Fastpath + < test
                 return true;
@@ -44,10 +44,10 @@ define([], function(){
             if (a >= b){  // Fastpath + < test
                 return true;
             }else{
-            	return NearlyEqual(a, b, epsilon);
+            	return MathUtil.nearlyEqual(a, b, epsilon);
             }
         }
 	};
-	
+
 	return MathUtil;
 });
