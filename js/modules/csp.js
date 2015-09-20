@@ -46,7 +46,7 @@ define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function
       		this.solverSteps = 0;
 
       		this.intervalUndoStack.restore(0);
-      		try{
+      		//	try{
           		this.clearPendingQueue();
           		//trying to eke out speed wherever we can, see
           		//http://stackoverflow.com/questions/9329446/for-each-over-an-array-in-javascript
@@ -70,15 +70,15 @@ define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function
           		if (solutionGen.next().done){
           			throw "No solution found";
           		}
-			}catch (e){
-      			var retMsg = [];
-        		for(var index = 0, len = this.choiceStack.length; index < len; ++index){
-        			retMsg.push(this.choiceStack[index]);
-          			retMsg.push("\n");
-        		}
-				retMsg.push(e);
-        		throw retMsg.join("");
-    		}
+			//}catch (e){
+      			//var retMsg = [];
+        		//for(var index = 0, len = this.choiceStack.length; index < len; ++index){
+        			//retMsg.push(this.choiceStack[index]);
+          			//retMsg.push("\n");
+        		//}
+				//retMsg.push(e);
+        		//throw retMsg.join("");
+    		//}
 		},
 
 		solutions : function*(){
@@ -118,10 +118,9 @@ define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function
 							//#pragma warning restore 168
 							yield false;
 						}
-
-          				this.popChoiceStack();
-            			this.intervalUndoStack.restore(mark);
           			}
+					this.popChoiceStack();
+					this.intervalUndoStack.restore(mark);
       			}
 			}
 		},
@@ -131,12 +130,17 @@ define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function
 			//see the helper function at the top of this Class
 			var choice = strFormat(format, args);
 			console.log(choice);
-			this.choiceStack.push(choice);
+			this.choiceStack.unshift(choice);
 
 			/**
 			if (choiceStack.Count>10)
                 Debugger.Break();
 			*/
+		},
+
+		popChoiceStack : function(){
+			console.log("Fail: " + this.choiceStack[0]);
+			this.choiceStack.shift();
 		},
 
 		chooseVariable : function(){
@@ -185,7 +189,7 @@ define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function
 
 		makeConsistent : function(fail){
 			while(this.pending.length > 0){
-				var constraint = this.pending.pop();
+				var constraint = this.pending.shift();
 				constraint.queued = false;
 				this.currentConstraint = constraint;
 

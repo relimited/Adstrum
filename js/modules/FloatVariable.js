@@ -33,7 +33,7 @@ define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules
         },
 
         initializeStartingWidth : function(){
-            this.startingWidth = this.value().startingWidth;
+            this.startingWidth = this.value().width();
         },
 
         relativeMeasure : function(){
@@ -103,7 +103,7 @@ define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules
             this.narrowTo(Interval.unionOfIntersections(this.value(), a, b), fail);
         },
 
-        narrowToQuotent : function(numerator, denominator, fail){
+        narrowToQuotient : function(numerator, denominator, fail){
             if(denominator.isZero()){
                 //Denominator is [0,0], so quotent is the empty set
                 fail[0] = !numerator.containsZero();
@@ -168,29 +168,29 @@ define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules
                                 //TODO: wrap in a null object and not an array to carry less bullshit along for the ride
 
             var randElement = this.value().randomElement();
-            this.csp.pushChoice("Guess {0}={1}", this.name, randElement);
+            this.csp.pushChoice("Guess {0}={1}", [this.name, randElement]);
             this.narrowTo(new Interval(randElement, randElement), fail);
             //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
             yield false;
 
             //currently interpeting this line as pulling a random number generator as part of the CSP
             if(Math.random() & 1 == 0){
-                this.csp.pushChoice("Lower half {0} to {1}", this.name, this.value().lowerHalf());
+                this.csp.pushChoice("Lower half {0} to {1}", [this.name, this.value().lowerHalf()]);
                 this.narrowTo(this.value().lowerHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yield false;
 
-                this.csp.pushChoice("Upper half {0} to {1}", this.name, this.value().upperHalf());
+                this.csp.pushChoice("Upper half {0} to {1}", [this.name, this.value().upperHalf()]);
                 this.narrowTo(this.value().upperHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 return false;
             }else{
-                this.csp.pushChoice("Upper half {0} to {1}", this.name, this.value.upperHalf());
+                this.csp.pushChoice("Upper half {0} to {1}", [this.name, this.value.upperHalf()]);
                 this.narrowTo(this.value().upperHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yield false;
 
-                this.csp.pushChoice("Lower half {0} to {1}", this.name, this.value().lowerHalf());
+                this.csp.pushChoice("Lower half {0} to {1}", [this.name, this.value().lowerHalf()]);
                 this.narrowTo(this.value().lowerHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 return false;

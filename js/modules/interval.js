@@ -222,7 +222,7 @@ define(["inheritance", "js/modules/searchHint", "js/modules/mathUtil", "js/modul
 
 	function propagatePositiveInfinity(x, otherwise){
     	if(x == Number.POSITIVE_INFINITY){
-    		return x;
+    		return Number.POSITIVE_INFINITY;
     	}else{
     		return otherwise;
     	}
@@ -231,7 +231,7 @@ define(["inheritance", "js/modules/searchHint", "js/modules/mathUtil", "js/modul
 
     function propagateNegativeInfinity(x, otherwise){
     	if(x == Number.NEGATIVE_INFINITY){
-    		return x;
+    		return Number.NEGATIVE_INFINITY;
     	}else{
     		return otherwise;
     	}

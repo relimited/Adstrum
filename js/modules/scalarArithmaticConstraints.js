@@ -35,6 +35,10 @@ define(['inheritance', 'js/modules/constraint', 'js/modules/Interval'], function
             if(this.narrowedVariable != this.b){
                 this.b.narrowTo(Interval.subtract(this.sum.value(), this.a.value()), fail);
             }
+        },
+
+        toString : function(){
+            return "{" + this.sum.name + "}={" + this.a.name + "}+{" + this.b.name + "}";
         }
     });
     constraints.SumConstraint = SumConstraint;
@@ -65,8 +69,12 @@ define(['inheritance', 'js/modules/constraint', 'js/modules/Interval'], function
             }
 
             if(this.narrowedVariable != this.b){
-                this.b.narrowTo(Interval.add(this.difference.value(), this.a.value()), fail);
+                this.b.narrowTo(Interval.subtract(this.a.value(), this.difference.value()), fail);
             }
+        },
+
+        toString : function(){
+            return "{" + this.difference.name + "}={" + this.a.name + "}-{" + this.b.name +"}"
         }
     });
     constraints.DifferenceConstraint = DifferenceConstraint;
@@ -92,13 +100,17 @@ define(['inheritance', 'js/modules/constraint', 'js/modules/Interval'], function
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowToQuotent(this.product.value(), this.b.value(), fail);
+                this.a.narrowToQuotient(this.product.value(), this.b.value(), fail);
                 if(fail[0]){ return; };
             }
 
             if(this.narrowedVariable != this.b){
-                this.b.narrowToQuotent(this.product.value(), this.a.value(), fail);
+                this.b.narrowToQuotient(this.product.value(), this.a.value(), fail);
             }
+        },
+
+        toString : function(){
+            return "{" + this.product.name + "}={" + this.a.name + "}*{"+ this.b.name + "}"
         }
     });
     constraints.ProductConstraint = ProductConstraint;
@@ -125,19 +137,23 @@ define(['inheritance', 'js/modules/constraint', 'js/modules/Interval'], function
             if(this.narrowedVariable != this.a){
                 this.a.narrowTo(Interval.multiplyIntervalByConstant(this.prodcuct.value(), (1 / k)), fail);
             }
+        },
+
+        toString : function(){
+            return "{"+ this.product.name +"}={" + this.a.name + "}*{" + this.k + "}"
         }
     });
     constraints.ConstantProductConstraint = ConstantProductConstraint;
 
     var QuoitentConstraint = Constraint.extend({
         init : function(quotient, a, b){
-            this._super(quotient);
+            this._super(quotient.csp);
             this.quotient = quotient;
             this.a = a;
             this.b = b;
         },
 
-        canonicalVariables : function(){
+        canonicalizeVariables : function(){
             this.quotient = this.registerCanonical(this.quotient);
             this.a = this.registerCanonical(this.a);
             this.b = this.registerCanonical(this.b);
@@ -157,6 +173,10 @@ define(['inheritance', 'js/modules/constraint', 'js/modules/Interval'], function
             if(this.narrowedVariable != this.b){
                 this.b.narrowToQuotient(this.a.value(), this.quotient.value(), fail);
             }
+        },
+
+        toString : function(){
+            return "{" + this.quotient.name + "}={"+ this.a.name +"}/{" + this.b.name + "}"
         }
     });
     constraints.QuotientConstraint = QuoitentConstraint;
@@ -184,7 +204,7 @@ define(['inheritance', 'js/modules/constraint', 'js/modules/Interval'], function
             if((this.exponent % 2 == 0) && this.a.value().lower < 0){
                 if (this.a.value().upper <= 0){
                     //a is non-positive
-                    this.a.narrowTo(Interval.invert(Interval.invPower(this.power.value(), this.exponent)). fail);
+                    this.a.narrowTo(Interval.invert(Interval.invPower(this.power.value(), this.exponent)), fail);
                 }else{
                     // even inverse power of an interval that crosses zero
                     var bound = Interval.invPower(this.power.value(), this.exponent).upper;
@@ -194,6 +214,10 @@ define(['inheritance', 'js/modules/constraint', 'js/modules/Interval'], function
                 //a is already non-negative or exponent is odd (and so function is monotone)
                 this.a.narrowTo(Interval.invPower(this.power.value(), this.exponent), fail);
             }
+        },
+
+        toString : function(){
+            return "{" + this.power.name + "}={" + this.a.name + "}^{" + this.exponent + "}"
         }
     });
     constraints.PowerConstraint = PowerConstraint;

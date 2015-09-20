@@ -56,12 +56,12 @@ define(["inheritance", "js/modules/restorable"], function(Inheritance, Restorabl
 
 		isCanonical : function(){
 		 	return this.forwardingPointer == this;
-    },
+    	},
 
-    canonicalVariable : function(){
-    	var v = this;
-      while (v != v.forwardingPointer){
-      	v = v.forwardingPointer;
+    	canonicalVariable : function(){
+    		var v = this;
+      		while (v != v.forwardingPointer){
+      			v = v.forwardingPointer;
 			}
 
 			return v;

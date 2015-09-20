@@ -48,7 +48,7 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
             var fail = [false];
             quad.narrowTo(new Interval(10, 20), fail);
 
-            for (var i = 0; i < 1000; i++){
+            for (var i = 0; i < 25; i++){
                 p.newSolution();
                 expect(MathUtil.nearlyEqual(quad.uniqueValue(), ((a.uniqueValue() * a.uniqueValue()) + b.uniqueValue()))).toBe(true);
             }
@@ -70,6 +70,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Sum A term Test", function(){
+            console.log("======================================");
+            console.log("Sum A Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
@@ -82,6 +85,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Sum B Term Test", function(){
+            console.log("======================================");
+            console.log("Sum B Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
@@ -94,6 +100,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Difference Test", function(){
+            console.log("======================================");
+            console.log("Difference Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
@@ -106,6 +115,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Difference A Term Test", function(){
+            console.log("======================================");
+            console.log("Difference A Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
@@ -118,6 +130,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Difference B Term Test", function(){
+            console.log("======================================");
+            console.log("Difference B Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
@@ -130,6 +145,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Product Test", function(){
+            console.log("======================================");
+            console.log("Difference Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
@@ -142,6 +160,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Product A Term Test", function(){
+            console.log("======================================");
+            console.log("Product A Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
@@ -155,6 +176,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Product B Term Test", function(){
+            console.log("======================================");
+            console.log("Product B Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
@@ -162,9 +186,15 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
 
             a.mustEqual(0.5);
             product.mustEqual(0.25);
+            p.testConsistency();
+            assertUnique(b, 0.5);
+
         });
 
-        it("Quotent Test", function(){
+        it("Quotient Test", function(){
+            console.log("======================================");
+            console.log("Quotient Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
@@ -178,9 +208,12 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Quotent A Term Test", function(){
+            console.log("======================================");
+            console.log("Quotient A Term Test");
+            console.log("======================================");
             var p = new CSP();
-            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
-            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 3);
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 3);
             var quotent = FloatVariable.divide(a, b);
 
             b.mustEqual(0.5);
@@ -191,9 +224,12 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Quotent B Term Test", function(){
+            console.log("======================================");
+            console.log("Quotient B Term Test");
+            console.log("======================================");
             var p = new CSP();
-            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
-            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 3);
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 3);
             var quotent = FloatVariable.divide(a, b);
 
             a.mustEqual(0.5);
@@ -204,6 +240,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Odd Power Negative Tests", function(){
+            console.log("======================================");
+            console.log("Odd Power Negative Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, -3, 3);
             var power = FloatVariable.pow(a, 3);
@@ -214,6 +253,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Odd Power Negative A Term Test", function(){
+            console.log("======================================");
+            console.log("Odd Power Negative A Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, -3, 3);
             var power = FloatVariable.pow(a, 3);
@@ -224,15 +266,22 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Odd Power Positive Test", function(){
+            console.log("======================================");
+            console.log("Odd Power Positive Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, -3, 3);
             var power = FloatVariable.pow(a, 3);
+            a.mustEqual(2);
 
             p.testConsistency();
             assertUnique(power, 8);
         });
 
         it("Odd Power Positive A Term", function(){
+            console.log("======================================");
+            console.log("Odd Power Positive A Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, -3, 3);
             var power = FloatVariable.pow(a, 3);
@@ -243,6 +292,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Even Power Positive A Test", function(){
+            console.log("======================================");
+            console.log("Even Power Positive A Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 3);
             var power = FloatVariable.pow(a, 2);
@@ -253,15 +305,22 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Even Power Positive Test", function(){
+            console.log("======================================");
+            console.log("Even Power Positive Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 3);
             var power = FloatVariable.pow(a, 2);
+            a.mustEqual(2);
 
             p.testConsistency();
             assertUnique(power, 4);
         });
 
         it("Even Power Negative A Term Test", function(){
+            console.log("======================================");
+            console.log("Even Power Negative A Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, -3, 0);
             var power = FloatVariable.pow(a, 2);
@@ -272,6 +331,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Even Power Negative Test", function(){
+            console.log("======================================");
+            console.log("Even Power Negative Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, -3, 0);
             var power = FloatVariable.pow(a, 2);
@@ -282,6 +344,9 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
         });
 
         it("Even Power Zero Crossing A Term Test", function(){
+            console.log("======================================");
+            console.log("Even Power Zero Crossing A Term Test");
+            console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, -3, 3);
             var power = FloatVariable.pow(a, 2);
