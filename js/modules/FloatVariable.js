@@ -173,7 +173,6 @@ define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules
             //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
             yield false;
 
-            //currently interpeting this line as pulling a random number generator as part of the CSP
             if(Math.random() & 1 == 0){
                 this.csp.pushChoice("Lower half {0} to {1}", [this.name, this.value().lowerHalf()]);
                 this.narrowTo(this.value().lowerHalf(), fail);
@@ -185,7 +184,7 @@ define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 return false;
             }else{
-                this.csp.pushChoice("Upper half {0} to {1}", [this.name, this.value.upperHalf()]);
+                this.csp.pushChoice("Upper half {0} to {1}", [this.name, this.value().upperHalf()]);
                 this.narrowTo(this.value().upperHalf(), fail);
                 //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yield false;

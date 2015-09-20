@@ -5,7 +5,6 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
             expect(v.isUnique()).toBe(true);
             expect(value == v.uniqueValue()).toBe(true);
         };
-
         it("Unconstrained Sum Tests", function(){
             console.log("======================================");
             console.log("Unconstrained Sum Tests");
@@ -48,7 +47,7 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
             var fail = [false];
             quad.narrowTo(new Interval(10, 20), fail);
 
-            for (var i = 0; i < 25; i++){
+            for (var i = 0; i < 1000; i++){
                 p.newSolution();
                 expect(MathUtil.nearlyEqual(quad.uniqueValue(), ((a.uniqueValue() * a.uniqueValue()) + b.uniqueValue()))).toBe(true);
             }
@@ -355,5 +354,6 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
             p.testConsistency();
             expect(new Interval(-2, 2).equals(a.value())).toBe(true)
         })
+
     });
 });

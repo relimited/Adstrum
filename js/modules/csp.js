@@ -107,13 +107,15 @@ define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function
         		// ReSharper disable UnusedVariable
 				//this may need to be changed
 				var ignore;
-				while(!(v.tryNarrowing().next().done)){
+				var varNarrower = v.tryNarrowing();
+				while(!(varNarrower.next().done)){
 					//#pragma warning restore 168
         			var fail = [false];
           			this.makeConsistent(fail);
           			if (!fail[0]){
 						//#pragma warning disable 168
-						while (!(this.solutions().next().done)) {
+						var solutionGen = this.solutions();
+						while (!(solutionGen.next().done)) {
 							// ReSharper restore UnusedVariable
 							//#pragma warning restore 168
 							yield false;

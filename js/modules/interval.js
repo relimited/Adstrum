@@ -32,7 +32,7 @@ define(["inheritance", "js/modules/searchHint", "js/modules/mathUtil", "js/modul
 		},
 
 		/**
-		 * Check to see if the upper bound is different from the lower bound
+		 * Check to see if the the interval is a unique value (i.e. the upper and lower bounds are the same thing)
 		 */
 		isUnique : function(){
 			return this.upper == this.lower;
