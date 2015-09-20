@@ -1,6 +1,5 @@
 /**
  * Javascript implemtation of the Interval class from Craft
- * @flow
  */
 define(["inheritance", "js/modules/searchHint", "js/modules/mathUtil", "js/modules/csp"], function(Inheritance, SearchHint, MathUtil, CSP){'use strict';
 	var Interval = Class.extend({
