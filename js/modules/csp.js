@@ -87,7 +87,7 @@ define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function
           		if (fail[0]){
           			throw "Initial configuration is unsatisfiable.";
         		}
-
+				console.log("**** Initial Confiuraion Set ****");
           		//trying to eke out speed wherever we can, see
           		//http://stackoverflow.com/questions/9329446/for-each-over-an-array-in-javascript
           		for(var index = 0, len = this.canonicalVariables.length; index < len; ++index){
@@ -293,6 +293,12 @@ define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function
 						this.canonicalVariables.push(this.variables[index]);
 					}
 				}
+			}
+
+			//FIXME: there is currently a bug somewhere where constraint.narrowedVariable is getting
+			//held over from problem to problem.  This is a stopgap fix for now.
+			for(var index = 0, len = this.constraints.length; index < len; ++index){
+				this.constraints[index].narrowedVariable = null;
 			}
 		},
 

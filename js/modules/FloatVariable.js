@@ -107,7 +107,7 @@ define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules
          */
         mustBeContainedIn : function(i){
             this.csp.assertConfigurationPhase();
-            intersection = Interval.intersection(this.value(), i);
+            var intersection = Interval.intersection(this.value(), i);
             if(intersection.empty()){
                 throw "Argument out of current range of variable";
             }
@@ -372,7 +372,7 @@ define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules
      * @return {FloatVariable}   the product of a * k.  This is the set of bounds that
      *                               a * k must be in.
      */
-    function multiplyIntervalByConsant(k, a){
+    function multiplyIntervalByConstant(a, k){
         var funct = function(){
             var product = new FloatVariable("product", a.csp, Interval.multiplyIntervalByConsant(a.value(), k));
             new ConstantProductConstraint(product, a, k);
@@ -380,7 +380,7 @@ define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules
         }
         return a.csp.memorize("*", funct, [a, k]);
     }
-    FloatVariable.multiplyIntervalByConsant = multiplyIntervalByConsant;
+    FloatVariable.multiplyIntervalByConstant = multiplyIntervalByConstant;
 
     /**
      * Divide two floating point variables (a / b).  This also adds a constraint to

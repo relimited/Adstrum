@@ -36,6 +36,21 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
             }
         });
 
+        it("mustBeContainedIn test", function(){
+            console.log("======================================");
+            console.log("Must Be Contained In... Tests");
+            console.log("======================================");
+            var p = new CSP();
+            var a = new FloatVariable("a", p, new Interval(0, 10));
+            var b = new FloatVariable("b", p, new Interval(0, 10));
+            var sum = FloatVariable.add(a, b);
+            sum.mustBeContainedIn(new Interval(4, 8))
+
+            for (var i = 0; i < 1000; i++){
+                p.newSolution();
+                expect(MathUtil.nearlyEqual(sum.uniqueValue(), (a.uniqueValue() + b.uniqueValue()))).toBe(true);
+            }
+        });
         it("Quadratic Tests", function(){
             console.log("======================================");
             console.log("Quadratic Sum Tests");
@@ -45,11 +60,12 @@ define(['inheritance', '../modules/csp', '../modules/FloatVariable', '../modules
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, -100, 100);
             var quad = FloatVariable.add(FloatVariable.pow(a, 2), b);
             var fail = [false];
-            quad.narrowTo(new Interval(10, 20), fail);
+            quad.mustBeContainedIn(new Interval(10, 20));
 
             for (var i = 0; i < 1000; i++){
                 p.newSolution();
                 expect(MathUtil.nearlyEqual(quad.uniqueValue(), ((a.uniqueValue() * a.uniqueValue()) + b.uniqueValue()))).toBe(true);
+                //expect(quad.uniqueValue() >= 10 && quad.uniqueValue() <= 20).toBe(true);
             }
         });
 
