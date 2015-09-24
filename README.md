@@ -21,9 +21,9 @@ require.config({
     paths : {
         'inheritance' : 'js/vendor/inheritance',
         'boundingBox' : '../js/modules/boundingBox',
-        'csp' : '../js/modules/csp',
-        'constraint' : '../js/modules/constraint',
-        'floatVariable' : '../js/modules/floatVariable',
+        'csp' : 'js/modules/csp',
+        'constraint' : 'js/modules/constraint',
+        'floatVariable' : 'js/modules/floatVariable',
         ...
     }
 });
@@ -49,9 +49,9 @@ require.config({
         'jasmine-src' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine',
         'jasmine-html' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine-html',
         'jasmine-boot' : 'js/vendor/jasmine/lib/jasmine-2.3.4/boot',
-        'csp' : '../js/modules/csp',
-        'constraint' : '../js/modules/constraint',
-        'floatVariable' : '../js/modules/floatVariable',
+        'csp' : 'js/modules/csp',
+        'constraint' : 'js/modules/constraint',
+        'floatVariable' : 'js/modules/floatVariable',
         ...
     },
     shim: {
