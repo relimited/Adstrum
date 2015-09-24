@@ -72,7 +72,7 @@ require(['jasmine-boot'], function () {
     });
 });
 ```
-The various tests are located in js/tests.  The above example is in runTests.js, and can be seen by opening the tester.html file in a browser, but if you want to access from them different location, you'll need to update the file paths appropriately.
+The various tests are located in js/tests.  The above example is in runTests.js, and can be seen by opening the tester.html file in a browser (in /test), but if you want to access from them different location, you'll need to update the file paths appropriately.
 
 ## Usage
 To understand how Craftjs does what it does, you probably want to review the
