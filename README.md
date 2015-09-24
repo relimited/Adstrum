@@ -1,10 +1,3 @@
-## Examples
-`index.html` is a little web page that has Craftjs find points that lie within the unit circle.  The main javascript file
-for it is in examples/unitCircle.js
-
-`tester.html` points to the testing framework.  The main javascript file for it is in
-test/runTests.js
-
 ## Requirements
 Craftjs uses RequireJS to handle module loading and John Resig's inheritance.js library for Java-style polymorphism.
 For testing, Craftjs uses Jasmine.
@@ -27,16 +20,20 @@ like so:
 require.config({
     paths : {
         'inheritance' : 'js/vendor/inheritance',
+        'boundingBox' : '../js/modules/boundingBox',
+        'csp' : '../js/modules/csp',
+        'constraint' : '../js/modules/constraint',
+        'floatVariable' : '../js/modules/floatVariable',
         ...
     }
 });
 ```
 This allows for you to shift Craftjs's modules around in your own project to fit
 your own mangement scheme / naming conventions, and only need to update one file.
-After pointing Require to where each module is, you'll want to tell Require that your Craftjs
-code needs the CSP, FloatVariable and Interval modules:
+After pointing RequireJS to where each module is, you'll want to tell Require that your Craftjs
+code needs the CSP and FloatVariable modules:
 ```javascript
-require(["./js/test/intervalTest"], function(IntervalTest){'use strict';
+require(["csp", "floatVariable"], function(CSP, FloatVariable){'use strict';
 	//Craftjs-using code.
 });
 ```
@@ -52,6 +49,9 @@ require.config({
         'jasmine-src' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine',
         'jasmine-html' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine-html',
         'jasmine-boot' : 'js/vendor/jasmine/lib/jasmine-2.3.4/boot',
+        'csp' : '../js/modules/csp',
+        'constraint' : '../js/modules/constraint',
+        'floatVariable' : '../js/modules/floatVariable',
         ...
     },
     shim: {
@@ -128,11 +128,11 @@ ops are just function calls.
 Finally we need to add one more explicit constraint to quad-- that it must be within
 10 and 20.
 ```javascript
-quad.mustBeContainedIn(new Interval(10, 20));
+quad.mustBeContainedInRange(10, 20);
 ```
 
 Craftjs has another explicit constraints to add to `FloatVariable`s, and that is
-`mustEqual()`, which either takes a `FloatVariable` or a primative `Number`.
+`mustEqual()`, which a primative `Number` and requires the `FloatVariable` be equal to that number.
 
 Now that we've set up the CSP, we can start getting solutions to it.  Craftjs gets one
 solution to the CSP at a time, and does not make any promises about not returning the same solution twice.
@@ -145,12 +145,12 @@ var quad_value = quad.uniqueValue();
 
 The important bit here is that `CSP` doesn't return any solutions, it just modifies the `FloatVariable`
 objects that it knows about, and they contain the values that satisfy the constraints.
-`uniqueValue()` returns a Javascript primative `Number`, so you can safely plug them
+`uniqueValue()` returns a Javascript primitive `Number`, so you can safely plug them
 into whatever other part of your program you want to.  To get another solution,
 call `newSolution()` again.
 
 ## Examples
-The examples folder (html page is in /example and relevant javascript is in js/example) contains a toy program that draws circles in a circle.  It also illustrates a weakness of math beind Craftjs-- it does not ensure a uniform distribution.
+The examples folder (html page is in /example and relevant javascript is in js/example) contains a toy program that draws circles in a circle.  It also illustrates a weakness of math beind Craftjs-- it does not ensure a uniform distribution, and why that can be awkward is illustrated best with a impossibly large range.
 
 ## Known Problems
 #### bugs
