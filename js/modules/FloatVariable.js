@@ -4,7 +4,7 @@
  *	handles performing common scalar arithmatic operations to floating variables
  */
 
-define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules/mathUtil', 'js/modules/scalarArithmaticConstraints'], function(Inheritance, Variable, Interval, MathUtil, ScalarArithmaticConstraints){
+define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticConstraints'], function(Inheritance, Variable, Interval, MathUtil, ScalarArithmaticConstraints){
     //For ease of reference later, split the properties of the ScalarArithmaticConstraints
     //module.
     SumConstraint = ScalarArithmaticConstraints.SumConstraint;
@@ -92,20 +92,32 @@ define(['inheritance', 'js/modules/variable', 'js/modules/interval', 'js/modules
          */
         mustEqual : function(v){
             if (v instanceof Variable){
-                v.mustBeContainedIn(this.value());
+                v.mustBeContainedInInterval(this.value());
                 this._super(v);
             }else if (v.constructor === Number){
                 //This is our final condition-- also Javascript is awesome
-                this.mustBeContainedIn(new Interval(v, v))
+                this.mustBeContainedInInterval(new Interval(v, v))
             }
         },
 
         /**
+         * Adds a constraint that this float variable must stay in the range
+         * [lower, upper]
+         * @param  {Number} low  Lower Bound of this float variable
+         * @param  {Number} high Upper Bound of this float variable
+         */
+        mustBeContainedInRange : function(low, high){
+            this.mustBeContainedInInterval(new Interval(low, high));
+        },
+        
+        /**
          * Add a constraint that this float variable must be contained by a particular
          * interval
-         * @param  {Interval} i the bounds that this variable must be in ([i.lower(), i.upper()])
+         * Although this function can be used externally, is intended to not be.
+         * This keeps Craftjs from ever having to expose the Interval object / class
+         * @param  {Number} i the bounds that this variable must be in ([i.lower(), i.upper()])
          */
-        mustBeContainedIn : function(i){
+        mustBeContainedInInterval : function(i){
             this.csp.assertConfigurationPhase();
             var intersection = Interval.intersection(this.value(), i);
             if(intersection.empty()){

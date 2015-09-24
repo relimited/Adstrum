@@ -1,7 +1,7 @@
 /**
 * Module defines a base class for a constraint on the solver.
 */
-define(["inheritance", "js/modules/csp", "js/modules/variable"],function(Inheritance, CSP, Variable){
+define(["inheritance", "csp", "variable"],function(Inheritance, CSP, Variable){
     var Constraint = Class.extend({
         /**
          * Constructor for the constraint class

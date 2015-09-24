@@ -1,6 +1,6 @@
 //Testing framework for intervals and interval arithmatic and such
 
-define(['inheritance', '../modules/interval'], function(Inheritance, Interval){
+define(['inheritance', 'interval'], function(Inheritance, Interval){
     describe("Testing Intervals", function(){
         it("Testing Empty Intervals", function(){
                 expect(new Interval(1, -1).empty()).toBe(true)

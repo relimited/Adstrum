@@ -5,7 +5,7 @@
  * for actually solving itself, but also all the bookkeeping.
  * See readme.md for usage details.
  */
-define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function(Inheritance, UndoStack, MemoTable){'use strict';
+define(["inheritance", "undoStack", "memoTable"], function(Inheritance, UndoStack, MemoTable){'use strict';
 	/**
 	 * A function to replicate the common string.format() methods in other languages.
 	 * Cribbed from:
@@ -87,7 +87,7 @@ define(["inheritance", "js/modules/undoStack", "js/modules/memoTable"], function
           		if (fail[0]){
           			throw "Initial configuration is unsatisfiable.";
         		}
-				
+
           		//trying to eke out speed wherever we can, see
           		//http://stackoverflow.com/questions/9329446/for-each-over-an-array-in-javascript
           		for(var index = 0, len = this.canonicalVariables.length; index < len; ++index){

@@ -1,7 +1,7 @@
 /**
 *Scalar constraints for the CSP
 */
-define(['inheritance', 'js/modules/constraint', 'js/modules/Interval'], function(Inheritance, Constraint, Interval){
+define(['inheritance', 'constraint', 'interval'], function(Inheritance, Constraint, Interval){
     var constraints = {};
     var SumConstraint = Constraint.extend({
         init : function(sum, a, b){

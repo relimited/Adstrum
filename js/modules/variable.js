@@ -4,7 +4,7 @@
  * This is gonna be kinda gnarly, because of how abstract this is in Craft.
  */
 
-define(["inheritance", "js/modules/restorable"], function(Inheritance, Restorable){
+define(["inheritance", "restorable"], function(Inheritance, Restorable){
 
 	var Variable = Class.extend({
 		init : function(name, p){

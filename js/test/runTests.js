@@ -5,7 +5,20 @@ require.config({
         'inheritance' : 'js/vendor/inheritance',
         'jasmine-src' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine',
         'jasmine-html' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine-html',
-        'jasmine-boot' : 'js/vendor/jasmine/lib/jasmine-2.3.4/boot'
+        'jasmine-boot' : 'js/vendor/jasmine/lib/jasmine-2.3.4/boot',
+        'boundingBox' : 'js/modules/boundingBox',
+        'csp' : 'js/modules/csp',
+        'constraint' : 'js/modules/constraint',
+        'floatVariable' : 'js/modules/floatVariable',
+        'interval' : 'js/modules/interval',
+        'mathUtil' : 'js/modules/mathUtil',
+        'memoTable' : 'js/modules/memoTable',
+        'restorable' : 'js/modules/restorable',
+        'scalarArithmaticConstraints' : 'js/modules/scalarArithmaticConstraints',
+        'searchHint' : 'js/modules/searchHint',
+        'undoStack' : 'js/modules/undoStack',
+        'variable' : 'js/modules/variable',
+        'dictionary' : 'js/shared/dictionary'
     },
     shim: {
         'jasmine-html': {

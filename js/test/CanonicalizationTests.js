@@ -2,7 +2,7 @@
 * tests for veriable canonicalization.
 * canonicalization is a silly word
 */
-define(['inheritance', '../modules/memoTable', '../modules/csp', '../modules/FloatVariable', '../modules/mathUtil'], function(Inheritance, MemoTable, CSP, FloatVariable, MathUtil){
+define(['inheritance', 'memoTable', 'csp', 'floatVariable', 'mathUtil'], function(Inheritance, MemoTable, CSP, FloatVariable, MathUtil){
     describe("Testing out variable canonicalization", function(){
         it("Caching Test", function(){
             console.log("======================================");

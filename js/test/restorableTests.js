@@ -1,6 +1,6 @@
 
 
-define(['inheritance', '../modules/undoStack', '../modules/restorable'], function(Inheritance, UndoStack, Restorable){
+define(['inheritance', 'undoStack', 'restorable'], function(Inheritance, UndoStack, Restorable){
     describe("Testing Restorables", function(){
         it("Testing Initialized Values", function(){
             var s = new UndoStack();

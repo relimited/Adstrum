@@ -1,7 +1,7 @@
 /**
  * Implementation of a memory table in Javascript
  */
-define(["inheritance", "../shared/dictionary"], function(Inheritance, Dictionary){'use strict';
+define(["inheritance", "dictionary"], function(Inheritance, Dictionary){'use strict';
 
 
   //Defining an 'inner class' here-- tuple isn't returned from this chunk, so it's only visible to the MemoTable.

@@ -1,8 +1,16 @@
 /**
- * Javascript implemtation of the Interval class from Craft
+ * Internal implementation of an Interval in Craftjs.
+ * For Craftjs, this is the base level data type-- everything is an interval.
  */
-define(["inheritance", "js/modules/searchHint", "js/modules/mathUtil", "js/modules/csp"], function(Inheritance, SearchHint, MathUtil, CSP){'use strict';
+define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, SearchHint, MathUtil, CSP){'use strict';
 	var Interval = Class.extend({
+		/**
+		 * Create a new Interval given a lower and upper bound.  Inteval is
+		 * [lower, upper]
+		 * @param  {Number} lowerBound lower bound on the interval
+		 * @param  {Number} upperBound upper bound on the interval
+		 * @return {Interval}            A new Craftjs interval such that [lower, upper]
+		 */
 		init : function(lowerBound, upperBound){
 
 			if(lowerBound === Number.NaN){
@@ -47,13 +55,18 @@ define(["inheritance", "js/modules/searchHint", "js/modules/mathUtil", "js/modul
 		},
 
 		/**
-		 * check to see if the lower bound is greater than the upper bound.
-		 * 		This is probably pretty rough, so weird.
+		 * Invalid intervals (lower > upper) are considered 'empty', and a way to have
+		 * a null interval.
 		 */
 		empty : function(){
 			return this.lower > this.upper;
 		},
 
+		/**
+		 * Check to see if a value is in this interval
+		 * @param  {Number} value does the interval contain this number?
+		 * @return {Boolean}       true if value lies in this interval.  False if otherwise.
+		 */
 		contains : function(value){
 			if (value instanceof Interval){
 				return this.lower <= value.lower && value.upper <= this.upper;
@@ -62,14 +75,27 @@ define(["inheritance", "js/modules/searchHint", "js/modules/mathUtil", "js/modul
 			}
 		},
 
+		/**
+		 * Check to see if this interval contains 0
+		 * @return {Boolean} true if 0 is in this interval, false if otherwise
+		 */
 		containsZero : function(){
 			return this.lower <= 0 && 0 <= this.upper;
 		},
 
+		/**
+		 * Check to see if the interval crosses zero.
+		 * 		(lower < 0 && upper > 0)
+		 * @return {Boolean} true if the interval crosses zero, false if otherwise
+		 */
 		crossesZero : function(){
 			return this.lower < 0 && this.upper > 0;
 		},
 
+		/**
+		 * Check that this interval is positive, ie, lower and upper are  >= 0
+		 * @return {Boolean} true if interval is positive, false if otherwise
+		 */
 		nonNegative : function(){
 			return this.lower >= 0;
 		},

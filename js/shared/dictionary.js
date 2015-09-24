@@ -1,8 +1,6 @@
 /**
-* Lightweight dictionary shamelessly cribbed from
-* http://stackoverflow.com/questions/3559070/are-there-dictionaries-in-javascript-like-python
-* becuse I needed to be able to use objects (Tuples)
-* as keys
+* Lightweight 'equals' dictionary.  The diectionary expects its keys to have an
+* equals method.
 */
 
 define(function(){
