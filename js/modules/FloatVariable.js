@@ -132,6 +132,8 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
          * @param  {[boolean]} fail        pass-by-ref failure bool (will be set to true if we can't narrow)
          */
         narrowTo : function(restriction, fail){
+        	
+        	
             if(this.value().isUnique()){
                 if(restriction.nearlyContains(this.value(), MathUtil.defaultEpsilon)){
                     return;
@@ -141,7 +143,6 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
                     return;
                 }
             }
-
             var oldValue = this.value();
             if(!restriction.contains(this.value())){
                 var newValue = Interval.intersection(this.currentValue.get(), restriction);
@@ -386,7 +387,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
      */
     function multiplyIntervalByConstant(a, k){
         var funct = function(){
-            var product = new FloatVariable("product", a.csp, Interval.multiplyIntervalByConsant(a.value(), k));
+            var product = new FloatVariable("product", a.csp, Interval.multiplyIntervalByConstant(a.value(), k));
             new ConstantProductConstraint(product, a, k);
             return product;
         }

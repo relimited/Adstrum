@@ -94,6 +94,7 @@ define(['inheritance', 'constraint', 'interval'], function(Inheritance, Constrai
         },
 
         propagate : function(fail){
+        	console.log("Break!");
             if(this.narrowedVariable != this.product){
                 this.product.narrowTo(Interval.multiply(this.a.value(), this.b.value()), fail);
                 if(fail[0]){ return; };
@@ -116,7 +117,7 @@ define(['inheritance', 'constraint', 'interval'], function(Inheritance, Constrai
     constraints.ProductConstraint = ProductConstraint;
 
     var ConstantProductConstraint = Constraint.extend({
-        init : function(prodcuct, a, k){
+        init : function(product, a, k){
             this._super(product.csp);
             this.product = product;
             this.a = a;
@@ -130,12 +131,11 @@ define(['inheritance', 'constraint', 'interval'], function(Inheritance, Constrai
 
         propagate : function(fail){
             if(this.narrowedVariable != this.product){
-                this.product.narrowTo(Interval.multiplyIntervalByConstant(this.a.value(), k), fail);
+                this.product.narrowTo(Interval.multiplyIntervalByConstant(this.a.value(), this.k), fail);
                 if(fail[0]){ return; };
             }
-
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(Interval.multiplyIntervalByConstant(this.prodcuct.value(), (1 / k)), fail);
+                this.a.narrowTo(Interval.multiplyIntervalByConstant(this.product.value(), (1 / this.k)), fail);
             }
         },
 
