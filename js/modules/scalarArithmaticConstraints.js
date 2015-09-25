@@ -94,7 +94,6 @@ define(['inheritance', 'constraint', 'interval'], function(Inheritance, Constrai
         },
 
         propagate : function(fail){
-        	console.log("Break!");
             if(this.narrowedVariable != this.product){
                 this.product.narrowTo(Interval.multiply(this.a.value(), this.b.value()), fail);
                 if(fail[0]){ return; };

@@ -132,9 +132,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
          * @param  {[boolean]} fail        pass-by-ref failure bool (will be set to true if we can't narrow)
          */
         narrowTo : function(restriction, fail){
-        	
-        	
-            if(this.value().isUnique()){
+        	if(this.value().isUnique()){
                 if(restriction.nearlyContains(this.value(), MathUtil.defaultEpsilon)){
                     return;
                 }else{
