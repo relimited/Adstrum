@@ -4,8 +4,8 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil'], function(Inheritance
     describe("Testing Constraints", function(){
         it("Testing Must Equal Constraint", function(){
             var p = new CSP();
-            var a = FloatVariable.makeNewFloatVariable("a", p, 0, 1);
-            var b = FloatVariable.makeNewFloatVariable("b", p, 0, 1);
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
             var sum = FloatVariable.add(a, b);
             sum.mustEqual(1)
 
@@ -18,8 +18,8 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil'], function(Inheritance
 
         it("Testing Must Be In Range Constraint", function(){
             var p = new CSP();
-            var a = FloatVariable.makeNewFloatVariable("a", p, 0, 10);
-            var b = FloatVariable.makeNewFloatVariable("b", p, 0, 10);
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 10);
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 10);
             var sum = FloatVariable.add(a, b);
             sum.mustBeContainedInRange(5, 7);
 
@@ -33,8 +33,8 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil'], function(Inheritance
 
         it("Testing Less Than or Equal To Constraint", function(){
             var p = new CSP();
-            var a = FloatVariable.makeNewFloatVariable("a", p, 0, 10);
-            var b = FloatVariable.makeNewFloatVariable("b", p, 0, 10);
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 10);
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 10);
             var sum = FloatVariable.add(a, b);
             sum.mustBeLessThanOrEqualTo(10);
 
@@ -47,8 +47,8 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil'], function(Inheritance
 
         it("Testing Greater Than or Equal To Constraint", function(){
             var p = new CSP();
-            var a = FloatVariable.makeNewFloatVariable("a", p, 0, 10);
-            var b = FloatVariable.makeNewFloatVariable("b", p, 0, 10);
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 10);
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 10);
             var sum = FloatVariable.add(a, b);
             sum.mustBeGreaterThanOrEqualTo(5);
 
