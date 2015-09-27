@@ -191,6 +191,34 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
 
         });
 
+        it("Const Product Test", function(){
+            console.log("======================================");
+            console.log("Const Product Test");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var k = 4;
+            var product = FloatVariable.multiplyVariableByConstant(a, k);
+
+            a.mustEqual(0.5);
+            p.testConsistency();
+            assertUnique(product, 2);
+        });
+
+        it("Const Product A Term Test", function(){
+            console.log("======================================");
+            console.log("Const Product A Term Test");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var k = 4;
+            var product = FloatVariable.multiplyVariableByConstant(a, k);
+            product.mustEqual(2);
+
+            p.testConsistency();
+            assertUnique(a, 0.5);
+        });
+
         it("Quotient Test", function(){
             console.log("======================================");
             console.log("Quotient Test");

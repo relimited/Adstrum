@@ -32,7 +32,7 @@ require.config({
 
 //bootstrap Jasmine
 require(['jasmine-boot'], function () {
-    require(["../js/test/canonicalizationTests.js", "../js/test/intervalTests.js", "../js/test/restorableTests.js", "../js/test/scalarArithmeticTests.js"], function(CanonicalizationTests, IntervalTests, RestorableTests, ScalarArithmeticTests){'use strict';
+    require(["../js/test/canonicalizationTests.js", "../js/test/intervalTests.js", "../js/test/restorableTests.js", "../js/test/scalarArithmeticTests.js", "../js/test/constraintTests.js"], function(CanonicalizationTests, IntervalTests, RestorableTests, ScalarArithmeticTests, ConstraintTests){'use strict';
         window.onload();
     });
 });

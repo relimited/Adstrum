@@ -109,7 +109,27 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
         mustBeContainedInRange : function(low, high){
             this.mustBeContainedInInterval(new Interval(low, high));
         },
-        
+
+        /**
+         * Adds a constraint that this float variable must be greater than or
+         * equal to the provided parameter
+         * This is equivelent to mustBeContainedInRange(low, Number.POSITIVE_INFINITY)
+         * @param  {Number} low The lower bound, what we're constraining this variable to equal or be greater than
+         */
+        mustBeGreaterThanOrEqualTo : function(low){
+            this.mustBeContainedInInterval(new Interval(low, Number.POSITIVE_INFINITY))
+        },
+
+        /**
+         * Adds a constraint that this float variable must be less than or
+         * equal to the provided parameter
+         * This is equivelent to mustBeContainedInRange(Number.NEGATIVE_INFINITY, high)
+         * @param  {Number} high the upper bound, we're constraining the float variable to be equal to or less than
+         *                       this number
+         */
+        mustBeLessThanOrEqualTo : function(high){
+            this.mustBeContainedInInterval(new Interval(Number.NEGATIVE_INFINITY, high))
+        },
         /**
          * Add a constraint that this float variable must be contained by a particular
          * interval
@@ -383,7 +403,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
      * @return {FloatVariable}   the product of a * k.  This is the set of bounds that
      *                               a * k must be in.
      */
-    function multiplyIntervalByConstant(a, k){
+    function multiplyVariableByConstant(a, k){
         var funct = function(){
             var product = new FloatVariable("product", a.csp, Interval.multiplyIntervalByConstant(a.value(), k));
             new ConstantProductConstraint(product, a, k);
@@ -391,7 +411,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
         }
         return a.csp.memorize("*", funct, [a, k]);
     }
-    FloatVariable.multiplyIntervalByConstant = multiplyIntervalByConstant;
+    FloatVariable.multiplyVariableByConstant = multiplyVariableByConstant;
 
     /**
      * Divide two floating point variables (a / b).  This also adds a constraint to
