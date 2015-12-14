@@ -1,7 +1,7 @@
 /**
 *Scalar constraints for the CSP
 */
-define(['inheritance', 'constraint', 'interval'], function(Inheritance, Constraint, Interval){
+define(['inheritance', 'constraint', 'interval', 'integerInterval'], function(Inheritance, Constraint, Interval, IntegerInterval){
     var constraints = {};
     var SumConstraint = Constraint.extend({
         init : function(sum, a, b){
@@ -220,5 +220,39 @@ define(['inheritance', 'constraint', 'interval'], function(Inheritance, Constrai
         }
     });
     constraints.PowerConstraint = PowerConstraint;
+
+    var IntPowerConstraint = PowerConstraint.extend({
+        init : function(power, a, exponent){
+            this._super(power, a, exponent);
+        },
+
+        canonicalizeVariables : function(){
+            this._super();
+        },
+
+        propagate : function(fail){
+            if(this.narrowedVariable != this.power){
+                this.power.narrowTo(IntegerInterval.pow(this.a.value(), this.exponent), fail);
+                if(fail[0]){ return; };
+            }
+
+            //We want to repropagate in case this is an even power and we just split on a
+            if((this.exponent % 2 == 0) && this.a.value().lower < 0){
+                if (this.a.value().upper <= 0){
+                    //a is non-positive
+                    this.a.narrowTo(IntegerInterval.invert(IntegerInterval.invPower(this.power.value(), this.exponent)), fail);
+                }else{
+                    // even inverse power of an interval that crosses zero
+                    var bound = IntegerInterval.invPower(this.power.value(), this.exponent).upper;
+                    this.a.narrowTo(new IntegerInterval(-bound, bound), fail);
+                }
+            }else{
+                //a is already non-negative or exponent is odd (and so function is monotone)
+                this.a.narrowTo(IntegerInterval.invPower(this.power.value(), this.exponent), fail);
+            }
+        },
+    });
+    constraints.IntPowerConstraint = IntPowerConstraint;
+    
     return constraints;
 });

@@ -9,7 +9,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
     ProductConstraint = ScalarArithmaticConstraints.ProductConstraint;
     ConstantProductConstraint = ScalarArithmaticConstraints.ConstantProductConstraint;
     QuotientConstraint = ScalarArithmaticConstraints.QuotientConstraint;
-    PowerConstraint = ScalarArithmaticConstraints.PowerConstraint;
+    IntPowerConstraint = ScalarArithmaticConstraints.IntPowerConstraint;
 
     //'Static' method constructors for making common variations on Integer Variables
 
@@ -53,6 +53,22 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
             this._super(name, p, initialValue);
 
             this.startingWidth = 0;
+        },
+
+        /**
+         * Add a constraint that this int variable must be contained by a particular
+         * interval
+         * Although this function can be used externally, is intended to not be.
+         * This keeps Craftjs from ever having to expose the IntInterval object / class
+         * @param  {Number} i the bounds that this variable must be in ([i.lower(), i.upper()])
+         */
+        mustBeContainedInInterval : function(i){
+            this.csp.assertConfigurationPhase();
+            var intersection = IntegerInterval.intersection(this.value(), i);
+            if(intersection.empty()){
+                throw "Argument out of current range of variable";
+            }
+            this.currentValue.setInitialValue(intersection)
         },
 
         /**
@@ -128,14 +144,14 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
 
     //now time to put in all the 'static' parts of being a int variable.
     // These are utility methods and ways to add in constraints that use
-    // inting point variables
+    // int variables
 
     /**
-     * Coerce passed in inting point variable to a primative.  If we've already
+     * Coerce passed in int variable to a primative.  If we've already
      * solved the CSP problem, then this will coerce to the value of the variable
      * that satifies the CSP.
      * @param  {intVariable} v variable to coerce to a primative
-     * @return {Number}   a primative representation of this inting point var.
+     * @return {Number}   a primative representation of this int var.
      */
     function coerceToPrimative(v){
         return v.uniqueValue();
@@ -143,7 +159,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
     IntVariable.coerceToPrimative = coerceToPrimative;
 
     /**
-     * Add two inting point variables together.  This also adds a new constraint
+     * Add two int variables together.  This also adds a new constraint
      * to the CSP.
      * @param {intVariable} a First operand of addition
      * @param {intVariable} b Second operand of addition
@@ -161,7 +177,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
     IntVariable.add = add;
 
     /**
-     * Subtract two inting point variables together (a - b).  This also adds a new constraint to
+     * Subtract two int variables together (a - b).  This also adds a new constraint to
      * the CSP
      * @param  {intVariable} a First operand to subtraction
      * @param  {intVariable} b Second operand to subtraction
@@ -179,7 +195,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
     IntVariable.subtract = subtract;
 
     /**
-     * Multiply two inting point variables together (a * b).  This also adds a new constraint to
+     * Multiply two int variables together (a * b).  This also adds a new constraint to
      * the CSP
      * @param  {intVariable} a First operand to multipulcation
      * @param  {intVariable} b Second operand to multipulcaiton
@@ -197,7 +213,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
     IntVariable.multiply = multiply;
 
     /**
-     * Multiply a inting point variable by a constant (a * k).  This also adds a constraint to
+     * Multiply a int variable by a constant (a * k).  This also adds a constraint to
      * the CSP.
      * @param  {Number} k The constant value to multiply a intVariable by.
      *                    K will get floored to the nearest int (use a float variable to allow for floating point k's)
@@ -227,7 +243,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
     function pow(a, exponent){
         var funct = function(){
             var power = new IntVariable("power", a.csp, IntegerInterval.pow(a.value(), exponent));
-            new PowerConstraint(power, a, exponent);
+            new IntPowerConstraint(power, a, exponent);
             return power;
         }
         return a.csp.memorize("^", funct, [a, exponent]);

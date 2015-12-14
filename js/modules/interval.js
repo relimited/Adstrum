@@ -34,6 +34,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 			this.lower = lowerBound;
 			this.upper = upperBound;
 
+			//debug info
+			this.kind = "FloatingInterval"
 			//conditional compilation is not a thing for Javascript, so we do all of it all the time
 			this.searchHint = SearchHint.none;
 		},

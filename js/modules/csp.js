@@ -271,8 +271,8 @@ define(["inheritance", "undoStack", "memoTable"], function(Inheritance, UndoStac
 		clearPendingQueue : function(){
 			this.currentConstraint = null;
 			while(this.pending.length > 0){
-				this.pending.shift();
 				this.pending[0].queued = false;
+				this.pending.shift();
 			}
 		},
 

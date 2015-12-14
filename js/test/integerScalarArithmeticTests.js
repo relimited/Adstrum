@@ -36,7 +36,6 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             }
         });
 
-        /**
         it("Quadratic Integer Tests", function(){
             console.log("======================================");
             console.log("Quadratic Sum Tests");
@@ -54,7 +53,6 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
                 //expect(quad.uniqueValue() >= 10 && quad.uniqueValue() <= 20).toBe(true);
             }
         });
-        **/
 
         it("Integer Sum Test", function(){
             console.log("======================================");

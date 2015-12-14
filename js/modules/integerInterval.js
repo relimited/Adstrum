@@ -37,6 +37,9 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
             this.lower = Math.floor(lowerBound);
             this.upper = Math.floor(upperBound);
 
+            //debug info
+            this.kind = "IntegerInterval"
+
             //conditional compilation is not a thing for Javascript, so we do all of it all the time
 			this.searchHint = SearchHint.none;
         },
@@ -51,39 +54,64 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
             var range = (this.practicalUpper() - realLower);
             //TODO: assert not NaN and not positive infinity
 
-            var randomElement = Math.floor(realLower + (Math.random() * range));
+            var randomElement = realLower + (Math.random() * range);
+            if(realLower <= Math.floor(randomElement)){
+                //we can safely floor the number
+                randomElement = Math.floor(randomElement)
+            }else if(this.practicalUpper() >= Math.ceil(randomElement)){
+                //we can safely ceil the number
+                randomElement = Math.ceil(randomElement)
+            }else{
+                console.log(this.practicalLower())
+                console.log(this.practicalUpper())
+                throw "Unable to find a random integer in provided range!"
+
+            }
             //TODO: assert not positive infinity and not negative infinity
 
             return randomElement;
 		},
 
         /**
-         * For Integer Intervals, we can't get an exact midpoint, so we get the
-         * nearest Integer
-         * @return {Number} The nearest integer to the middle of this interval
+         * get a practical upper bound on this Integer Interval
+         * @return {Number} an Integer that is either this interval's upper bound
+         *                     or a practical replacement
          */
-        midpoint : function(){
-			return Math.round((this.practicalLower() + this.practicalUpper()) * 0.5); //Javascript don't give no fucks about floats or not floats.  It's all a number
+        practicalUpper :  function(){
+			return Math.min(this.upper, IntegerInterval.maxPracticalInt);
 		},
 
         /**
-         * Get the upper half of this interval.  We don't need to promote out
-         * to a standard Interval, so keep it as an Integer interval
-         * @return {IntergerInterval} An interger interval that represents the
-         *                            upper half of this integer interval
+         * get a practical lower bound on this Integer Interval
+         * @return {Number} an Integer that is either this interval's lower bound
+         *                     or a practical replacement
          */
+		practicalLower : function(){
+			return Math.max(this.lower, IntegerInterval.minPracticalInt);
+		},
+
+        /**
+		 * Get a unique value based on the upper and lower bounds
+		 */
+		uniqueValue : function(){
+			if(!this.unique){
+                var mid = this.midpoint();
+                if(mid >= this.lower){
+                    //safe to floor
+                    return Math.floor(mid);
+                }else if(mid <= this.upper){
+                    //safe to ceil
+                    return Math.ceil(mid);
+                }
+			}
+		},
+
         upperHalf : function(){
-			return new IntegerInterval(this.midpoint(), this.upper);
+			return new IntegerInterval(Math.floor(this.midpoint()), this.upper);
 		},
 
-        /**
-         * Get the lower half of this integer interval.  We don't need to promote
-         * out to a standard Interval, so keep it in the Integers.
-         * @return {IntergerInterval} An integer interval that represents the
-         *                               lower half of this integer interval
-         */
 		lowerHalf : function(){
-			return new IntegerInterval(this.lower, this.midpoint());
+			return new IntegerInterval(this.lower, Math.ceil(this.midpoint()));
 		},
 
         /**
@@ -118,8 +146,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 
     //static constants
 	IntegerInterval.allValues = new Interval(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY);
-	IntegerInterval.maxPracticalDouble = Math.floor(Number.MAX_VALUE * 0.5);
-	IntegerInterval.minPracticalDouble = Math.floor(-Number.MAX_VALUE * 0.5); //javascript is weird
+	IntegerInterval.maxPracticalInt = Math.floor(Number.MAX_VALUE * 0.5);
+	IntegerInterval.minPracticalInt = Math.ceil(-Number.MAX_VALUE * 0.5); //javascript is weird
 
     //Special constructors.  TODO: There is some overlap form Interval here
 	function fromUnsortedBounds(a, b){
@@ -337,26 +365,24 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 	}
 
     /**
-     * Returns a standard interval of the inverse power of this interval
+     * Returns an integer interval of the inverse power of this interval
      * @param  {Interval} a       Interval to take the inverse power of
      * @param  {Number} exponent Exponent to use for the inverse power op
-     * @return {Interval}          inverse power of a by exp as an interval
+     * @return {Interval}          inverse power of a by exp as an integer interval
      */
 	function invPower(a, exponent){
-		//TODO: type check on intersector, a (interval) and b (integer... this is actually important)
-		console.log("[PROMOTE WARN] invPower with IntegerInterval returns an Interval")
 		if(exponent == 1){
 			return a;
 		}else{
 			var invExponent = 1.0 / exponent;
 			if (exponent % 2 == 0){
                 // even exponent
-                var lower = Math.pow(Math.max(0, a.lower), invExponent);
-                var upper = Math.pow(Math.max(0, a.upper), invExponent);
-                return new Interval(lower, upper);
+                var lower = Math.pow(Math.max(0, a.lower), Math.floor(invExponent));
+                var upper = Math.pow(Math.max(0, a.upper), Math.ceil(invExponent));
+                return new IntegerInterval(lower, upper);
             }else{
             	// odd exponent
-            	return new Interval(negativeTolerantPower(a.lower, invExponent), negativeTolerantPower(a.upper, invExponent));
+            	return new IntegerInterval(Math.floor(negativeTolerantPower(a.lower, invExponent)), Math.ceil(negativeTolerantPower(a.upper, invExponent)));
             }
 
 		}

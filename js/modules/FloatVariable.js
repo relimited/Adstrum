@@ -279,28 +279,23 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
             var randElement = this.value().randomElement();
             this.csp.pushChoice("Guess {0}={1}", [this.name, randElement]);
             this.narrowTo(new Interval(randElement, randElement), fail);
-            //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
             yield false;
 
             if(Math.random() & 1 == 0){
                 this.csp.pushChoice("Lower half {0} to {1}", [this.name, this.value().lowerHalf()]);
                 this.narrowTo(this.value().lowerHalf(), fail);
-                //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yield false;
 
                 this.csp.pushChoice("Upper half {0} to {1}", [this.name, this.value().upperHalf()]);
                 this.narrowTo(this.value().upperHalf(), fail);
-                //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 return false;
             }else{
                 this.csp.pushChoice("Upper half {0} to {1}", [this.name, this.value().upperHalf()]);
                 this.narrowTo(this.value().upperHalf(), fail);
-                //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yield false;
 
                 this.csp.pushChoice("Lower half {0} to {1}", [this.name, this.value().lowerHalf()]);
                 this.narrowTo(this.value().lowerHalf(), fail);
-                //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 return false;
             }
         },
