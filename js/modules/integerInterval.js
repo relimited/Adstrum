@@ -32,9 +32,9 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
             //enforce that results here need to be an int.
             if(!Number.isInteger(lowerBound) || !Number.isInteger(upperBound)){
                 //TODO: Right now, just throw a warning.
-                console.log("[WARN] Non-integer arguments passed to an IntegerInterval.  It's about to do disgusting things to your numbers.");
+                console.log("[WARN PROMOTE] Calculating the largest containing integer interval for [" + lowerBound + "," + upperBound + "]");
             }
-            this.lower = Math.floor(lowerBound);
+            this.lower = Math.ceil(lowerBound);
             this.upper = Math.floor(upperBound);
 
             //debug info
@@ -107,15 +107,30 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 		},
 
         upperHalf : function(){
-			return new IntegerInterval(Math.floor(this.midpoint()), this.upper);
+            //if the midpoint is right between two integers (say 2,3 -> midpoint of 2.5)
+            //this won't actually narrow, so we need to check for that case, otherwise
+            //proceed as normal.
+            if(this.width() == 1){
+                return new IntegerInterval(Math.ceil(this.midpoint()), this.upper);
+            }else{
+			    return new IntegerInterval(Math.floor(this.midpoint()), this.upper);
+            }
 		},
 
 		lowerHalf : function(){
-			return new IntegerInterval(this.lower, Math.ceil(this.midpoint()));
+            //if the midpoint is right between two integers (say 2,3 -> midpoint of 2.5)
+            //this won't actually narrow, so we need to check for that case, otherwise
+            //proceed as normal.
+            if(this.width() == 1){
+                return new IntegerInterval(this.lower, Math.floor(this.midpoint()));
+            }else{
+			    return new IntegerInterval(this.lower, Math.ceil(this.midpoint()));
+            }
+
 		},
 
         /**
-         * Get the reciprocal of this IntergerInterval.
+         * Get the reciprocal of this IntegerInterval.
          *
          * WARN: this returns a standard floating point Interval
          * @return {Interval} the recirpocal of this integer interval
@@ -141,7 +156,50 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 			}else{
 				return new IntegerInterval(lowerSq, upperSq);
 			}
-		}
+		},
+
+        /**
+         * return a new empty integer interval
+         * @return {IntegerInterval} this integer interval such lower > upper
+         */
+        makeEmpty : function(){
+            return new IntegerInterval(this.upper + 1, this.upper);
+        },
+
+        /**
+         * Search through acceptable integers in b to find a pair of ints that
+         * completely divides this interval.
+         * @param  {IntegerInterval} b interval to search for divisors in.
+         * @return {IntegerInterval}   An integer interval where lower and upper divides
+         * an element in this interval
+         */
+        findDivisors : function(b){
+            var test = b.lower;
+            var c = undefined;
+            var d = undefined;
+            for(test; test <= b.upper; test++){
+                var div = Math.floor(this.upper / test);
+                if(test * div >= this.lower){
+                    c = test;
+                    break;
+                }
+            }
+            //FIXME Won't find the largest divisor.
+            test = test + 1; //check the rest of the interval first.  If nothing satisifies,
+                             // then we'll cycle back
+            for(test; test <= b.upper; test++){
+                var div = Math.floor(this.upper / test);
+                if(test * div >= this.lower){
+                    d = test;
+                    break;
+                }
+            }
+            if(d == undefined){
+                d = c;
+            }
+
+            return new IntegerInterval(c, d);
+        }
     });
 
     //static constants
@@ -167,18 +225,6 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 	IntegerInterval.singleton = singleton;
 
     // static methods
-
-    //=============== HELPER FUNCTIONS===============
-    // helper min function
-	function min(a, b, c, d){
-		return Math.min(Math.min(a, b), Math.min(c, d));
-	}
-
-	//helper max function
-	function max(a, b, c, d){
-		return Math.max(Math.max(a, b), Math.max(c, d));
-	}
-    //================ END HELP =====================
 
     //TODO: lot of repeated code here.  Refactor it.
 	function propagatePositiveInfinity(x, otherwise){
@@ -234,6 +280,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 
     //TODO: add type checking and promote warnings
 	function subtract(a, b){
+        // TODO leaving the potential for inf in right now.  Trying to not undo
+        // work that may help writing a mixed method later on.
 		return new IntegerInterval(
         	propagateNegativeInfinity(a.lower, a.lower - b.upper),
             propagatePositiveInfinity(a.upper, a.upper - b.lower));
@@ -250,12 +298,11 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 	}
 	IntegerInterval.invert = invert;
 
-    //TODO: add type checking and promote warnings
 	function multiply(a, b){
-		//TODO: type check on intersector, a and b (interval)
+		//TODO: type check and promote warnings on a, b
 		return new IntegerInterval(
-               	min(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower),
-                max(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower));
+               	MathUtil.min(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower),
+                MathUtil.max(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower));
 	}
 	IntegerInterval.multiply = multiply;
 
@@ -294,24 +341,35 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
  	 * @param {Interval} b dividend?
 	 */
 	function divide(a, b){
-		//Not even going to try to say that this could be interger saving.
-		console.log("[PROMOTE WARN] divide with IntegerInterval returns an Interval")
-		if(b.lower == 0){
-			if(b.upper == 0){
-				return Interval.allValues;
-			}else{
-				return new Interval(Math.min(a.upper / b.upper, a.lower / b.upper), Number.POSITIVE_INFINITY);
-			}
-		}else if(b.upper == 0){
-			//ReShaper comment here
-			 return new Interval(Number.NEGATIVE_INFINITY, Math.max(a.lower / b.lower, a.upper / b.lower));
-		}else if(b.contains(0)){
-			return Interval.allValues;
-		}else{
-			return new Interval(
-                min(a.lower / b.lower, a.upper / b.upper, a.lower / b.upper, a.upper / b.lower),
-                max(a.lower / b.lower, a.upper / b.upper, a.lower / b.upper, a.upper / b.lower));
-		}
+		//Whelp, it turns out we can do division in integer intervals.  This may be
+		//the missing piece to suddenly be able to solve these suckers.
+		if(a.lower <= 0 && a.upper >= 0){
+            //0 is an element of [b.lower..b.upper]
+            if(b.lower <= 0 && b.upper >=0){
+                //0 is an element of [a.lower..a.upper]
+                return IntegerInterval.allValues;
+            }
+        }
+
+        if(a.lower > 0 || a.upper < 0){
+            if(b.lower == 0 && b.upper == 0){
+                return a.makeEmpty();
+            }else if(b.lower < 0 && b.upper > 0){
+                return new IntegerInterval(-Math.max(Math.abs(a.lower), Math.abs(a.upper)), Math.max(Math.abs(a.lower), Math.abs(a.upper)))
+            }else if(b.lower == 0 && b.upper != 0){
+                return divide(a, new IntegerInterval(b.lower + 1, b.upper))
+            }else if(b.lower != 0 && b.upper == 0){
+                return divide(a, new IntegerInterval(b.lower, b.upper - 1))
+            }
+        }
+
+        if(b.lower > 0 || b.upper < 0){
+            //the tricky case.  We need to find a b.lower' that divides a and a b.upper' that divides b
+            var fitB = a.findDivisors(b);
+            return new IntegerInterval(
+                Math.ceil(MathUtil.min(a.lower / fitB.lower, a.upper / fitB.upper, a.lower / fitB.upper, a.upper / fitB.lower)),
+                Math.floor(MathUtil.max(a.lower / fitB.lower, a.upper / fitB.upper, a.lower / fitB.upper, a.upper / fitB.lower)));
+        }
 	}
 	IntegerInterval.divide = divide;
 
@@ -326,46 +384,73 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 	function pow(a, exponent){
 		switch(exponent){
 			case 0:
-				return new IntegerInterval(1,1);
+				return new IntegerInterval(1,1); // speedup case
 			break;
 			case 1:
-				return a;
+				return a; // speedup case
 			break;
 			default:
-				if(exponent % 2 == 0){
-					//even exponent
-					if(a.lower >= 0){
-						return new IntegerInterval(Math.pow(a.lower, exponent), Math.pow(a.upper, exponent));
-					}else if(a.upper < 0){
-						return new IntegerInterval(Math.pow(a.upper, exponent), Math.pow(a.lower, exponent));
-					}else{
-						return new IntegerInterval(
-                            0,
-                            Math.max(Math.pow(a.upper, exponent), Math.pow(a.lower, exponent))
-                            );
-					}
-				}else{
-					//odd exponent
-					return new IntegerInterval(Math.pow(a.lower, exponent), Math.pow(a.upper, exponent));
-				}
+                //more complicated crap
+                if(exponent % 2 != 0){
+                    //odd exponent
+                    return new IntegerInterval(Math.pow(a.lower, exponent), Math.pow(a.upper, exponent));
+                }else if (exponent % 2 == 0){
+                    //exponent is even
+                    if(a.lower >= 0){
+                        return new IntegerInterval(Math.pow(a.lower, exponent), Math.pow(a.upper, exponent));
+                    }else if(a.upper <= 0){
+                        return new IntegerInterval(Math.pow(a.upper, exponent), Math.pow(a.lower, exponent));
+                    }else if(a.lower < 0 && 0 < a.upper){
+                        return new IntegerInterval(0, Math.max(Math.pow(a.lower, exponent), Math.pow(a.upper, exponent)));
+                    }
+                }
 			break;
 		}
 	}
 	IntegerInterval.pow = pow;
 
-	/**
-	 * A negative tolerant exponent function.
-	 * I might not expose this one.
- 	 * @param {Object} number
- 	 * @param {Object} exponent
-	 */
-	function negativeTolerantPower(number, exponent){
-		//TODO: Math.sign DNE in Javascript
-		return Math.sign(number) * Math.pow(Math.abs(number), exponent);
-	}
+    /**
+     * The int closure on root extraction for intervals.  Lets us do things like n-th roots
+     * @param  {IntegerInterval} a interval to get a n-th root from
+     * @param  {Number (please be an int kthx)} n amount of root to get (2 = square root, 3 = cube root, 1 = you're an asshole)
+     * @return {IntegerInterval}   an integer interval of the appropriate type
+     */
+    function rootExtraction(a, n){
+        switch(n){
+            case 0:
+                return new IntegerInterval(0, 0);
+                break;
+            case 1:
+                return a;
+                break;
+            case -1:
+                return invert(a);
+                break;
+            default:
+                if(n % 2 != 0){
+                    //n is odd
+                    return new IntegerInterval(Math.ceil(MathUtil.nthroot(a.lower, n)), Math.floor(MathUtil.nthroot(a.upper, n)));
+                }else{
+                    //n is even
+                    if(a.upper < 0){
+                        //the entire interval is negative.  can't take an even root of a negative number without
+                        //going into complexes.
+                        return a.makeEmpty();
+                    }else{
+                        // a.upper is greater than or equal to 0
+                        return new IntegerInterval(
+                            -Math.ceil(Math.abs(MathUtil.nthroot(a.upper, n))),
+                            Math.floor(Math.abs(MathUtil.nthroot(a.upper, n)))
+                        );
+                    }
+                }
+                break;
+        }
+    }
+    IntegerInterval.rootExtraction = rootExtraction;
 
     /**
-     * Returns an integer interval of the inverse power of this interval
+     * Taking an inverse power is just doing root extraction on that power (sqrt(a) == rootExtraction(a, 2) == invPower(a, 2))
      * @param  {Interval} a       Interval to take the inverse power of
      * @param  {Number} exponent Exponent to use for the inverse power op
      * @return {Interval}          inverse power of a by exp as an integer interval
@@ -374,30 +459,18 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 		if(exponent == 1){
 			return a;
 		}else{
-			var invExponent = 1.0 / exponent;
-			if (exponent % 2 == 0){
-                // even exponent
-                var lower = Math.pow(Math.max(0, a.lower), Math.floor(invExponent));
-                var upper = Math.pow(Math.max(0, a.upper), Math.ceil(invExponent));
-                return new IntegerInterval(lower, upper);
-            }else{
-            	// odd exponent
-            	return new IntegerInterval(Math.floor(negativeTolerantPower(a.lower, invExponent)), Math.ceil(negativeTolerantPower(a.upper, invExponent)));
-            }
-
+			return rootExtraction(a, exponent);
 		}
 	}
 	IntegerInterval.invPower = invPower;
 
 	function positiveSqrt(a){
-        console.log("[PROMOTE WARN] sqrt with IntegerInterval returns an Interval")
-		//TODO: type check on intersector, a (interval)
 		if(a.lower <= 0){
 			throw {
 				message : "Attempt to take square root of a negative interval"
 			};
 		}
-		return new Interval(Math.sqrt(a.lower), Math.sqrt(a.upper));
+		return rootExtraction(a, 2);
 	}
 	IntegerInterval.positiveSqrt = positiveSqrt;
 
@@ -413,6 +486,5 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 		return a.lower != b.lower || a.upper != b.upper;
 	}
 	IntegerInterval.notEqualOp = notEqualOp;
-
 	return IntegerInterval;
 });

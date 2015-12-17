@@ -233,7 +233,6 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             assertUnique(a, 2);
         });
 
-        /**
         it("Integer Quotient Test", function(){
             console.log("======================================");
             console.log("Quotient Test");
@@ -243,11 +242,11 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 2);
             var quotent = FloatVariable.divide(a, b);
 
-            a.mustEqual(1);
-            b.mustEqual(2);
+            a.mustEqual(2);
+            b.mustEqual(1);
 
             p.testConsistency();
-            assertUnique(quotent, 0.5);
+            assertUnique(quotent, 2);
         });
 
         it("Integer Quotent A Term Test", function(){
@@ -259,11 +258,11 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 3);
             var quotent = FloatVariable.divide(a, b);
 
-            b.mustEqual(2);
-            quotent.mustEqual(0.5);
+            b.mustEqual(1);
+            quotent.mustEqual(2);
 
             p.testConsistency();
-            assertUnique(a, 1);
+            assertUnique(a, 2);
         });
 
         it("Integer Quotent B Term Test", function(){
@@ -275,16 +274,14 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 3);
             var quotent = FloatVariable.divide(a, b);
 
-            a.mustEqual(1);
-            quotent.mustEqual(0.5);
+            a.mustEqual(2);
+            quotent.mustEqual(2);
 
             p.testConsistency();
-            assertUnique(b, 2);
+            assertUnique(b, 1);
         });
-        **/
 
-        /**
-        it("Integer Odd Power Negative Tests", function(){
+        it("Integer Odd Power Negative Test", function(){
             console.log("======================================");
             console.log("Odd Power Negative Test");
             console.log("======================================");
@@ -325,7 +322,7 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
 
         it("Integer Odd Power Positive A Term", function(){
             console.log("======================================");
-            console.log("Odd Power Positive A Term Test");
+            console.log("Integer Odd Power Positive A Term Test");
             console.log("======================================");
             var p = new CSP();
             var a = IntegerVariable.makeIntVariableWithBounds("a", p, -3, 3);
@@ -345,7 +342,7 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             var power = IntegerVariable.pow(a, 2);
             power.mustEqual(4);
 
-            p.testConsistency();
+            p.newSolution(); //it takes more than one step for the integer variant to find the right solution.
             assertUnique(a, 2);
         });
 
@@ -371,7 +368,7 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             var power = IntegerVariable.pow(a, 2);
             power.mustEqual(4);
 
-            p.testConsistency();
+            p.newSolution(); //it takes more than one step for the integer variant to find the right solution.
             assertUnique(a, -2);
         });
 
@@ -400,6 +397,5 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             p.testConsistency();
             expect(new IntegerInterval(-2, 2).equals(a.value())).toBe(true)
         });
-        **/
     });
 });

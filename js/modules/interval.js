@@ -234,19 +234,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		return new Interval(a, a);
 	}
 	Interval.singleton = singleton;
+
 	// static methods
-	/**
-	 * Min helper function
-	 */
-	function min(a, b, c, d){
-		return Math.min(Math.min(a, b), Math.min(c, d));
-	}
-
-	//helper max function
-	function max(a, b, c, d){
-		return Math.max(Math.max(a, b), Math.max(c, d));
-	}
-
 	function propagatePositiveInfinity(x, otherwise){
     	if(x == Number.POSITIVE_INFINITY){
     		return Number.POSITIVE_INFINITY;
@@ -316,8 +305,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	function multiply(a, b){
 		//TODO: type check on intersector, a and b (interval)
 		return new Interval(
-               	min(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower),
-                max(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower));
+               	MathUtil.min(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower),
+                MathUtil.max(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower));
 	}
 	Interval.multiply = multiply;
 
@@ -362,8 +351,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 			return Interval.allValues;
 		}else{
 			return new Interval(
-                min(a.lower / b.lower, a.upper / b.upper, a.lower / b.upper, a.upper / b.lower),
-                max(a.lower / b.lower, a.upper / b.upper, a.lower / b.upper, a.upper / b.lower));
+                MathUtil.min(a.lower / b.lower, a.upper / b.upper, a.lower / b.upper, a.upper / b.lower),
+                MathUtil.max(a.lower / b.lower, a.upper / b.upper, a.lower / b.upper, a.upper / b.lower));
 		}
 	}
 	Interval.divide = divide;
@@ -399,31 +388,19 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	}
 	Interval.pow = pow;
 
-	/**
-	 * A negative tolerant exponent function.
-	 * I might not expose this one.
- 	 * @param {Object} number
- 	 * @param {Object} exponent
-	 */
-	function negativeTolerantPower(number, exponent){
-		//TODO: Math.sign DNE in Javascript
-		return Math.sign(number) * Math.pow(Math.abs(number), exponent);
-	}
-
 	function invPower(a, exponent){
 		//TODO: type check on intersector, a (interval) and b (integer... this is actually important)
 		if(exponent == 1){
 			return a;
 		}else{
-			var invExponent = 1.0 / exponent;
 			if (exponent % 2 == 0){
                 // even exponent
-                var lower = Math.pow(Math.max(0, a.lower), invExponent);
-                var upper = Math.pow(Math.max(0, a.upper), invExponent);
+                var lower = MathUtil.nthroot(Math.max(0, a.lower), exponent);
+                var upper = MathUtil.nthroot(Math.max(0, a.upper), exponent);
                 return new Interval(lower, upper);
             }else{
             	// odd exponent
-            	return new Interval(negativeTolerantPower(a.lower, invExponent), negativeTolerantPower(a.upper, invExponent));
+            	return new Interval(MathUtil.nthroot(a.lower, exponent), MathUtil.nthroot(a.upper, exponent));
             }
 
 		}

@@ -64,12 +64,12 @@ define(['inheritance', 'integerInterval', 'interval'], function(Inheritance, Int
         });
 
         it("Divide Interval Tests", function(){
-            expect(Interval.allValues.equals(IntegerInterval.divide(new IntegerInterval(1, 1), new IntegerInterval(-1, 1)))).toBe(true);
+            expect(new Interval(-1, 1).equals(IntegerInterval.divide(new IntegerInterval(1, 1), new IntegerInterval(-1, 1)))).toBe(true);
             expect(Interval.allValues.equals(IntegerInterval.divide(new IntegerInterval(-1, 1), new IntegerInterval(-1, 1)))).toBe(true);
             expect(new Interval(1, 4).equals(IntegerInterval.divide(new IntegerInterval(2, 4), new IntegerInterval(1, 2)))).toBe(true);
             expect(new Interval(-4, -1).equals(IntegerInterval.divide(new IntegerInterval(2, 4), new IntegerInterval(-2, -1)))).toBe(true);
-            expect(new Interval(1, Number.POSITIVE_INFINITY).equals(IntegerInterval.divide(new IntegerInterval(1, 2), new IntegerInterval(0, 1)))).toBe(true);
-            expect(new Interval(Number.NEGATIVE_INFINITY, -1).equals(IntegerInterval.divide(new IntegerInterval(1, 2), new IntegerInterval(-1, 0)))).toBe(true);
+            expect(new Interval(1, 2).equals(IntegerInterval.divide(new IntegerInterval(1, 2), new IntegerInterval(0, 1)))).toBe(true);
+            expect(new Interval(-2, -1).equals(IntegerInterval.divide(new IntegerInterval(1, 2), new IntegerInterval(-1, 0)))).toBe(true);
         });
 
         it("Integer Power Interval Tests", function(){
@@ -88,7 +88,7 @@ define(['inheritance', 'integerInterval', 'interval'], function(Inheritance, Int
         });
 
         it("Sqrt Interval Test", function(){
-            expect(new Interval(2, 3).equals(IntegerInterval.positiveSqrt(new IntegerInterval(4,9)))).toBe(true)
+            expect(new Interval(-3, 3).equals(IntegerInterval.positiveSqrt(new IntegerInterval(4,9)))).toBe(true)
         });
     });
 });

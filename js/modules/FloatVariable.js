@@ -281,14 +281,14 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
             this.narrowTo(new Interval(randElement, randElement), fail);
             yield false;
 
-            if(Math.random() & 1 == 0){
+            if(Math.floor(Math.random() * 2) == 0){
                 this.csp.pushChoice("Lower half {0} to {1}", [this.name, this.value().lowerHalf()]);
                 this.narrowTo(this.value().lowerHalf(), fail);
                 yield false;
 
                 this.csp.pushChoice("Upper half {0} to {1}", [this.name, this.value().upperHalf()]);
                 this.narrowTo(this.value().upperHalf(), fail);
-                return false;
+                yield false;
             }else{
                 this.csp.pushChoice("Upper half {0} to {1}", [this.name, this.value().upperHalf()]);
                 this.narrowTo(this.value().upperHalf(), fail);
@@ -296,8 +296,11 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
 
                 this.csp.pushChoice("Lower half {0} to {1}", [this.name, this.value().lowerHalf()]);
                 this.narrowTo(this.value().lowerHalf(), fail);
-                return false;
+                yield false;
             }
+
+            return false; //We're done trying to narrow this particular variable,
+                            // and just need to return something.
         },
 
         /**
