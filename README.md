@@ -35,9 +35,15 @@ require.config({
 This allows for you to shift Craftjs's modules around in your own project to fit
 your own mangement scheme / naming conventions, and only need to update one file.
 After pointing RequireJS to where each module is, you'll want to tell Require that your Craftjs
-code needs the CSP and FloatVariable modules:
+code needs the CSP and FloatVariable/IntegerVariable modules:
 ```javascript
 require(["csp", "floatVariable"], function(CSP, FloatVariable){'use strict';
+	//Craftjs-using code.
+});
+```
+or for integers:
+```javascript
+require(["csp", "integerVariable"], function(CSP, IntegerVariable){'use strict';
 	//Craftjs-using code.
 });
 ```
