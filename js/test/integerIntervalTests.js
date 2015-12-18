@@ -47,6 +47,17 @@ define(['inheritance', 'integerInterval', 'interval'], function(Inheritance, Int
             expect(new IntegerInterval(1, 2).equals(IntegerInterval.unionBound(new IntegerInterval(1, 2), new IntegerInterval(3, -4)))).toBe(true);
         });
 
+        it("Find Divisors Tests", function(){
+            expect(new IntegerInterval(2, 2).equals(new IntegerInterval(4, 6).findDivisors(new IntegerInterval(2, 2)))).toBe(true);
+            expect(new IntegerInterval(2, 3).equals(new IntegerInterval(4, 6).findDivisors(new IntegerInterval(2, 3)))).toBe(true);
+            expect(new IntegerInterval(1, 8).equals(new IntegerInterval(4, 8).findDivisors(new IntegerInterval(1, 8)))).toBe(true);
+            expect(new IntegerInterval(6, 7).equals(new IntegerInterval(6, 8).findDivisors(new IntegerInterval(5, 7)))).toBe(true);
+            expect(new IntegerInterval(12, 12).equals(new IntegerInterval(23, 25).findDivisors(new IntegerInterval(11, 13)))).toBe(true);
+            expect(new IntegerInterval(-3, -2).equals(new IntegerInterval(-6, -4).findDivisors(new IntegerInterval(-3, -2)))).toBe(true);
+            expect(new IntegerInterval(-3, -2).equals(new IntegerInterval(4, 6).findDivisors(new IntegerInterval(-3, -2)))).toBe(true);
+            expect(new IntegerInterval(2, 3).equals(new IntegerInterval(-6, -4).findDivisors(new IntegerInterval(2, 3)))).toBe(true);
+        });
+
         it("Add Interval Test", function(){
             expect(new IntegerInterval(1, 3).equals(IntegerInterval.add(new IntegerInterval(0, 1), new IntegerInterval(1, 2)))).toBe(true);
         });

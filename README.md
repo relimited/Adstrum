@@ -1,6 +1,10 @@
 ## Requirements
-Craftjs uses RequireJS to handle module loading and John Resig's inheritance.js library for Java-style polymorphism.
-For testing, Craftjs uses Jasmine.
+Craftjs uses several functions, constants and patterns as part of the ES6 standard,
+and will fail on browsers that do not support them.  Craftjs has been tested on
+the most recent build of Google Chrome.
+
+Craftjs uses RequireJS to handle module loading and John Resig's inheritance.js
+library for Java-style polymorphism.  For testing, Craftjs uses Jasmine.
 
 All three libraries are in the /vendor folder.
 
@@ -90,28 +94,45 @@ lets say we're dealing with a basic quadratic problem of quad = a^2 + b, where:
 * a must be between -100 and 100
 * b must be between -100 and 100
 * quad must be between 10 and 20
+
 First, we want to specify our independent variables:
 ```javascript
 var a = FloatVariable.makeFloatVariableWithBounds('a', p, -100, 100);
 var b = FloatVariable.makeFloatVariableWithBounds('b', p, -100, 100);
 ```
+Craftjs also supports integers!  If we wanted to set the same problem up, but
+in this case, a and b needed to be ints, we'd write:
+```javascript
+var a = IntegerVariable.makeIntVariableWithBounds('a', p, -100, 100);
+var b = IntegerVariable.makeIntVariableWithBounds('b', p, -100, 100);
+```
 
-It's important to note that `FloatVariable.makeFloatVariableWithBounds()` is a
-convience method.  The above could also be done with `FloatVariable`'s constructor:
+It's important to note that `FloatVariable.makeFloatVariableWithBounds()` (and
+its integer counterpart is a convience method.  
+The above could also be done with `FloatVariable`'s constructor:
 ```javascript
 var a = new FloatVariable('a', p, new Interval(-100, 100));
 var b = new FloatVariable('b', p, new Interval(-100, 100));
 ```
+With the integer version being:
+```javascript
+var a = new IntegerVariable('a', p, new IntegerInterval(-100, 100));
+var b = new IntegerVariable('b', p, new IntegerInterval(-100, 100));
+```
 
 Now that we've got our independent variables figured out, lets add constraints.
 Quad is constrained to be the a squared plus b, so let us tell Craftjs that.
-```Javascript
+```javascript
 var quad = FloatVariable.add(FloatVariable.pow(a, 2), b);
+```
+If quad also needed to be an integer, we'd write:
+```javascript
+var quad = IntegerVariable.add(IntegerVariable.pow(a, 2), b);
 ```
 
 Well, that's some weird syntax.  To do scalar arithmetic in Craftjs, you need to
-use the operations in `FloatVariable`.  The available ops are (variables are
-Craftjs FloatVariables unless otherwise noted):
+use the operations in `FloatVariable` or `IntegerVariable`.  The available ops
+are:
 ```
 FloatVariable.add(a, b) --> a + b
 FloatVariable.subtract(a, b) --> a - b
@@ -120,6 +141,18 @@ FloatVariable.multiplyIntervalByConstant(a, k) --> a * k (where k is a Number)
 FloatVariable.divide(a, b) --> a / b
 FloatVariable.pow(a, exponent) --> a ^ exponent (where exponent is a Number)
 ```
+For Integers, the same sorts of ops look like:
+```
+IntegerVariable.add(a, b) --> a + b
+IntegerVariable.subtract(a, b) --> a - b
+IntegerVariable.multiply(a, b) --> a * b
+IntegerVariable.multiplyIntervalByConstant(a, k) --> a * k (where k is a Number)
+IntegerVariable.divide(a, b) --> a / b
+IntegerVariable.pow(a, exponent) --> a ^ exponent (where exponent is a Number)
+```
+Note that, for integers, Craftjs will throw errors if `k` or `exponent` are
+floating point.  If these need to be floats, use the operations in `FloatVariable`
+instead.
 
 If you're familiar with reverse polish syntax, this probably rings a few bells.
 It's also important to note that Craftjs does not enforce order of operations--
@@ -131,8 +164,14 @@ Finally we need to add one more explicit constraint to quad-- that it must be wi
 quad.mustBeContainedInRange(10, 20);
 ```
 
-Craftjs has another explicit constraints to add to `FloatVariable`s, and that is
-`mustEqual()`, which a primative `Number` and requires the `FloatVariable` be equal to that number.
+Craftjs has some other constraints to add to `FloatVariable` or `IntegerVariable`s:
+```
+.mustBeContainedIn(low, high) --> variable must be within the specified range
+.mustEqual(Number) --> variable must equal the provided Number
+.mustBeLessThanOrEqualTo(Number) --> variable must be less than or equal to the provided Number
+.mustBeGreaterThanOrEqualTo(Number) --> variable must be greater than or equal to the provided number
+```
+
 
 Now that we've set up the CSP, we can start getting solutions to it.  Craftjs gets one
 solution to the CSP at a time, and does not make any promises about not returning the same solution twice.
@@ -152,17 +191,19 @@ call `newSolution()` again.
 ## Examples
 The examples folder (html page is in /example and relevant javascript is in js/example) contains a toy program that draws circles in a circle.  It also illustrates a weakness of math beind Craftjs-- it does not ensure a uniform distribution, and why that can be awkward is illustrated best with a impossibly large range.
 
+There is a program that also draws circles in a square to show off how to use Integer constraints.  If Craftjs isn't expressive enough to your liking, Craftjs can do rejection sampling to get more complicated constrained solutions, as seen in the final example.
+
+## Features to Add
+-- Vectors, for both Reals and Integers.
+-- Some calling interface (perhaps an equation parser?) to make setting up problems easier.
+-- Various optimizations to speed up finding solutions.
+-- Refactor to using prototype inheritance, to make future debugging easier and remove the reliance on inheritance.js
+
 ## Known Problems
 #### bugs
 The original Craft ensures that `cspObj.narrowTo()` also adds the relevant constraints while `cspObj` is in
-the configuration phase.  Craftjs does not do this, and uses mustBeContainedIn() to add contain-based constraints.
+the configuration phase.  Craftjs does not do this, and uses `mustBeContainedIn()` to add contain-based constraints.
 
 #### other
-Craftjs is very much in development, and is not feature complete.  The biggest hole
-is that Craftjs only handles `FloatVariable`s and scalar arithmetic, whereas Craft
-can also handle constraint satisfaction problems with vectors and vector arithmetic.
-
-Also, Craftjs is not optimized (in some parts, embarrassingly so) and will tend to run
-rather slow.
-
-Finally, Craftjs's current interface and way to import to a project are not the easiest.
+Craftjs is very much in development.  This is an alpha build (0.2, at time of writing this disclamer), and may be bug-ridden.
+Please, add an issue tag for any bugs you find.

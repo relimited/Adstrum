@@ -327,8 +327,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 	IntegerInterval.multiplyIntervalByConstant = multiplyIntervalByConstant;
 	/**
 	 * This is pretty much the same as multiplyIntervalByConstant
- 	 * @param {Object} k
- 	 * @param {Object} a
+ 	 * @param {Number} k
+ 	 * @param {IntegerInterval} a
 	 */
 	function multiplyConstantByInterval(k, a){
 		return multiplyIntervalByConsant(a,k);
@@ -336,8 +336,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 	IntegerInterval.multiplyConstantByInterval = multiplyConstantByInterval;
 	/**
 	 * Divide by two Intervals, such that a / b
- 	 * @param {Interval} a operand?
- 	 * @param {Interval} b dividend?
+ 	 * @param {IntegerInterval} a numerator
+ 	 * @param {IntegerInterval} b denominator
 	 */
 	function divide(a, b){
 		//Whelp, it turns out we can do division in integer intervals.  This may be
@@ -350,18 +350,24 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
             }
         }
 
+        //numerator interval does not cross 0.
         if(a.lower > 0 || a.upper < 0){
             if(b.lower == 0 && b.upper == 0){
+                //can't divide by 0
                 return a.makeEmpty();
             }else if(b.lower < 0 && b.upper > 0){
+                //denominator interval crosses 0
                 return new IntegerInterval(-Math.max(Math.abs(a.lower), Math.abs(a.upper)), Math.max(Math.abs(a.lower), Math.abs(a.upper)))
             }else if(b.lower == 0 && b.upper != 0){
+                //denominator interval touches 0 ([0, ...])
                 return divide(a, new IntegerInterval(b.lower + 1, b.upper))
             }else if(b.lower != 0 && b.upper == 0){
+                //denominator interval touches 0 ([..., 0])
                 return divide(a, new IntegerInterval(b.lower, b.upper - 1))
             }
         }
 
+        //neither interval cross 0.
         if(b.lower > 0 || b.upper < 0){
             //the tricky case.  We need to find a b.lower' that divides a and a b.upper' that divides b
             var fitB = a.findDivisors(b);

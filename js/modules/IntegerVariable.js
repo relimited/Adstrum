@@ -120,13 +120,51 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
 
         /**
          * Narrow the current variable down to the quotient of the passed in args.
-         * @param  {Interval} numerator   Range of the numerator
-         * @param  {Interval} denominator Range of the denominator
+         * @param  {IntegerInterval} numerator   Range of the numerator
+         * @param  {IntegerInterval} denominator Range of the denominator
          * @param  {boolean} fail        pass-by-ref failure bool (will be set to true if we can't narrow)
          */
         narrowToQuotient : function(numerator, denominator, fail){
-            console.log("[WARN PROMOTE] Narrowing to a quotent with an IntVariable promotes a result with floating point intervals")
-            return this._super(numerator, denominator, fail);
+            if(denominator.isZero()){
+                //Denominator is [0,0], so quotent is the empty set
+                fail[0] = true;
+            }else if(numerator.isZero()){
+                if(!denominator.containsZero()){
+                    //Quotent is [0,0].
+                    this.narrowTo(new IntegerInterval(0,0), fail);
+                }
+            }else if(!denominator.containsZero()){
+                //FIXME: potential optimization here. We'll end up looking for divisors
+                //twice (once now to check and once to do integer interval division).
+                //It might be a loss of clarity from the implementing papers
+                //to only search here and take it out of the IntegerInterval class, but it will speed up
+                //division.
+                console.log("Starting integer divisor consistency check, NaN/undefined warnings may ensue ...")
+                var potential = numerator.findDivisors(denominator);
+                console.log("... finished check, NaN/undefined warnings are bad now.")
+                if(potential.lower == undefined || potential.upper == undefined ||
+                    Number.isNaN(potential.lower) || Number.isNaN(potential.upper)){
+                    fail[0] = true;
+                    console.log("Unable to find potential integer quotents for " + numerator + "/" + denominator);
+                    return;
+                }
+                this.narrowTo(IntegerInterval.divide(numerator, denominator), fail);
+
+            //three cases: crosses zero, [a, 0] and [0, b]
+            //For integer intervals, all of these cases are handled inside of the interval itself.
+            }else if(denominator.lower == 0){
+                //[0,d]
+                this.narrowTo(IntegerInterval.divide(numerator, denominator), fail);
+            }else if(denominator.upper == 0){
+                //[c,0]
+                this.narrowTo(IntegerInterval.divide(numerator, denominator), fail);
+            }else if(numerator.upper < 0){
+                //[c,d] crosses 0, [+a, +b]
+                this.narrowTo(IntegerInterval.divide(numerator, denominator), fail);
+            }else if(numerator.lower > 0){
+                //[c,d] crosses 0, [-a, -b]
+                this.narrowTo(IntegerInterval.divide(numerator, denominator), fail);
+            }
         },
 
         /**
@@ -240,7 +278,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
      */
     function divide(a, b){
         var funct = function(){
-            var quotient = new IntegerVariable("quotient", a.csp, IntegerInterval.divide(a.value(), b.value()));
+            var quotient = new IntVariable("quotient", a.csp, IntegerInterval.divide(a.value(), b.value()));
             new IntQuotientConstraint(quotient, a, b);
             return quotient;
         }

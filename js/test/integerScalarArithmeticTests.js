@@ -5,18 +5,22 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             expect(v.isUnique()).toBe(true);
             expect(value == v.uniqueValue()).toBe(true);
         };
+
         it("Unconstrained Integer Sum Tests", function(){
             console.log("======================================");
             console.log("Unconstrained Sum Tests");
             console.log("======================================");
             var p = new CSP();
-            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 1);
-            var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 1);
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 100);
+            var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 100);
             var sum = IntegerVariable.add(a, b);
 
             for(var i = 0; i < 1000; i++){
                 p.newSolution();
                 expect(MathUtil.nearlyEqual(sum.uniqueValue(), (a.uniqueValue() + b.uniqueValue()))).toBe(true);
+                expect(Number.isInteger(a.uniqueValue())).toBe(true);
+                expect(Number.isInteger(b.uniqueValue())).toBe(true);
+                expect(Number.isInteger(sum.uniqueValue())).toBe(true);
             }
         });
 
@@ -25,18 +29,21 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             console.log("Semi-Constrained Sum Tests");
             console.log("======================================");
             var p = new CSP();
-            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 1);
-            var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 1);
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 10);
+            var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 10);
             var sum = IntegerVariable.add(a, b);
-            sum.mustEqual(1);
+            sum.mustEqual(10);
 
             for (var i = 0; i < 1000; i++){
                 p.newSolution();
                 expect(MathUtil.nearlyEqual(sum.uniqueValue(), (a.uniqueValue() + b.uniqueValue()))).toBe(true);
+                expect(Number.isInteger(a.uniqueValue())).toBe(true);
+                expect(Number.isInteger(b.uniqueValue())).toBe(true);
+                expect(Number.isInteger(sum.uniqueValue())).toBe(true);
             }
         });
 
-        it("Quadratic Integer Tests", function(){
+        it("Quadratic Sum Integer Tests", function(){
             console.log("======================================");
             console.log("Quadratic Sum Tests");
             console.log("======================================");
@@ -44,13 +51,55 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             var a = IntegerVariable.makeIntVariableWithBounds("a", p, -100, 100);
             var b = IntegerVariable.makeIntVariableWithBounds("b", p, -100, 100);
             var quad = IntegerVariable.add(IntegerVariable.pow(a, 2), b);
-            var fail = [false];
             quad.mustBeContainedInRange(10, 20);
 
             for (var i = 0; i < 1000; i++){
                 p.newSolution();
                 expect(MathUtil.nearlyEqual(quad.uniqueValue(), ((a.uniqueValue() * a.uniqueValue()) + b.uniqueValue()))).toBe(true);
-                //expect(quad.uniqueValue() >= 10 && quad.uniqueValue() <= 20).toBe(true);
+                expect(Number.isInteger(a.uniqueValue())).toBe(true);
+                expect(Number.isInteger(b.uniqueValue())).toBe(true);
+                expect(Number.isInteger(quad.uniqueValue())).toBe(true);
+            }
+        });
+
+        it("Non-linear Integer Product Tests", function(){
+            console.log("======================================");
+            console.log("Non-linear Integer Product Tests");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, -100, 100);
+            var b = IntegerVariable.makeIntVariableWithBounds("b", p, -100, 100);
+            var mul = IntegerVariable.multiply(a, b);
+            mul.mustBeContainedInRange(10, 20);
+
+            for (var i = 0; i < 1000; i++){
+                p.newSolution();
+                expect(MathUtil.nearlyEqual(mul.uniqueValue(), (a.uniqueValue() * b.uniqueValue()))).toBe(true);
+                expect(Number.isInteger(a.uniqueValue())).toBe(true);
+                expect(Number.isInteger(b.uniqueValue())).toBe(true);
+                expect(Number.isInteger(mul.uniqueValue())).toBe(true);
+            }
+        });
+
+        it("Non-linear Integer Quotent Tests", function(){
+            console.log("======================================");
+            console.log("Non-linear Integer Quotent Tests");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, -100, 100);
+            var b = IntegerVariable.makeIntVariableWithBounds("b", p, -100, 100);
+            var div = IntegerVariable.divide(a, b);
+            div.mustBeContainedInRange(10, 20);
+
+            for (var i = 0; i < 1000; i++){
+                p.newSolution();
+                console.log("SolCodePhrase");
+                console.log(div.uniqueValue(), a.uniqueValue(), b.uniqueValue());
+
+                expect(MathUtil.nearlyEqual(div.uniqueValue(), (a.uniqueValue() / b.uniqueValue()))).toBe(true);
+                expect(Number.isInteger(a.uniqueValue())).toBe(true);
+                expect(Number.isInteger(b.uniqueValue())).toBe(true);
+                expect(Number.isInteger(div.uniqueValue())).toBe(true);
             }
         });
 
@@ -207,7 +256,7 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
 
         it("Integer Const Product Test w/ floating point k", function(){
             console.log("======================================");
-            console.log("Const Product Test");
+            console.log("Const Product (w/ floating point constant) Test");
             console.log("======================================");
             var p = new CSP();
             var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
@@ -238,12 +287,12 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             console.log("Quotient Test");
             console.log("======================================");
             var p = new CSP();
-            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 4);
             var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 2);
             var quotent = FloatVariable.divide(a, b);
 
-            a.mustEqual(2);
-            b.mustEqual(1);
+            a.mustEqual(4);
+            b.mustEqual(2);
 
             p.testConsistency();
             assertUnique(quotent, 2);

@@ -81,6 +81,12 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
             if(this.narrowedVariable != this.b){
                 this.b.narrowToQuotient(this.a.value(), this.quotient.value(), fail);
             }
+
+            //TODO: this should be factored into the checks... somehow.  Most of the real work is in
+            //the IntegerVariable.narrowToQuotient function and moving the stuff from IntegerInterval out of there.
+            if(this.a.value().isZero() && this.b.value().isZero()){
+                fail[0] = true; //the integers can't go out into infinity like reals can.
+            }
         }
     });
     intConstraints.QuotientConstraint = IntQuoitentConstraint;

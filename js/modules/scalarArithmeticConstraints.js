@@ -171,6 +171,7 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
 
             if(this.narrowedVariable != this.b){
                 this.b.narrowToQuotient(this.a.value(), this.quotient.value(), fail);
+                if(fail[0]){ return; };
             }
         },
 
@@ -192,7 +193,7 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
             this.power = this.registerCanonical(this.power);
             this.a = this.registerCanonical(this.a);
         },
-        
+
         propagate : function(fail){
             if(this.narrowedVariable != this.power){
                 this.power.narrowTo(Interval.pow(this.a.value(), this.exponent), fail);
