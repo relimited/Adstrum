@@ -33,9 +33,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 
 			this.lower = lowerBound;
 			this.upper = upperBound;
+			this.kind = "FloatingInterval";
 
-			//debug info
-			this.kind = "FloatingInterval"
 			//conditional compilation is not a thing for Javascript, so we do all of it all the time
 			this.searchHint = SearchHint.none;
 		},
@@ -230,7 +229,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	Interval.fromUnsortedBounds = fromUnsortedBounds;
 
 	function singleton(a){
-		//TODO: add type checking that a is a double
+		//TODO: add type checking that a is a Number
 		return new Interval(a, a);
 	}
 	Interval.singleton = singleton;
@@ -408,11 +407,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	Interval.invPower = invPower;
 
 	function positiveSqrt(a){
-		//TODO: type check on intersector, a (interval)
 		if(a.lower <= 0){
-			throw {
-				message : "Attempt to take square root of a negative interval"
-			};
+			throw "Attempt to take square root of a negative interval."
 		}
 		return new Interval(Math.sqrt(a.lower), Math.sqrt(a.upper));
 	}

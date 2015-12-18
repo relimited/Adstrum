@@ -1,17 +1,15 @@
 //A variable that only works over the integers
 //
 //As of right now, do not mix integer variables and int variables.  bad things'll happen if you do.
-define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarArithmaticConstraints'], function(Inheritance, IntegerInterval, FloatVariable, MathUtil, ScalarArithmaticConstraints){
-    //For ease of reference later, split the properties of the ScalarArithmaticConstraints
+define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerScalarArithmeticConstraints'], function(Inheritance, IntegerInterval, FloatVariable, MathUtil, IntegerScalarArithmeticConstraints){
+    //For ease of reference later, split the properties of the IntegerScalarArithmeticConstraints
     //module.
-    SumConstraint = ScalarArithmaticConstraints.SumConstraint;
-    DifferenceConstraint = ScalarArithmaticConstraints.DifferenceConstraint;
-    ProductConstraint = ScalarArithmaticConstraints.ProductConstraint;
-    ConstantProductConstraint = ScalarArithmaticConstraints.ConstantProductConstraint;
-    QuotientConstraint = ScalarArithmaticConstraints.QuotientConstraint;
-    IntPowerConstraint = ScalarArithmaticConstraints.IntPowerConstraint;
-
-    //'Static' method constructors for making common variations on Integer Variables
+    IntSumConstraint = IntegerScalarArithmeticConstraints.SumConstraint;
+    IntDifferenceConstraint = IntegerScalarArithmeticConstraints.DifferenceConstraint;
+    IntProductConstraint = IntegerScalarArithmeticConstraints.ProductConstraint;
+    IntConstantProductConstraint = IntegerScalarArithmeticConstraints.ConstantProductConstraint;
+    IntQuotientConstraint = IntegerScalarArithmeticConstraints.QuotientConstraint;
+    IntPowerConstraint = IntegerScalarArithmeticConstraints.PowerConstraint;
 
     /**
      * 'Static' method for making a int variable with two provided bounds
@@ -169,7 +167,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
     function add(a, b){
         var funct = function(){
             var sum = new IntVariable("sum", a.csp, IntegerInterval.add(a.value(), b.value()));
-            new SumConstraint(sum, a, b);
+            new IntSumConstraint(sum, a, b);
             return sum;
         };
         return a.csp.memorize("+", funct, [a, b]);
@@ -187,7 +185,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
     function subtract(a, b){
         var funct = function(){
             var difference = new IntVariable("difference", a.csp, IntegerInterval.subtract(a.value(), b.value()));
-            new DifferenceConstraint(difference, a, b);
+            new IntDifferenceConstraint(difference, a, b);
             return difference;
         }
         return a.csp.memorize("-", funct, [a, b]);
@@ -205,7 +203,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
     function multiply(a, b){
         var funct = function(){
             var product = new IntVariable("product", a.csp, IntegerInterval.multiply(a.value(), b.value()));
-            new ProductConstraint(product, a, b);
+            new IntProductConstraint(product, a, b);
             return product;
         }
         return a.csp.memorize("*", funct, [a, b]);
@@ -225,12 +223,30 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'scalarAr
         k = Math.floor(k);
         var funct = function(){
             var product = new IntVariable("product", a.csp, IntegerInterval.multiplyIntervalByConstant(a.value(), k));
-            new ConstantProductConstraint(product, a, k);
+            new IntConstantProductConstraint(product, a, k);
             return product;
         }
         return a.csp.memorize("*", funct, [a, k]);
     }
     IntVariable.multiplyVariableByConstant = multiplyVariableByConstant;
+
+    /**
+     * Divide two Integer variables (a / b).  This also adds a constraint to
+     * the CSP.
+     * @param  {IntegerVariable} a the first operand for division
+     * @param  {IntegerVariable} b second operand for division
+     * @return {IntegerVariable}   the quotient of a / b.  This is the set of bounds that
+     *                               a / b must be in.
+     */
+    function divide(a, b){
+        var funct = function(){
+            var quotient = new IntegerVariable("quotient", a.csp, IntegerInterval.divide(a.value(), b.value()));
+            new IntQuotientConstraint(quotient, a, b);
+            return quotient;
+        }
+        return a.csp.memorize("/", funct, [a, b]);
+    }
+    IntVariable.divide = divide;
 
     /**
      * Raise a integer variable to a power (a ^ exponent).  This also adds a

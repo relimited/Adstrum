@@ -1,18 +1,18 @@
 /**
  *	A floating point variable in Craft
- *	This class not only creates new Floating Variables for Scalar Arithmatic in Craft, but also
- *	handles performing common scalar arithmatic operations to floating variables
+ *	This class not only creates new Floating Variables for Scalar arithmetic in Craft, but also
+ *	handles performing common scalar arithmetic operations to floating variables
  */
 
-define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticConstraints'], function(Inheritance, Variable, Interval, MathUtil, ScalarArithmaticConstraints){
-    //For ease of reference later, split the properties of the ScalarArithmaticConstraints
+define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticConstraints'], function(Inheritance, Variable, Interval, MathUtil, ScalarArithmeticConstraints){
+    //For ease of reference later, split the properties of the ScalarArithmeticConstraints
     //module.
-    SumConstraint = ScalarArithmaticConstraints.SumConstraint;
-    DifferenceConstraint = ScalarArithmaticConstraints.DifferenceConstraint;
-    ProductConstraint = ScalarArithmaticConstraints.ProductConstraint;
-    ConstantProductConstraint = ScalarArithmaticConstraints.ConstantProductConstraint;
-    QuotientConstraint = ScalarArithmaticConstraints.QuotientConstraint;
-    PowerConstraint = ScalarArithmaticConstraints.PowerConstraint;
+    SumConstraint = ScalarArithmeticConstraints.SumConstraint;
+    DifferenceConstraint = ScalarArithmeticConstraints.DifferenceConstraint;
+    ProductConstraint = ScalarArithmeticConstraints.ProductConstraint;
+    ConstantProductConstraint = ScalarArithmeticConstraints.ConstantProductConstraint;
+    QuotientConstraint = ScalarArithmeticConstraints.QuotientConstraint;
+    PowerConstraint = ScalarArithmeticConstraints.PowerConstraint;
 
     //'Static' method constructors for making common variations on a Floating Point Variable.
     /**

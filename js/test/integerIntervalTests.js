@@ -1,4 +1,4 @@
-//Testing framework for integer intervals with arithmatic and other standard ops
+//Testing framework for integer intervals with arithmetic and other standard ops
 
 define(['inheritance', 'integerInterval', 'interval'], function(Inheritance, IntegerInterval, Interval){
     describe("Testing Integer Intervals", function(){

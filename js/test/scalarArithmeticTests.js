@@ -146,7 +146,7 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
 
         it("Product Test", function(){
             console.log("======================================");
-            console.log("Difference Test");
+            console.log("Product Test");
             console.log("======================================");
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);

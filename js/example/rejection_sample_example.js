@@ -15,7 +15,7 @@ require.config({
         'mathUtil' : '../js/modules/mathUtil',
         'memoTable' : '../js/modules/memoTable',
         'restorable' : '../js/modules/restorable',
-        'scalarArithmaticConstraints' : '../js/modules/scalarArithmaticConstraints',
+        'scalarArithmeticConstraints' : '../js/modules/scalarArithmeticConstraints',
         'searchHint' : '../js/modules/searchHint',
         'undoStack' : '../js/modules/undoStack',
         'variable' : '../js/modules/variable',

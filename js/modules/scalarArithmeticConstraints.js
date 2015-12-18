@@ -1,7 +1,7 @@
 /**
 *Scalar constraints for the CSP
 */
-define(['inheritance', 'constraint', 'interval', 'integerInterval', 'mathUtil'], function(Inheritance, Constraint, Interval, IntegerInterval, MathUtil){
+define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritance, Constraint, Interval, MathUtil){
     var constraints = {};
     var SumConstraint = Constraint.extend({
         init : function(sum, a, b){
@@ -192,7 +192,7 @@ define(['inheritance', 'constraint', 'interval', 'integerInterval', 'mathUtil'],
             this.power = this.registerCanonical(this.power);
             this.a = this.registerCanonical(this.a);
         },
-
+        
         propagate : function(fail){
             if(this.narrowedVariable != this.power){
                 this.power.narrowTo(Interval.pow(this.a.value(), this.exponent), fail);
@@ -220,61 +220,6 @@ define(['inheritance', 'constraint', 'interval', 'integerInterval', 'mathUtil'],
         }
     });
     constraints.PowerConstraint = PowerConstraint;
-
-    var IntPowerConstraint = PowerConstraint.extend({
-        init : function(power, a, exponent){
-            this._super(power, a, exponent);
-        },
-
-        canonicalizeVariables : function(){
-            this._super();
-        },
-
-        propagate : function(fail){
-
-            if(this.narrowedVariable != this.power){
-                this.power.narrowTo(IntegerInterval.pow(this.a.value(), this.exponent), fail);
-                if(fail[0]){ return; };
-            }
-
-            //For integers, we need to check if power's range even allows for
-            //an integer solution to the problem.
-            //see: http://stackoverflow.com/questions/3140562/does-a-range-of-integers-contain-at-least-one-perfect-square
-            // There are potential optimizations here (a precomputation check, for example),
-            // but right now I'm going to cut right to the heart of the matter.
-            // power.lower <= ceil(exponent(th)_root(a.lower))^exponent <= power.upper
-            // must be preserved for a solution to exist (otherwise, stop
-            // propigating the current constraint)
-
-            var pow_range = this.power.value();
-            var checkVal = Math.pow(
-                Math.ceil(MathUtil.nthroot(pow_range.lower, this.exponent)),
-                this.exponent
-            );
-
-            if(!(pow_range.lower <= checkVal && checkVal <= pow_range.upper)){
-                fail[0] = true;
-                console.log(this.power.value() + " does not contain an Integer " + this.exponent + "th root.");
-                return;
-            }
-
-            //We want to repropagate in case this is an even power and we just split on a
-            if((this.exponent % 2 == 0) && this.a.value().lower < 0){
-                if (this.a.value().upper <= 0){
-                    //a is non-positive
-                    this.a.narrowTo(IntegerInterval.invPower(this.power.value(), this.exponent), fail);
-                }else{
-                    // even inverse power of an interval that crosses zero
-                    var bound = IntegerInterval.invPower(this.power.value(), this.exponent);
-                    this.a.narrowTo(bound, fail);
-                }
-            }else{
-                //a is already non-negative or exponent is odd (and so function is monotone)
-                this.a.narrowTo(IntegerInterval.invPower(this.power.value(), this.exponent), fail);
-            }
-        },
-    });
-    constraints.IntPowerConstraint = IntPowerConstraint;
 
     return constraints;
 });

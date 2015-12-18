@@ -36,8 +36,6 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
             }
             this.lower = Math.ceil(lowerBound);
             this.upper = Math.floor(upperBound);
-
-            //debug info
             this.kind = "IntegerInterval"
 
             //conditional compilation is not a thing for Javascript, so we do all of it all the time
@@ -167,47 +165,50 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
         },
 
         /**
-         * Search through acceptable integers in b to find a pair of ints that
-         * completely divides this interval.
+         * Search through b for the smallest int that can completely divide a number
+         * in this interval, then search through b for the largest int that can completely
+         * divide a number in this interval.
          * @param  {IntegerInterval} b interval to search for divisors in.
          * @return {IntegerInterval}   An integer interval where lower and upper divides
          * an element in this interval
          */
         findDivisors : function(b){
-            var test = b.lower;
             var c = undefined;
             var d = undefined;
-            for(test; test <= b.upper; test++){
+            //look for the smallest number in b that holds the potential divisor
+            //equality
+            for(var test = b.lower; test <= b.upper; test++){
                 var div = Math.floor(this.upper / test);
                 if(test * div >= this.lower){
                     c = test;
                     break;
                 }
             }
-            //FIXME Won't find the largest divisor.
-            test = test + 1; //check the rest of the interval first.  If nothing satisifies,
-                             // then we'll cycle back
-            for(test; test <= b.upper; test++){
+
+            // start from the other direction of the interval, look for the largest
+            // number in b that holds the potential divisor equality
+            for(var test = b.upper; test >= b.lower; test--){
                 var div = Math.floor(this.upper / test);
                 if(test * div >= this.lower){
                     d = test;
                     break;
                 }
             }
-            if(d == undefined){
-                d = c;
-            }
 
             return new IntegerInterval(c, d);
         }
     });
+
+    //TODO: refactor?
+    // A lot of this is going ot be very similar to the stuff in interval.js.  In
+    // addition, some of it is a little weird, for example, infinity is not in the integers.
 
     //static constants
 	IntegerInterval.allValues = new Interval(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY);
 	IntegerInterval.maxPracticalInt = Math.floor(Number.MAX_VALUE * 0.5);
 	IntegerInterval.minPracticalInt = Math.ceil(-Number.MAX_VALUE * 0.5); //javascript is weird
 
-    //Special constructors.  TODO: There is some overlap form Interval here
+    //Special constructors.
 	function fromUnsortedBounds(a, b){
 		 if (a > b){
          	return new IntegerInterval(b, a);
@@ -225,8 +226,6 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 	IntegerInterval.singleton = singleton;
 
     // static methods
-
-    //TODO: lot of repeated code here.  Refactor it.
 	function propagatePositiveInfinity(x, otherwise){
     	if(x == Number.POSITIVE_INFINITY){
     		return Number.POSITIVE_INFINITY;
@@ -466,9 +465,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 
 	function positiveSqrt(a){
 		if(a.lower <= 0){
-			throw {
-				message : "Attempt to take square root of a negative interval"
-			};
+			throw "Attempt to take square root of a negative interval";
 		}
 		return rootExtraction(a, 2);
 	}
