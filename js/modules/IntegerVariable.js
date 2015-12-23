@@ -258,7 +258,10 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
      *                               a * k must be in.
      */
     function multiplyVariableByConstant(a, k){
-        k = Math.floor(k);
+        if(!Number.isInteger(k)){
+            console.log("k:", k);
+            throw "Unable to set up integer problem, k is floating point.  See console for details."
+        }
         var funct = function(){
             var product = new IntVariable("product", a.csp, IntegerInterval.multiplyIntervalByConstant(a.value(), k));
             new IntConstantProductConstraint(product, a, k);

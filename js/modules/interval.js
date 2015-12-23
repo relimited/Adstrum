@@ -14,21 +14,13 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		init : function(lowerBound, upperBound){
 
 			if(lowerBound === Number.NaN){
-				throw{
-					message : "Interval lower bound is not a number"
-				};
+				throw "Interval lower bound is not a number";
 			}else if(upperBound === Number.NaN){
-				throw{
-					message : "Interval upper bound is not a number"
-				};
+				throw "Interval upper bound is not a number";
 			}else if(lowerBound === Number.POSITIVE_INFINITY){
-				throw{
-					message : "Interval lower bound cannot be positive infinity"
-				};
+				throw "Interval lower bound cannot be positive infinity";
 			}else if(upperBound === Number.NEGATIVE_INFINITY){
-				throw{
-					message : "Interval upper bound cannot be negative infinity"
-				};
+				throw "Interval upper bound cannot be negative infinity";
 			}
 
 			this.lower = lowerBound;
@@ -275,6 +267,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	function unionOfIntersections(intersector, a, b){
 		return unionBound(intersection(intersector, a), intersection(intersector, b));
 	}
+	Interval.unionOfIntersections = unionOfIntersections;
 
 	//because this is a javascript implementation, we can't redefine operators like Craft can.  Interval.maththing is the syntax to get at that
 	function add(a, b ){

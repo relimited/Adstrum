@@ -6,8 +6,102 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
 
     //Difference and Sum constraints are exactly the same regardless of if they
     //work with integers or reals.
-    intConstraints.SumConstraint = ScalarArithmeticConstraints.SumConstraint
-    intConstraints.DifferenceConstraint = ScalarArithmeticConstraints.DifferenceConstraint
+    var IntSumConstraint = ScalarArithmeticConstraints.SumConstraint.extend({
+        init : function(sum, a, b){
+            this._super(sum, a, b);
+        },
+
+        canonicalizeVariables : function(){
+            this._super();
+        },
+
+        propagate : function(fail){
+            if(this.narrowedVariable != this.sum){
+                var constraint = IntegerInterval.add(this.a.value(), this.b.value());
+                this.sum.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
+
+                if(fail[0]){
+                    return;
+                }
+            }
+
+            if(this.narrowedVariable != this.a){
+                var constraint = IntegerInterval.subtract(this.sum.value(), this.b.value());
+
+                this.a.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
+
+                if(fail[0]){
+                    return;
+                }
+            }
+
+            if(this.narrowedVariable != this.b){
+                var constraint = IntegerInterval.subtract(this.sum.value(), this.a.value());
+                this.b.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
+            }
+        },
+    });
+    intConstraints.SumConstraint = IntSumConstraint;
+
+    var IntDifferenceConstraint = ScalarArithmeticConstraints.DifferenceConstraint.extend({
+        init : function(difference, a, b){
+            this._super(difference, a, b);
+        },
+
+        canonicalizeVariables : function(){
+            this._super();
+        },
+
+        propagate : function(fail){
+            if(this.narrowedVariable != this.difference){
+                var constraint = IntegerInterval.subtract(this.a.value(), this.b.value());
+                this.difference.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
+                if(fail[0]){ return; };
+            }
+
+            if(this.narrowedVariable != this.a){
+                var constraint = IntegerInterval.add(this.difference.value(), this.b.value());
+                this.a.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
+                if(fail[0]){ return; };
+            }
+
+            if(this.narrowedVariable != this.b){
+                var constraint = IntegerInterval.subtract(this.a.value(), this.difference.value());
+                this.b.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
+            }
+        },
+    });
+    intConstraints.DifferenceConstraint = IntDifferenceConstraint;
 
     //non-linear constraints, however...
     var IntProductConstraint = ScalarArithmeticConstraints.ProductConstraint.extend({
@@ -21,7 +115,13 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
 
         propagate : function(fail){
             if(this.narrowedVariable != this.product){
-                this.product.narrowTo(IntegerInterval.multiply(this.a.value(), this.b.value()), fail);
+                var constraint = IntegerInterval.multiply(this.a.value(), this.b.value());
+                this.product.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
                 if(fail[0]){ return; };
             }
 
@@ -48,11 +148,23 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
 
         propagate : function(fail){
             if(this.narrowedVariable != this.product){
-                this.product.narrowTo(IntegerInterval.multiplyIntervalByConstant(this.a.value(), this.k), fail);
+                var constraint = IntegerInterval.multiplyIntervalByConstant(this.a.value(), this.k);
+                this.product.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
                 if(fail[0]){ return; };
             }
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(IntegerInterval.multiplyIntervalByConstant(this.product.value(), (1 / this.k)), fail);
+                var constraint = IntegerInterval.multiplyIntervalByConstant(this.product.value(), (1 / this.k));
+                this.a.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
             }
         },
     });
@@ -74,7 +186,13 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
             }
 
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(IntegerInterval.multiply(this.quotient.value(), this.b.value()), fail);
+                var constraint = IntegerInterval.multiply(this.quotient.value(), this.b.value());
+                this.a.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
                 if(fail[0]){ return; };
             }
 
@@ -103,7 +221,13 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
         propagate : function(fail){
 
             if(this.narrowedVariable != this.power){
-                this.power.narrowTo(IntegerInterval.pow(this.a.value(), this.exponent), fail);
+                var constraint = IntegerInterval.pow(this.a.value(), this.exponent);
+                this.power.narrowTo(
+                    new IntegerInterval(
+                        Math.floor(constraint.lower),
+                        Math.ceil(constraint.upper)
+                    ),
+                fail);
                 if(fail[0]){ return; };
             }
 

@@ -12,21 +12,13 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
         init : function(lowerBound, upperBound){
 
             if(lowerBound === Number.NaN){
-                throw{
-                    message : "Interval lower bound is not a number"
-                };
+                throw "Interval lower bound is not a number";
             }else if(upperBound === Number.NaN){
-                throw{
-                    message : "Interval upper bound is not a number"
-                };
+                throw "Interval upper bound is not a number";
             }else if(lowerBound === Number.POSITIVE_INFINITY){
-                throw{
-                    message : "Interval lower bound cannot be positive infinity"
-                };
+                throw "Interval lower bound cannot be positive infinity";
             }else if(upperBound === Number.NEGATIVE_INFINITY){
-                throw{
-                    message : "Interval upper bound cannot be negative infinity"
-                };
+                throw "Interval upper bound cannot be negative infinity";
             }
 
             //enforce that results here need to be an int.
@@ -34,8 +26,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
                 //TODO: Right now, just throw a warning.
                 console.log("[WARN PROMOTE] Calculating the largest containing integer interval for [" + lowerBound + "," + upperBound + "]");
             }
-            this.lower = Math.ceil(lowerBound);
-            this.upper = Math.floor(upperBound);
+            this.lower = Math.floor(lowerBound);
+            this.upper = Math.ceil(upperBound);
             this.kind = "IntegerInterval"
 
             //conditional compilation is not a thing for Javascript, so we do all of it all the time
@@ -60,8 +52,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
                 //we can safely ceil the number
                 randomElement = Math.ceil(randomElement)
             }else{
-                console.log(this.practicalLower())
-                console.log(this.practicalUpper())
+                console.log(this.practicalLower(), this.practicalUpper())
                 throw "Unable to find a random integer in provided range!"
 
             }
@@ -202,7 +193,6 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
     //TODO: refactor?
     // A lot of this is going ot be very similar to the stuff in interval.js.  In
     // addition, some of it is a little weird, for example, infinity is not in the integers.
-
     //static constants
 	IntegerInterval.allValues = new Interval(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY);
 	IntegerInterval.maxPracticalInt = Math.floor(Number.MAX_VALUE * 0.5);

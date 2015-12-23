@@ -93,8 +93,6 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
 
             for (var i = 0; i < 1000; i++){
                 p.newSolution();
-                console.log("SolCodePhrase");
-                console.log(div.uniqueValue(), a.uniqueValue(), b.uniqueValue());
 
                 expect(MathUtil.nearlyEqual(div.uniqueValue(), (a.uniqueValue() / b.uniqueValue()))).toBe(true);
                 expect(Number.isInteger(a.uniqueValue())).toBe(true);
@@ -247,20 +245,6 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             var p = new CSP();
             var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
             var k = 4;
-            var product = IntegerVariable.multiplyVariableByConstant(a, k);
-
-            a.mustEqual(1);
-            p.testConsistency();
-            assertUnique(product, 4);
-        });
-
-        it("Integer Const Product Test w/ floating point k", function(){
-            console.log("======================================");
-            console.log("Const Product (w/ floating point constant) Test");
-            console.log("======================================");
-            var p = new CSP();
-            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
-            var k = 4.4;
             var product = IntegerVariable.multiplyVariableByConstant(a, k);
 
             a.mustEqual(1);

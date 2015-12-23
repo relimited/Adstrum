@@ -227,7 +227,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
                 }
             }else if(numerator.upper < 0){
                 var lowerHalf = new Interval(Number.NEGATIVE_INFINITY, numerator.upper / denominator.upper);
-                var upperHalf = new Interval(numerator.upper / denominator.lower, Number.NEGATIVE_INFINITY);
+                var upperHalf = new Interval(numerator.upper / denominator.lower, Number.POSITIVE_INFINITY);
                 this.narrowToUnion(lowerHalf, upperHalf, fail);
             }else if(numerator.lower > 0){
                 var lowerHalf = new Interval(Number.NEGATIVE_INFINITY, numerator.lower / denominator.lower);

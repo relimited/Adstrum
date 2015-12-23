@@ -33,6 +33,7 @@ require.config({
   }
 });
 
+
 //bootstrap Jasmine
 require(['jasmine-boot'], function () {
     require(["../js/test/canonicalizationTests.js", "../js/test/intervalTests.js", "../js/test/integerIntervalTests.js", "../js/test/restorableTests.js", "../js/test/scalarArithmeticTests.js", "../js/test/integerScalarArithmeticTests", "../js/test/constraintTests.js"], function(CanonicalizationTests, IntervalTests, integerIntervalTests, RestorableTests, ScalarArithmeticTests, IntegerScalarArithmeticTests, ConstraintTests){'use strict';

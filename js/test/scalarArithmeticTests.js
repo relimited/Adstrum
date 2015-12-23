@@ -54,6 +54,38 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
             }
         });
 
+        it("Non-linear Product Tests", function(){
+            console.log("======================================");
+            console.log("Non-linear Product Tests");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, -100, 100);
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, -100, 100);
+            var mul = FloatVariable.multiply(a, b);
+            mul.mustBeContainedInRange(10, 20);
+
+            for (var i = 0; i < 1000; i++){
+                p.newSolution();
+                expect(MathUtil.nearlyEqual(mul.uniqueValue(), (a.uniqueValue() * b.uniqueValue()))).toBe(true);
+            }
+        });
+
+        it("Non-linear Integer Quotent Tests", function(){
+            console.log("======================================");
+            console.log("Non-linear Quotent Tests");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, -100, 100);
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, -100, 100);
+            var div = FloatVariable.divide(a, b);
+            div.mustBeContainedInRange(10, 20);
+
+            for (var i = 0; i < 1000; i++){
+                p.newSolution();
+                expect(MathUtil.nearlyEqual(div.uniqueValue(), (a.uniqueValue() / b.uniqueValue()))).toBe(true);
+            }
+        });
+
         it("Sum Test", function(){
             console.log("======================================");
             console.log("Sum Test");
