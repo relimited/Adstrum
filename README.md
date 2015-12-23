@@ -18,7 +18,7 @@ Just copy the ```craft.js``` file to your project and load it before you'd load 
 <html>
 	<head></head>
 <body>
-		<!-- page elements here --->
+		<!-- page elements here -->
 		<script src="/path/to/craft.js"></script>
 		<script src="../some/craftjs/using/script.js"></script>
 	</body>
@@ -131,9 +131,13 @@ There is a program that also draws circles in a square to show off how to use In
 
 ## Features to Add
 -- Mixed CSPs, able to handle both Floats and Ints.
+
 -- Vectors, for both Reals and Integers.
+
 -- Some calling interface (perhaps an equation parser?) to make setting up problems easier.
+
 -- Various optimizations to speed up finding solutions.
+
 -- Refactor to using prototype inheritance, to make future debugging easier and remove the reliance on inheritance.js
 
 ## Known Problems
