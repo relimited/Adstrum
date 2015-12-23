@@ -8,81 +8,24 @@ library for Java-style polymorphism.  For testing, Craftjs uses Jasmine.
 
 All three libraries are in the /vendor folder.
 
+Craftjs was built using webpack.
+
 ## Importing
-#### Standard Use
-Craftjs uses RequireJS for module loading.  As such, you'll need to load the RequireJS script before
-using Craftjs
-```html
-<script src="js/vendor/require.js"></script>
-<!-- script that uses Craftjs -->
-<script src="js/main.js"></script>
+Using Craftjs in your own projects is easy (unlike in the previous build, where it was a nightmare).  Right now, Craft.js exports to a set of global variables (```CSP```, ```FloatVariable``` and ```IntegerVariable```).  Support for using Craft.js with AMD / CommonJS is upcomming in the next release.
+
+Just copy the ```craft.js``` file to your project and load it before you'd load any Craftjs dependant code.
+```HTML
+<html>
+	<head></head>
+<body>
+		<!-- page elements here --->
+		<script src="/path/to/craft.js"></script>
+		<script src="../some/craftjs/using/script.js"></script>
+	</body>
+</html>
 ```
-In addition, you'll need to configure Require to point to where your Craftjs modules
-are stored.  Craftjs expects that every module will be mapped in Require's ```configure``` statement,
-like so:
-```javascript
-require.config({
-    paths : {
-        'inheritance' : 'js/vendor/inheritance',
-        'boundingBox' : '../js/modules/boundingBox',
-        'csp' : 'js/modules/csp',
-        'constraint' : 'js/modules/constraint',
-        'floatVariable' : 'js/modules/floatVariable',
-        ...
-    }
-});
-```
-This allows for you to shift Craftjs's modules around in your own project to fit
-your own mangement scheme / naming conventions, and only need to update one file.
-After pointing RequireJS to where each module is, you'll want to tell Require that your Craftjs
-code needs the CSP and FloatVariable/IntegerVariable modules:
-```javascript
-require(["csp", "floatVariable"], function(CSP, FloatVariable){'use strict';
-	//Craftjs-using code.
-});
-```
-or for integers:
-```javascript
-require(["csp", "integerVariable"], function(CSP, IntegerVariable){'use strict';
-	//Craftjs-using code.
-});
-```
-You can also expose any of Craftjs's internal modules by explicitly requiring them in the above statement.
 #### Testing
-To run Craftjs's test suite, you'll also need to use Jasmine.  Jasmine is also provided in the /vendor folder.
-However, Jasmine needs to be bootstrapped by Require before it can be used, so your `configure` statement
-will look a little different...
-```javascript
-require.config({
-    paths : {
-        'inheritance' : 'js/vendor/inheritance',
-        'jasmine-src' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine',
-        'jasmine-html' : 'js/vendor/jasmine/lib/jasmine-2.3.4/jasmine-html',
-        'jasmine-boot' : 'js/vendor/jasmine/lib/jasmine-2.3.4/boot',
-        'csp' : 'js/modules/csp',
-        'constraint' : 'js/modules/constraint',
-        'floatVariable' : 'js/modules/floatVariable',
-        ...
-    },
-    shim: {
-        'jasmine-html': {
-            deps : ['jasmine-src']
-        },
-        'jasmine-boot': {
-            deps : ['jasmine-src', 'jasmine-html']
-        }
-  }
-});
-```
-And the `require` statement will also look different:
-```javascript
-require(['jasmine-boot'], function () {
-    require(["./js/test/canonicalizationTests.js", "./js/test/intervalTests.js", "./js/test/restorableTests.js", "./js/test/scalarArithmeticTests.js"], function(CanonicalizationTests, IntervalTests, RestorableTests, ScalarArithmeticTests){'use strict';
-        window.onload();
-    });
-});
-```
-The various tests are located in js/tests.  The above example is in runTests.js, and can be seen by opening the tester.html file in a browser (in /test), but if you want to access from them different location, you'll need to update the file paths appropriately.
+The various tests are located in js/tests.  The above example is in runTests.js, and can be seen by opening the tester.html file in a browser (in /test).  If you want to import the testing framework for whatever reason, it uses Require.js and a bootstrap.
 
 ## Usage
 To understand how Craftjs does what it does, you probably want to review the
@@ -96,44 +39,31 @@ var p = new CSP();
 ```
 Now, we still need to define what the actual problem is going to be.  In Craftjs,
 this is a mix of FloatVariable objects and mathematical operations.  For example,
-lets say we're dealing with a basic quadratic problem of quad = a^2 + b, where:
-* a must be between -100 and 100
-* b must be between -100 and 100
+lets say we're dealing with a basic quadratic problem of quad = m^2 + intercept, where:
+* m must be between -100 and 100
+* intercept must be between -100 and 100
 * quad must be between 10 and 20
 
 First, we want to specify our independent variables:
 ```javascript
-var a = FloatVariable.makeFloatVariableWithBounds('a', p, -100, 100);
-var b = FloatVariable.makeFloatVariableWithBounds('b', p, -100, 100);
+var m = FloatVariable.makeFloatVariableWithBounds('m', p, -100, 100);
+var intercept = FloatVariable.makeFloatVariableWithBounds('intercept', p, -100, 100);
 ```
 Craftjs also supports integers!  If we wanted to set the same problem up, but
-in this case, a and b needed to be ints, we'd write:
+in this case, m and intercept needed to be ints, we'd write:
 ```javascript
-var a = IntegerVariable.makeIntVariableWithBounds('a', p, -100, 100);
-var b = IntegerVariable.makeIntVariableWithBounds('b', p, -100, 100);
-```
-
-It's important to note that `FloatVariable.makeFloatVariableWithBounds()` (and
-its integer counterpart is a convience method.  
-The above could also be done with `FloatVariable`'s constructor:
-```javascript
-var a = new FloatVariable('a', p, new Interval(-100, 100));
-var b = new FloatVariable('b', p, new Interval(-100, 100));
-```
-With the integer version being:
-```javascript
-var a = new IntegerVariable('a', p, new IntegerInterval(-100, 100));
-var b = new IntegerVariable('b', p, new IntegerInterval(-100, 100));
+var m = IntegerVariable.makeIntVariableWithBounds('m', p, -100, 100);
+var intercept = IntegerVariable.makeIntVariableWithBounds('intercept', p, -100, 100);
 ```
 
 Now that we've got our independent variables figured out, lets add constraints.
 Quad is constrained to be the a squared plus b, so let us tell Craftjs that.
 ```javascript
-var quad = FloatVariable.add(FloatVariable.pow(a, 2), b);
+var quad = FloatVariable.add(FloatVariable.pow(m, 2), intercept);
 ```
 If quad also needed to be an integer, we'd write:
 ```javascript
-var quad = IntegerVariable.add(IntegerVariable.pow(a, 2), b);
+var quad = IntegerVariable.add(IntegerVariable.pow(m, 2), intercept);
 ```
 
 Well, that's some weird syntax.  To do scalar arithmetic in Craftjs, you need to
@@ -183,8 +113,8 @@ Now that we've set up the CSP, we can start getting solutions to it.  Craftjs ge
 solution to the CSP at a time, and does not make any promises about not returning the same solution twice.
 ```javascript
 p.newSolution();
-var a_value = a.uniqueValue();
-var b_value = b.uniqueValue();
+var m_value = m.uniqueValue();
+var intercept_value = intercept.uniqueValue();
 var quad_value = quad.uniqueValue();
 ```
 
@@ -200,6 +130,7 @@ The examples folder (html page is in /example and relevant javascript is in js/e
 There is a program that also draws circles in a square to show off how to use Integer constraints.  If Craftjs isn't expressive enough to your liking, Craftjs can do rejection sampling to get more complicated constrained solutions, as seen in the final example.
 
 ## Features to Add
+-- Mixed CSPs, able to handle both Floats and Ints.
 -- Vectors, for both Reals and Integers.
 -- Some calling interface (perhaps an equation parser?) to make setting up problems easier.
 -- Various optimizations to speed up finding solutions.
@@ -209,6 +140,8 @@ There is a program that also draws circles in a square to show off how to use In
 #### bugs
 The original Craft ensures that `cspObj.narrowTo()` also adds the relevant constraints while `cspObj` is in
 the configuration phase.  Craftjs does not do this, and uses `mustBeContainedIn()` to add contain-based constraints.
+
+Take care when assigning variable names.  The names "a", "b", "sum", "difference", "product", "quotient" and "power" may get overwritten by the solver and end up getting assigned to the wrong constraints.  The more descriptive a name is, the more useful it is overall.  The internal variable representation will get tweaked in a future release to prevent this from happening.
 
 #### other
 Craftjs is very much in development.  This is an alpha build (0.2, at time of writing this disclamer), and may be bug-ridden.
