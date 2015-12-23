@@ -1,18 +1,18 @@
 /**
  *	A floating point variable in Craft
- *	This class not only creates new Floating Variables for Scalar Arithmatic in Craft, but also
- *	handles performing common scalar arithmatic operations to floating variables
+ *	This class not only creates new Floating Variables for Scalar arithmetic in Craft, but also
+ *	handles performing common scalar arithmetic operations to floating variables
  */
 
-define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticConstraints'], function(Inheritance, Variable, Interval, MathUtil, ScalarArithmaticConstraints){
-    //For ease of reference later, split the properties of the ScalarArithmaticConstraints
+define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticConstraints'], function(Inheritance, Variable, Interval, MathUtil, ScalarArithmeticConstraints){
+    //For ease of reference later, split the properties of the ScalarArithmeticConstraints
     //module.
-    SumConstraint = ScalarArithmaticConstraints.SumConstraint;
-    DifferenceConstraint = ScalarArithmaticConstraints.DifferenceConstraint;
-    ProductConstraint = ScalarArithmaticConstraints.ProductConstraint;
-    ConstantProductConstraint = ScalarArithmaticConstraints.ConstantProductConstraint;
-    QuotientConstraint = ScalarArithmaticConstraints.QuotientConstraint;
-    PowerConstraint = ScalarArithmaticConstraints.PowerConstraint;
+    SumConstraint = ScalarArithmeticConstraints.SumConstraint;
+    DifferenceConstraint = ScalarArithmeticConstraints.DifferenceConstraint;
+    ProductConstraint = ScalarArithmeticConstraints.ProductConstraint;
+    ConstantProductConstraint = ScalarArithmeticConstraints.ConstantProductConstraint;
+    QuotientConstraint = ScalarArithmeticConstraints.QuotientConstraint;
+    PowerConstraint = ScalarArithmeticConstraints.PowerConstraint;
 
     //'Static' method constructors for making common variations on a Floating Point Variable.
     /**
@@ -227,7 +227,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
                 }
             }else if(numerator.upper < 0){
                 var lowerHalf = new Interval(Number.NEGATIVE_INFINITY, numerator.upper / denominator.upper);
-                var upperHalf = new Interval(numerator.upper / denominator.lower, Number.NEGATIVE_INFINITY);
+                var upperHalf = new Interval(numerator.upper / denominator.lower, Number.POSITIVE_INFINITY);
                 this.narrowToUnion(lowerHalf, upperHalf, fail);
             }else if(numerator.lower > 0){
                 var lowerHalf = new Interval(Number.NEGATIVE_INFINITY, numerator.lower / denominator.lower);
@@ -279,30 +279,28 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmaticCons
             var randElement = this.value().randomElement();
             this.csp.pushChoice("Guess {0}={1}", [this.name, randElement]);
             this.narrowTo(new Interval(randElement, randElement), fail);
-            //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
             yield false;
 
-            if(Math.random() & 1 == 0){
+            if(Math.floor(Math.random() * 2) == 0){
                 this.csp.pushChoice("Lower half {0} to {1}", [this.name, this.value().lowerHalf()]);
                 this.narrowTo(this.value().lowerHalf(), fail);
-                //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yield false;
 
                 this.csp.pushChoice("Upper half {0} to {1}", [this.name, this.value().upperHalf()]);
                 this.narrowTo(this.value().upperHalf(), fail);
-                //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
-                return false;
+                yield false;
             }else{
                 this.csp.pushChoice("Upper half {0} to {1}", [this.name, this.value().upperHalf()]);
                 this.narrowTo(this.value().upperHalf(), fail);
-                //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
                 yield false;
 
                 this.csp.pushChoice("Lower half {0} to {1}", [this.name, this.value().lowerHalf()]);
                 this.narrowTo(this.value().lowerHalf(), fail);
-                //there are some maybe control based assert statements here.  IAN HORSEWIL WHAT HAVE YOU DONE
-                return false;
+                yield false;
             }
+
+            return false; //We're done trying to narrow this particular variable,
+                            // and just need to return something.
         },
 
         /**

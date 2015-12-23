@@ -1,4 +1,4 @@
-//Testing framework for intervals and interval arithmatic and such
+//Testing framework for intervals and interval arithmetic and such
 
 define(['inheritance', 'interval'], function(Inheritance, Interval){
     describe("Testing Intervals", function(){

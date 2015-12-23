@@ -1,59 +1,38 @@
 /**
- * Example curve sketching.
- *
- * This require config statement points to the location of all the modules of Craftjs.
- */
-
-require.config({
-    paths : {
-        'inheritance' : '../js/vendor/inheritance',
-        'boundingBox' : '../js/modules/boundingBox',
-        'csp' : '../js/modules/csp',
-        'constraint' : '../js/modules/constraint',
-        'floatVariable' : '../js/modules/floatVariable',
-        'interval' : '../js/modules/interval',
-        'mathUtil' : '../js/modules/mathUtil',
-        'memoTable' : '../js/modules/memoTable',
-        'restorable' : '../js/modules/restorable',
-        'scalarArithmaticConstraints' : '../js/modules/scalarArithmaticConstraints',
-        'searchHint' : '../js/modules/searchHint',
-        'undoStack' : '../js/modules/undoStack',
-        'variable' : '../js/modules/variable',
-        'dictionary' : '../js/shared/dictionary'
-    }
-});
-
-/**
  *  Now for the actual program.  The only two modules needed to use Craftjs are
  *  csp and floatVariable.
  */
-require(["csp", "floatVariable"], function(CSP, FloatVariable){'use strict';
-    var canvas = document.getElementById("demoCanvas");
-    var ctx = canvas.getContext('2d');
-    var width = canvas.width;
-    var height = canvas.height;
+//gonna expose library based things
+var FloatVariable = Craft.FloatVariable;
+var IntegerVariable = Craft.IntegerVariable;
+var CSP = Craft.CSP;
 
-    var p = new CSP();
-    var a = FloatVariable.makeFloatVariableWithBounds("a", p, -canvas.width/2, canvas.width/2); //canvas dimensions
-    var b = FloatVariable.makeFloatVariableWithBounds("b", p, -canvas.height/2, canvas.height/2);
-    var quad = FloatVariable.add(FloatVariable.pow(a, 2), FloatVariable.pow(b, 2));
-    quad.mustBeContainedInRange(-50000, 50000);
+var pointNum = 5000;
+var canvas = document.getElementById("demoCanvas");
+var ctx = canvas.getContext('2d');
+var width = canvas.width;
+var height = canvas.height;
 
-    var points = {
-        x : [],
-        y : [],
-    };
+var p = new CSP();
+var var1 = FloatVariable.makeFloatVariableWithBounds("var1", p, -canvas.width/2, canvas.width/2); //canvas dimensions
+var var2 = FloatVariable.makeFloatVariableWithBounds("var2", p, -canvas.height/2, canvas.height/2);
+var quad = FloatVariable.add(FloatVariable.pow(var1, 2), FloatVariable.pow(var2, 2));
+quad.mustBeContainedInRange(-50000, 50000);
 
-    for (var i = 0; i < 5000; i++){
-        p.newSolution();
-        points.x.push(a.uniqueValue())
-        points.y.push(b.uniqueValue())
-    };
+var points = {
+    x : [],
+    y : [],
+};
 
-    for(var i = 0; i < 5000; i++){
-        ctx.beginPath();
-        ctx.arc(points.x[i] + width/2, points.y[i] + height/2, 5, 0, 2*Math.PI, false);
-        ctx.stroke();
-    }
+for (var i = 0; i < pointNum; i++){
+    p.newSolution();
+    points.x.push(var1.uniqueValue());
+    points.y.push(var2.uniqueValue());
+}
 
-});
+for(var i = 0; i < pointNum; i++){
+    ctx.beginPath();
+
+    ctx.arc(points.x[i] + width/2, points.y[i] + height/2, 5, 0, 2*Math.PI, false);
+    ctx.stroke();
+}

@@ -14,25 +14,18 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		init : function(lowerBound, upperBound){
 
 			if(lowerBound === Number.NaN){
-				throw{
-					message : "Interval lower bound is not a number"
-				};
+				throw "Interval lower bound is not a number";
 			}else if(upperBound === Number.NaN){
-				throw{
-					message : "Interval upper bound is not a number"
-				};
+				throw "Interval upper bound is not a number";
 			}else if(lowerBound === Number.POSITIVE_INFINITY){
-				throw{
-					message : "Interval lower bound cannot be positive infinity"
-				};
+				throw "Interval lower bound cannot be positive infinity";
 			}else if(upperBound === Number.NEGATIVE_INFINITY){
-				throw{
-					message : "Interval upper bound cannot be negative infinity"
-				};
+				throw "Interval upper bound cannot be negative infinity";
 			}
 
 			this.lower = lowerBound;
 			this.upper = upperBound;
+			this.kind = "FloatingInterval";
 
 			//conditional compilation is not a thing for Javascript, so we do all of it all the time
 			this.searchHint = SearchHint.none;
@@ -228,23 +221,12 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	Interval.fromUnsortedBounds = fromUnsortedBounds;
 
 	function singleton(a){
-		//TODO: add type checking that a is a double
+		//TODO: add type checking that a is a Number
 		return new Interval(a, a);
 	}
 	Interval.singleton = singleton;
+
 	// static methods
-	/**
-	 * Min helper function
-	 */
-	function min(a, b, c, d){
-		return Math.min(Math.min(a, b), Math.min(c, d));
-	}
-
-	//helper max function
-	function max(a, b, c, d){
-		return Math.max(Math.max(a, b), Math.max(c, d));
-	}
-
 	function propagatePositiveInfinity(x, otherwise){
     	if(x == Number.POSITIVE_INFINITY){
     		return Number.POSITIVE_INFINITY;
@@ -285,6 +267,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	function unionOfIntersections(intersector, a, b){
 		return unionBound(intersection(intersector, a), intersection(intersector, b));
 	}
+	Interval.unionOfIntersections = unionOfIntersections;
 
 	//because this is a javascript implementation, we can't redefine operators like Craft can.  Interval.maththing is the syntax to get at that
 	function add(a, b ){
@@ -314,8 +297,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	function multiply(a, b){
 		//TODO: type check on intersector, a and b (interval)
 		return new Interval(
-               	min(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower),
-                max(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower));
+               	MathUtil.min(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower),
+                MathUtil.max(a.lower * b.lower, a.upper * b.upper, a.lower * b.upper, a.upper * b.lower));
 	}
 	Interval.multiply = multiply;
 
@@ -360,8 +343,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 			return Interval.allValues;
 		}else{
 			return new Interval(
-                min(a.lower / b.lower, a.upper / b.upper, a.lower / b.upper, a.upper / b.lower),
-                max(a.lower / b.lower, a.upper / b.upper, a.lower / b.upper, a.upper / b.lower));
+                MathUtil.min(a.lower / b.lower, a.upper / b.upper, a.lower / b.upper, a.upper / b.lower),
+                MathUtil.max(a.lower / b.lower, a.upper / b.upper, a.lower / b.upper, a.upper / b.lower));
 		}
 	}
 	Interval.divide = divide;
@@ -397,31 +380,19 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	}
 	Interval.pow = pow;
 
-	/**
-	 * A negative tolerant exponent function.
-	 * I might not expose this one.
- 	 * @param {Object} number
- 	 * @param {Object} exponent
-	 */
-	function negativeTolerantPower(number, exponent){
-		//TODO: Math.sign DNE in Javascript
-		return Math.sign(number) * Math.pow(Math.abs(number), exponent);
-	}
-
 	function invPower(a, exponent){
 		//TODO: type check on intersector, a (interval) and b (integer... this is actually important)
 		if(exponent == 1){
 			return a;
 		}else{
-			var invExponent = 1.0 / exponent;
 			if (exponent % 2 == 0){
                 // even exponent
-                var lower = Math.pow(Math.max(0, a.lower), invExponent);
-                var upper = Math.pow(Math.max(0, a.upper), invExponent);
+                var lower = MathUtil.nthroot(Math.max(0, a.lower), exponent);
+                var upper = MathUtil.nthroot(Math.max(0, a.upper), exponent);
                 return new Interval(lower, upper);
             }else{
             	// odd exponent
-            	return new Interval(negativeTolerantPower(a.lower, invExponent), negativeTolerantPower(a.upper, invExponent));
+            	return new Interval(MathUtil.nthroot(a.lower, exponent), MathUtil.nthroot(a.upper, exponent));
             }
 
 		}
@@ -429,11 +400,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	Interval.invPower = invPower;
 
 	function positiveSqrt(a){
-		//TODO: type check on intersector, a (interval)
 		if(a.lower <= 0){
-			throw {
-				message : "Attempt to take square root of a negative interval"
-			};
+			throw "Attempt to take square root of a negative interval."
 		}
 		return new Interval(Math.sqrt(a.lower), Math.sqrt(a.upper));
 	}

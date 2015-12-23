@@ -10,11 +10,14 @@ require.config({
         'csp' : '../js/modules/csp',
         'constraint' : '../js/modules/constraint',
         'floatVariable' : '../js/modules/floatVariable',
+        'integerVariable' :'../js/modules/integerVariable',
         'interval' : '../js/modules/interval',
+        'integerInterval' : '../js/modules/integerInterval',
         'mathUtil' : '../js/modules/mathUtil',
         'memoTable' : '../js/modules/memoTable',
         'restorable' : '../js/modules/restorable',
-        'scalarArithmaticConstraints' : '../js/modules/scalarArithmaticConstraints',
+        'scalarArithmeticConstraints' : '../js/modules/scalarArithmeticConstraints',
+        'integerScalarArithmeticConstraints' : '../js/modules/integerScalarArithmeticConstraints',
         'searchHint' : '../js/modules/searchHint',
         'undoStack' : '../js/modules/undoStack',
         'variable' : '../js/modules/variable',
@@ -30,9 +33,10 @@ require.config({
   }
 });
 
+
 //bootstrap Jasmine
 require(['jasmine-boot'], function () {
-    require(["../js/test/canonicalizationTests.js", "../js/test/intervalTests.js", "../js/test/restorableTests.js", "../js/test/scalarArithmeticTests.js", "../js/test/constraintTests.js"], function(CanonicalizationTests, IntervalTests, RestorableTests, ScalarArithmeticTests, ConstraintTests){'use strict';
+    require(["../js/test/canonicalizationTests.js", "../js/test/intervalTests.js", "../js/test/integerIntervalTests.js", "../js/test/restorableTests.js", "../js/test/scalarArithmeticTests.js", "../js/test/integerScalarArithmeticTests", "../js/test/constraintTests.js"], function(CanonicalizationTests, IntervalTests, integerIntervalTests, RestorableTests, ScalarArithmeticTests, IntegerScalarArithmeticTests, ConstraintTests){'use strict';
         window.onload();
     });
 });

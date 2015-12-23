@@ -1,7 +1,7 @@
 /**
 *Scalar constraints for the CSP
 */
-define(['inheritance', 'constraint', 'interval'], function(Inheritance, Constraint, Interval){
+define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritance, Constraint, Interval, MathUtil){
     var constraints = {};
     var SumConstraint = Constraint.extend({
         init : function(sum, a, b){
@@ -171,6 +171,7 @@ define(['inheritance', 'constraint', 'interval'], function(Inheritance, Constrai
 
             if(this.narrowedVariable != this.b){
                 this.b.narrowToQuotient(this.a.value(), this.quotient.value(), fail);
+                if(fail[0]){ return; };
             }
         },
 
@@ -220,5 +221,6 @@ define(['inheritance', 'constraint', 'interval'], function(Inheritance, Constrai
         }
     });
     constraints.PowerConstraint = PowerConstraint;
+
     return constraints;
 });
