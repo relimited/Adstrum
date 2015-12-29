@@ -10,7 +10,7 @@ define(["inheritance", "restorable"], function(Inheritance, Restorable){
 		init : function(name, p){
 			//name: string, p: CSP
 			this.name = name;
-			p.variables.push(this); //TODO: this may become variables.push...
+			p.variables.push(this);
 			this.csp = p;
 
 			this.constraints = [];
