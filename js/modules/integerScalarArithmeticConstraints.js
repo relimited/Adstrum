@@ -158,11 +158,11 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
                 if(fail[0]){ return; };
             }
             if(this.narrowedVariable != this.a){
-                var constraint = IntegerInterval.multiplyIntervalByConstant(this.product.value(), (1 / this.k));
-                this.a.narrowTo(
+                this.a.narrowToQuotient(
+                    this.product.value(),
                     new IntegerInterval(
-                        Math.floor(constraint.lower),
-                        Math.ceil(constraint.upper)
+                        Math.floor(this.k),
+                        Math.ceil(this.k)
                     ),
                 fail);
             }
