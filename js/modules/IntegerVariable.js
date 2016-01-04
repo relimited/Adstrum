@@ -127,7 +127,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
         narrowToQuotient : function(numerator, denominator, fail){
             if(denominator.isZero()){
                 //Denominator is [0,0], so quotent is the empty set
-                fail[0] = true;
+                fail[0] = !numerator.containsZero();
             }else if(numerator.isZero()){
                 if(!denominator.containsZero()){
                     //Quotent is [0,0].
@@ -259,7 +259,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
      */
     function multiplyVariableByConstant(a, k){
         if(!Number.isInteger(k)){
-            console.log("k:", k);
+            console.log("k: ", k);
             throw "Unable to set up integer problem, k is floating point.  See console for details."
         }
         var funct = function(){

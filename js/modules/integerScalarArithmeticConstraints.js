@@ -158,13 +158,20 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
                 if(fail[0]){ return; };
             }
             if(this.narrowedVariable != this.a){
-                var constraint = IntegerInterval.multiplyIntervalByConstant(this.product.value(), (1 / this.k));
-                this.a.narrowTo(
-                    new IntegerInterval(
-                        Math.floor(constraint.lower),
-                        Math.ceil(constraint.upper)
-                    ),
-                fail);
+                //See the comment in real scalar arithmetic constraints, but, when k is 0,
+                //this.product / k gets rough to narrow on.  In the limit, [-inf, inf] * 0 = 0,
+                //we've already narrowed the product, and this sounds practical enough, so
+                //when k = 0, don't narrow a.
+                //FIXME: I can't wait to find the bug I just introduced with this.
+                if(this.k != 0){
+                    this.a.narrowToQuotient(
+                        this.product.value(),
+                        new IntegerInterval(
+                            Math.floor(this.k),
+                            Math.ceil(this.k)
+                        ),
+                    fail);
+                }
             }
         },
     });

@@ -1158,7 +1158,7 @@ var Craft =
 			init : function(name, p){
 				//name: string, p: CSP
 				this.name = name;
-				p.variables.push(this); //TODO: this may become variables.push...
+				p.variables.push(this);
 				this.csp = p;
 
 				this.constraints = [];
@@ -1278,9 +1278,9 @@ var Craft =
 			 */
 			init : function(lowerBound, upperBound){
 
-				if(lowerBound === Number.NaN){
+				if(Number.isNaN(lowerBound)){
 					throw "Interval lower bound is not a number";
-				}else if(upperBound === Number.NaN){
+				}else if(Number.isNaN(upperBound)){
 					throw "Interval upper bound is not a number";
 				}else if(lowerBound === Number.POSITIVE_INFINITY){
 					throw "Interval lower bound cannot be positive infinity";
@@ -1956,7 +1956,15 @@ var Craft =
 	                if(fail[0]){ return; };
 	            }
 	            if(this.narrowedVariable != this.a){
-	                this.a.narrowTo(Interval.multiplyIntervalByConstant(this.product.value(), (1 / this.k)), fail);
+	                //when k is 0, 1/k doesn't work (it becomes infinity).
+	                //In the limit, inf * 0 = 0, and even then the nearest real
+	                //number to inf * 0 = 0.
+	                //So, under practical cases, we've already narrowed the product to 0 at this point,
+	                //the value of a doesn't matter.
+	                //FIXME: can't wait to spend 4 hours finding the bug this introduces.
+	                if(this.k != 0){
+	                    this.a.narrowTo(Interval.multiplyIntervalByConstant(this.product.value(), (1 / this.k)), fail);
+	                }
 	            }
 	        },
 
@@ -2242,7 +2250,7 @@ var Craft =
 	        narrowToQuotient : function(numerator, denominator, fail){
 	            if(denominator.isZero()){
 	                //Denominator is [0,0], so quotent is the empty set
-	                fail[0] = true;
+	                fail[0] = !numerator.containsZero();
 	            }else if(numerator.isZero()){
 	                if(!denominator.containsZero()){
 	                    //Quotent is [0,0].
@@ -2374,7 +2382,7 @@ var Craft =
 	     */
 	    function multiplyVariableByConstant(a, k){
 	        if(!Number.isInteger(k)){
-	            console.log("k:", k);
+	            console.log("k: ", k);
 	            throw "Unable to set up integer problem, k is floating point.  See console for details."
 	        }
 	        var funct = function(){
@@ -2447,9 +2455,9 @@ var Craft =
 	         */
 	        init : function(lowerBound, upperBound){
 
-	            if(lowerBound === Number.NaN){
+	            if(Number.isNaN(lowerBound)){
 	                throw "Interval lower bound is not a number";
-	            }else if(upperBound === Number.NaN){
+	            }else if(Number.isNaN(upperBound)){
 	                throw "Interval upper bound is not a number";
 	            }else if(lowerBound === Number.POSITIVE_INFINITY){
 	                throw "Interval lower bound cannot be positive infinity";
@@ -3083,13 +3091,20 @@ var Craft =
 	                if(fail[0]){ return; };
 	            }
 	            if(this.narrowedVariable != this.a){
-	                var constraint = IntegerInterval.multiplyIntervalByConstant(this.product.value(), (1 / this.k));
-	                this.a.narrowTo(
-	                    new IntegerInterval(
-	                        Math.floor(constraint.lower),
-	                        Math.ceil(constraint.upper)
-	                    ),
-	                fail);
+	                //See the comment in real scalar arithmetic constraints, but, when k is 0,
+	                //this.product / k gets rough to narrow on.  In the limit, [-inf, inf] * 0 = 0,
+	                //we've already narrowed the product, and this sounds practical enough, so
+	                //when k = 0, don't narrow a.
+	                //FIXME: I can't wait to find the bug I just introduced with this.
+	                if(this.k != 0){
+	                    this.a.narrowToQuotient(
+	                        this.product.value(),
+	                        new IntegerInterval(
+	                            Math.floor(this.k),
+	                            Math.ceil(this.k)
+	                        ),
+	                    fail);
+	                }
 	            }
 	        },
 	    });

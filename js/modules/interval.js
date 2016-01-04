@@ -13,9 +13,9 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		 */
 		init : function(lowerBound, upperBound){
 
-			if(lowerBound === Number.NaN){
+			if(Number.isNaN(lowerBound)){
 				throw "Interval lower bound is not a number";
-			}else if(upperBound === Number.NaN){
+			}else if(Number.isNaN(upperBound)){
 				throw "Interval upper bound is not a number";
 			}else if(lowerBound === Number.POSITIVE_INFINITY){
 				throw "Interval lower bound cannot be positive infinity";

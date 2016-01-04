@@ -134,7 +134,15 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
                 if(fail[0]){ return; };
             }
             if(this.narrowedVariable != this.a){
-                this.a.narrowTo(Interval.multiplyIntervalByConstant(this.product.value(), (1 / this.k)), fail);
+                //when k is 0, 1/k doesn't work (it becomes infinity).
+                //In the limit, inf * 0 = 0, and even then the nearest real
+                //number to inf * 0 = 0.
+                //So, under practical cases, we've already narrowed the product to 0 at this point,
+                //the value of a doesn't matter.
+                //FIXME: can't wait to spend 4 hours finding the bug this introduces.
+                if(this.k != 0){
+                    this.a.narrowTo(Interval.multiplyIntervalByConstant(this.product.value(), (1 / this.k)), fail);
+                }
             }
         },
 
