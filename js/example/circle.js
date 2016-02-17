@@ -7,7 +7,7 @@ var FloatVariable = Craft.FloatVariable;
 var IntegerVariable = Craft.IntegerVariable;
 var CSP = Craft.CSP;
 
-var pointNum = 5000;
+var pointNum = 500;
 var canvas = document.getElementById("demoCanvas");
 var ctx = canvas.getContext('2d');
 var width = canvas.width;
