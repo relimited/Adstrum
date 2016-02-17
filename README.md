@@ -11,7 +11,9 @@ All three libraries are in the /vendor folder.
 Craftjs was built using webpack.
 
 ## Importing
-Using Craftjs in your own projects is easy (unlike in the previous build, where it was a nightmare).  Right now, Craft.js exports to a set of global variables (```CSP```, ```FloatVariable``` and ```IntegerVariable```).  Support for using Craft.js with AMD / CommonJS is upcomming in the next release.
+Using Craftjs in your own projects is easy (unlike in the previous build, where it was a nightmare).  Right now, Craft.js exports to a single global object (```Craft```), which has a set of properties set (```Craft.CSP```, ```Craft.FloatVariable``` and ```Craft.IntegerVariable```).  
+
+Support for using Craft.js with AMD / CommonJS is upcomming in the next release.
 
 Just copy the ```craft.js``` file to your project and load it before you'd load any Craftjs dependant code.
 ```HTML
@@ -24,6 +26,14 @@ Just copy the ```craft.js``` file to your project and load it before you'd load 
 	</body>
 </html>
 ```
+
+Examples in the Usage section assume a few setup lines:
+```javascript
+var CSP = Craft.CSP;
+var FloatVariable = Craft.FloatVariable;
+var IntegerVariable = Craft.IntegerVariable;
+```
+
 #### Testing
 The various tests are located in js/tests.  The above example is in runTests.js, and can be seen by opening the tester.html file in a browser (in /test).  If you want to import the testing framework for whatever reason, it uses Require.js and a bootstrap.
 
