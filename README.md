@@ -157,5 +157,5 @@ the configuration phase.  Craftjs does not do this, and uses `mustBeContainedIn(
 Take care when assigning variable names.  The names "a", "b", "sum", "difference", "product", "quotient" and "power" may get overwritten by the solver and end up getting assigned to the wrong constraints.  The more descriptive a name is, the more useful it is overall.  The internal variable representation will get tweaked in a future release to prevent this from happening.
 
 #### other
-Craftjs is very much in development.  This is an alpha build (0.2, at time of writing this disclamer), and may be bug-ridden.
+Craftjs is very much in development.  This is an alpha build (0.21, at time of writing this disclamer), and may be bug-ridden.
 Please, add an issue tag for any bugs you find.
