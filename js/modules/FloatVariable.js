@@ -328,11 +328,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
          *                      variable
          */
         uniqueValue : function(){
-          if(this.fowardingPointer){
-            return this.forwardingPointer.value().uniqueValue();
-          }else{
-            return this.value().uniqueValue();
-          }
+          return this.canonicalVariable().value().uniqueValue();
         }
     });
 

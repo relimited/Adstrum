@@ -113,11 +113,10 @@ quad.mustBeContainedInRange(10, 20);
 Craftjs has some other constraints to add to `FloatVariable` or `IntegerVariable`s:
 ```
 .mustBeContainedIn(low, high) --> variable must be within the specified range
-.mustEqual(Number) --> variable must equal the provided Number
-.mustBeLessThanOrEqualTo(Number) --> variable must be less than or equal to the provided Number
-.mustBeGreaterThanOrEqualTo(Number) --> variable must be greater than or equal to the provided number
+.mustEqual(Number Or Variable) --> variable must equal the provided Number
+.mustBeLessThanOrEqualTo(Number Or Variable) --> variable must be less than or equal to the provided Number
+.mustBeGreaterThanOrEqualTo(Number Or Variable) --> variable must be greater than or equal to the provided number
 ```
-
 
 Now that we've set up the CSP, we can start getting solutions to it.  Craftjs gets one
 solution to the CSP at a time, and does not make any promises about not returning the same solution twice.
@@ -140,7 +139,7 @@ The examples folder (html page is in /example and relevant javascript is in js/e
 There is a program that also draws circles in a square to show off how to use Integer constraints.  If Craftjs isn't expressive enough to your liking, Craftjs can do rejection sampling to get more complicated constrained solutions, as seen in the final example.
 
 ## Features to Add
--- Mixed CSPs, able to handle both Floats and Ints.
+-- Mixed CSPs, able to handle both Reals and Ints.
 
 -- Vectors, for both Reals and Integers.
 
