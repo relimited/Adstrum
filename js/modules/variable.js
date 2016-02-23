@@ -48,22 +48,21 @@ define(["inheritance", "restorable"], function(Inheritance, Restorable){
 
 		mustEqual : function(v){
 			this.csp.assertConfigurationPhase();
-            //still don't get this line
-            this.forwardingPointer = v.canonicalVariable();
-            this.currentValue = null;  // To make sure any further attempt to use CurrentValue will fail.
-
+      //still don't get this line
+      this.forwardingPointer = v.canonicalVariable();
+      this.currentValue = null;  // To make sure any further attempt to use CurrentValue will fail.s
 		},
 
 		isCanonical : function(){
 		 	return this.forwardingPointer == this;
-    	},
+    },
 
-    	canonicalVariable : function(){
-    		var v = this;
-      		while (v != v.forwardingPointer){
-      			v = v.forwardingPointer;
+    canonicalVariable : function(){
+    	var v = this;
+      while (v != v.forwardingPointer){
+      	v = v.forwardingPointer;
 			}
-
+			
 			return v;
     }
 	});

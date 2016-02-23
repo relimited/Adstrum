@@ -107,7 +107,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 
 		isZero : function(){
 			//FIXME: there was weirdness here in the C# code.  Should probably investigate
-			return this.lower == 0 && this.upper == 0;
+			return this.lower === 0 && this.upper === 0;
 		},
 
 		nearlyContains : function(i, epsilon){
@@ -330,13 +330,13 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	function divide(a, b){
 		//TODO: type check on intersector, a and b (interval)
 		//ReShaper comments here, which may mean I need to do something....
-		if(b.lower == 0){
-			if(b.upper == 0){
+		if(b.lower === 0){
+			if(b.upper === 0){
 				return Interval.allValues;
 			}else{
 				return new Interval(Math.min(a.upper / b.upper, a.lower / b.upper), Number.POSITIVE_INFINITY);
 			}
-		}else if(b.upper == 0){
+		}else if(b.upper === 0){
 			//ReShaper comment here
 			 return new Interval(Number.NEGATIVE_INFINITY, Math.max(a.lower / b.lower, a.upper / b.lower));
 		}else if(b.contains(0)){
@@ -354,12 +354,10 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		switch(exponent){
 			case 0:
 				return new Interval(1,1);
-			break;
 			case 1:
 				return a;
-			break;
 			default:
-				if(exponent % 2 == 0){
+				if(exponent % 2 === 0){
 					//even exponent
 					if(a.lower >= 0){
 						return new Interval(Math.pow(a.lower, exponent), Math.pow(a.upper, exponent));
@@ -385,7 +383,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		if(exponent == 1){
 			return a;
 		}else{
-			if (exponent % 2 == 0){
+			if (exponent % 2 === 0){
                 // even exponent
                 var lower = MathUtil.nthroot(Math.max(0, a.lower), exponent);
                 var upper = MathUtil.nthroot(Math.max(0, a.upper), exponent);
@@ -401,7 +399,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 
 	function positiveSqrt(a){
 		if(a.lower <= 0){
-			throw "Attempt to take square root of a negative interval."
+			throw "Attempt to take square root of a negative interval.";
 		}
 		return new Interval(Math.sqrt(a.lower), Math.sqrt(a.upper));
 	}

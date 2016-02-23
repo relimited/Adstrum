@@ -6,8 +6,8 @@ module.exports = {
        // name of the global var: "Craft"
        library: "Craft"
    },
-
-    resolve : {
+   
+   resolve : {
         root: '/Users/Johnathan/GitHub/Craftjs/js/',
         alias : {
             'inheritance' : 'vendor/inheritance.js',

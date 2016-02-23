@@ -60,12 +60,12 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         propagate : function(fail){
             if(this.narrowedVariable != this.difference){
                 this.difference.narrowTo(Interval.subtract(this.a.value(), this.b.value()), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.a){
                 this.a.narrowTo(Interval.add(this.difference.value(), this.b.value()), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.b){
@@ -74,7 +74,7 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         },
 
         toString : function(){
-            return "{" + this.difference.name + "}={" + this.a.name + "}-{" + this.b.name +"}"
+            return "{" + this.difference.name + "}={" + this.a.name + "}-{" + this.b.name +"}";
         }
     });
     constraints.DifferenceConstraint = DifferenceConstraint;
@@ -96,12 +96,12 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         propagate : function(fail){
             if(this.narrowedVariable != this.product){
                 this.product.narrowTo(Interval.multiply(this.a.value(), this.b.value()), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.a){
                 this.a.narrowToQuotient(this.product.value(), this.b.value(), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.b){
@@ -110,7 +110,7 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         },
 
         toString : function(){
-            return "{" + this.product.name + "}={" + this.a.name + "}*{"+ this.b.name + "}"
+            return "{" + this.product.name + "}={" + this.a.name + "}*{"+ this.b.name + "}";
         }
     });
     constraints.ProductConstraint = ProductConstraint;
@@ -131,7 +131,7 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         propagate : function(fail){
             if(this.narrowedVariable != this.product){
                 this.product.narrowTo(Interval.multiplyIntervalByConstant(this.a.value(), this.k), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
             if(this.narrowedVariable != this.a){
                 //when k is 0, 1/k doesn't work (it becomes infinity).
@@ -140,14 +140,14 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
                 //So, under practical cases, we've already narrowed the product to 0 at this point,
                 //the value of a doesn't matter.
                 //FIXME: can't wait to spend 4 hours finding the bug this introduces.
-                if(this.k != 0){
+                if(this.k !== 0){
                     this.a.narrowTo(Interval.multiplyIntervalByConstant(this.product.value(), (1 / this.k)), fail);
                 }
             }
         },
 
         toString : function(){
-            return "{"+ this.product.name +"}={" + this.a.name + "}*{" + this.k + "}"
+            return "{"+ this.product.name +"}={" + this.a.name + "}*{" + this.k + "}";
         }
     });
     constraints.ConstantProductConstraint = ConstantProductConstraint;
@@ -169,22 +169,22 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         propagate : function(fail){
             if(this.narrowedVariable != this.quotient){
                 this.quotient.narrowToQuotient(this.a.value(), this.b.value(), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.a){
                 this.a.narrowTo(Interval.multiply(this.quotient.value(), this.b.value()), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.b){
                 this.b.narrowToQuotient(this.a.value(), this.quotient.value(), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
         },
 
         toString : function(){
-            return "{" + this.quotient.name + "}={"+ this.a.name +"}/{" + this.b.name + "}"
+            return "{" + this.quotient.name + "}={"+ this.a.name +"}/{" + this.b.name + "}";
         }
     });
     constraints.QuotientConstraint = QuoitentConstraint;
@@ -205,11 +205,11 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         propagate : function(fail){
             if(this.narrowedVariable != this.power){
                 this.power.narrowTo(Interval.pow(this.a.value(), this.exponent), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             //We want to repropagate in case this is an even power and we just split on a
-            if((this.exponent % 2 == 0) && this.a.value().lower < 0){
+            if((this.exponent % 2 === 0) && this.a.value().lower < 0){
                 if (this.a.value().upper <= 0){
                     //a is non-positive
                     this.a.narrowTo(Interval.invert(Interval.invPower(this.power.value(), this.exponent)), fail);
@@ -225,7 +225,7 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         },
 
         toString : function(){
-            return "{" + this.power.name + "}={" + this.a.name + "}^{" + this.exponent + "}"
+            return "{" + this.power.name + "}={" + this.a.name + "}^{" + this.exponent + "}";
         }
     });
     constraints.PowerConstraint = PowerConstraint;

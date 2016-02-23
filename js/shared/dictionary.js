@@ -18,9 +18,9 @@ var dict = function Dictionary(overwrite){
 			}
 			return -1;
 		}else{
-			return __k.indexOf(key)
+			return __k.indexOf(key);
 		}
-	}
+	};
 
 	this.put = function(key, value){
 		idx = findKey(key);
@@ -61,7 +61,7 @@ var dict = function Dictionary(overwrite){
 			   func(__k[i], __v[i]);
 		  }
 	 };
-  }
+ };
 
 return dict;
 });

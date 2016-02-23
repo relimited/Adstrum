@@ -3,16 +3,16 @@
 define(['inheritance', 'interval'], function(Inheritance, Interval){
     describe("Testing Intervals", function(){
         it("Testing Empty Intervals", function(){
-                expect(new Interval(1, -1).empty()).toBe(true)
-                expect(new Interval(-1, 1).empty()).toBe(false)
+                expect(new Interval(1, -1).empty()).toBe(true);
+                expect(new Interval(-1, 1).empty()).toBe(false);
         });
 
         it("Contains Scalar Tests", function(){
-            expect(new Interval(0,1).contains(1)).toBe(true)
-            expect(new Interval(0,1).contains(0)).toBe(true)
-            expect(new Interval(0,1).contains(0.5)).toBe(true)
-            expect(new Interval(0,1).contains(-1)).toBe(false)
-            expect(new Interval(0,1).contains(2)).toBe(false)
+            expect(new Interval(0,1).contains(1)).toBe(true);
+            expect(new Interval(0,1).contains(0)).toBe(true);
+            expect(new Interval(0,1).contains(0.5)).toBe(true);
+            expect(new Interval(0,1).contains(-1)).toBe(false);
+            expect(new Interval(0,1).contains(2)).toBe(false);
         });
 
         it("Contains Interval Tests", function(){
@@ -77,18 +77,18 @@ define(['inheritance', 'interval'], function(Inheritance, Interval){
             var pos = new Interval(1, 2);
             var cross = new Interval(-2, 2);
 
-            expect(new Interval(1, 1).equals(Interval.pow(neg, 0))).toBe(true)
-            expect(neg.equals(Interval.pow(neg, 1))).toBe(true)
-            expect(new Interval(1, 4).equals(Interval.pow(neg, 2))).toBe(true)
-            expect(new Interval(1, 4).equals(Interval.pow(pos, 2))).toBe(true)
-            expect(new Interval(0, 4).equals(Interval.pow(cross, 2))).toBe(true)
+            expect(new Interval(1, 1).equals(Interval.pow(neg, 0))).toBe(true);
+            expect(neg.equals(Interval.pow(neg, 1))).toBe(true);
+            expect(new Interval(1, 4).equals(Interval.pow(neg, 2))).toBe(true);
+            expect(new Interval(1, 4).equals(Interval.pow(pos, 2))).toBe(true);
+            expect(new Interval(0, 4).equals(Interval.pow(cross, 2))).toBe(true);
 
-            expect(new Interval(-8, -1).equals(Interval.pow(neg, 3))).toBe(true)
-            expect(new Interval(1, 8).equals(Interval.pow(pos, 3))).toBe(true)
+            expect(new Interval(-8, -1).equals(Interval.pow(neg, 3))).toBe(true);
+            expect(new Interval(1, 8).equals(Interval.pow(pos, 3))).toBe(true);
         });
 
         it("Sqrt Interval Test", function(){
-            expect(new Interval(2, 3).equals(Interval.positiveSqrt(new Interval(4,9)))).toBe(true)
+            expect(new Interval(2, 3).equals(Interval.positiveSqrt(new Interval(4,9)))).toBe(true);
         });
     });
 });

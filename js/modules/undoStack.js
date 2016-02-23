@@ -10,7 +10,7 @@ define(["inheritance"], function(Inheritance){
     this.oldFrame = vari.lastSaveFrame;
     this.savedValue = vari.realValue;
     this.variable = vari;
-  }
+  };
 
   var UndoStack = Class.extend({
     init : function(vari){
