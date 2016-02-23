@@ -76,7 +76,7 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
                         Math.ceil(constraint.upper)
                     ),
                 fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.a){
@@ -87,7 +87,7 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
                         Math.ceil(constraint.upper)
                     ),
                 fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.b){
@@ -122,12 +122,12 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
                         Math.ceil(constraint.upper)
                     ),
                 fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.a){
                 this.a.narrowToQuotient(this.product.value(), this.b.value(), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.b){
@@ -155,7 +155,7 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
                         Math.ceil(constraint.upper)
                     ),
                 fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
             if(this.narrowedVariable != this.a){
                 //See the comment in real scalar arithmetic constraints, but, when k is 0,
@@ -163,7 +163,7 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
                 //we've already narrowed the product, and this sounds practical enough, so
                 //when k = 0, don't narrow a.
                 //FIXME: I can't wait to find the bug I just introduced with this.
-                if(this.k != 0){
+                if(this.k !== 0){
                     this.a.narrowToQuotient(
                         this.product.value(),
                         new IntegerInterval(
@@ -189,7 +189,7 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
         propagate : function(fail){
             if(this.narrowedVariable != this.quotient){
                 this.quotient.narrowToQuotient(this.a.value(), this.b.value(), fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.a){
@@ -200,7 +200,7 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
                         Math.ceil(constraint.upper)
                     ),
                 fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             if(this.narrowedVariable != this.b){
@@ -235,7 +235,7 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
                         Math.ceil(constraint.upper)
                     ),
                 fail);
-                if(fail[0]){ return; };
+                if(fail[0]){ return; }
             }
 
             //For integers, we need to check if power's range even allows for
@@ -260,7 +260,7 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
             }
 
             //We want to repropagate in case this is an even power and we just split on a
-            if((this.exponent % 2 == 0) && this.a.value().lower < 0){
+            if((this.exponent % 2 === 0) && this.a.value().lower < 0){
                 if (this.a.value().upper <= 0){
                     //a is non-positive
                     this.a.narrowTo(IntegerInterval.invPower(this.power.value(), this.exponent), fail);

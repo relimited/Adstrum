@@ -7,19 +7,19 @@ define(["inheritance", "dictionary"], function(Inheritance, Dictionary){'use str
   //Defining an 'inner class' here-- tuple isn't returned from this chunk, so it's only visible to the MemoTable.
   var Tuple = Class.extend({
     init : function(args){
-        var compiled = []
+        var compiled = [];
         for (var i = 0; i < args.length; i++){
-            compiled.push(args[i])
+            compiled.push(args[i]);
         }
         this.data = compiled;
     },
 
     equals : function(t){
-      if(t == null || t.data.length != this.data.length){
+      if(t === null || t.data.length != this.data.length){
         return false;
       }else{
         for(var index = 0, len = t.data.length; index < len; ++index){
-          if(!(t.data[index] == this.data[index])){         //yes, this means that it won't work for objects.  I get it.
+          if(t.data[index] != this.data[index]){         //yes, this means that it won't work for objects.  I get it.
             return false;
           }
         }

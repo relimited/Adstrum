@@ -86,7 +86,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
             }
             var oldValue = this.value();
             if(!restriction.contains(this.value())){
-                var newValue = IntegerInterval.intersection(this.currentValue.get(), restriction);
+                var newValue = IntegerInterval.intersection(this.value(), restriction);
                 if(newValue.nearlyUnique()){
                     var mid = newValue.midpoint();
                     newValue = new IntegerInterval(mid, mid);
@@ -98,7 +98,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
                     fail[0] = true;
                 }else{
                     var propagate = (newValue.width() / this.value().width()) < 0.99;
-                    this.currentValue.set(newValue);
+                    this.canonicalVariable().currentValue.set(newValue);
                     if(propagate){
                         for(var index = 0, len = this.constraints.length; index < len; index++){
                             this.constraints[index].queuePropigation(this);
@@ -152,10 +152,10 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
 
             //three cases: crosses zero, [a, 0] and [0, b]
             //For integer intervals, all of these cases are handled inside of the interval itself.
-            }else if(denominator.lower == 0){
+          }else if(denominator.lower === 0){
                 //[0,d]
                 this.narrowTo(IntegerInterval.divide(numerator, denominator), fail);
-            }else if(denominator.upper == 0){
+            }else if(denominator.upper === 0){
                 //[c,0]
                 this.narrowTo(IntegerInterval.divide(numerator, denominator), fail);
             }else if(numerator.upper < 0){
@@ -189,10 +189,13 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
      * @param  {intVariable} v variable to coerce to a primative
      * @return {Number}   a primative representation of this int var.
      */
-    function coerceToPrimative(v){
-        return v.uniqueValue();
-    }
-    IntVariable.coerceToPrimative = coerceToPrimative;
+
+     //TODO coerce is down until further notice.  This is due to a huge bug in
+     //the way I'm using uniqueValue().
+    //function coerceToPrimative(v){
+    //    return v.uniqueValue();
+    //}
+    //IntVariable.coerceToPrimative = coerceToPrimative;
 
     /**
      * Add two int variables together.  This also adds a new constraint

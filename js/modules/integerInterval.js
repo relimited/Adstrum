@@ -28,7 +28,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
             }
             this.lower = Math.floor(lowerBound);
             this.upper = Math.ceil(upperBound);
-            this.kind = "IntegerInterval"
+            this.kind = "IntegerInterval";
 
             //conditional compilation is not a thing for Javascript, so we do all of it all the time
 			this.searchHint = SearchHint.none;
@@ -47,13 +47,13 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
             var randomElement = realLower + (Math.random() * range);
             if(realLower <= Math.floor(randomElement)){
                 //we can safely floor the number
-                randomElement = Math.floor(randomElement)
+                randomElement = Math.floor(randomElement);
             }else if(this.practicalUpper() >= Math.ceil(randomElement)){
                 //we can safely ceil the number
-                randomElement = Math.ceil(randomElement)
+                randomElement = Math.ceil(randomElement);
             }else{
-                console.log(this.practicalLower(), this.practicalUpper())
-                throw "Unable to find a random integer in provided range!"
+                console.log(this.practicalLower(), this.practicalUpper());
+                throw "Unable to find a random integer in provided range!";
 
             }
             //TODO: assert not positive infinity and not negative infinity
@@ -164,8 +164,8 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
          * an element in this interval
          */
         findDivisors : function(b){
-            var c = undefined;
-            var d = undefined;
+            var c;
+            var d;
             //look for the smallest number in b that holds the potential divisor
             //equality
             for(var test = b.lower; test <= b.upper; test++){
@@ -256,7 +256,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 	function unionOfIntersections(intersector, a, b){
 		return unionBound(intersection(intersector, a), intersection(intersector, b));
 	}
-    IntegerInterval.unionOfIntersections = unionOfIntersections
+    IntegerInterval.unionOfIntersections = unionOfIntersections;
 
 
 
@@ -308,7 +308,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
                  Math.min(lower, upper),
                  Math.max(lower, upper));
          }else{
-             console.log("[PROMOTE WARN] multiplying an IntegerInterval by a non-integer returns an Interval")
+             console.log("[PROMOTE WARN] multiplying an IntegerInterval by a non-integer returns an Interval");
              return new Interval(
                  Math.min(lower, upper),
                  Math.max(lower, upper));
@@ -342,18 +342,18 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 
         //numerator interval does not cross 0.
         if(a.lower > 0 || a.upper < 0){
-            if(b.lower == 0 && b.upper == 0){
+            if(b.lower === 0 && b.upper === 0){
                 //can't divide by 0
                 return a.makeEmpty();
             }else if(b.lower < 0 && b.upper > 0){
                 //denominator interval crosses 0
-                return new IntegerInterval(-Math.max(Math.abs(a.lower), Math.abs(a.upper)), Math.max(Math.abs(a.lower), Math.abs(a.upper)))
-            }else if(b.lower == 0 && b.upper != 0){
+                return new IntegerInterval(-Math.max(Math.abs(a.lower), Math.abs(a.upper)), Math.max(Math.abs(a.lower), Math.abs(a.upper)));
+            }else if(b.lower === 0 && b.upper !== 0){
                 //denominator interval touches 0 ([0, ...])
-                return divide(a, new IntegerInterval(b.lower + 1, b.upper))
-            }else if(b.lower != 0 && b.upper == 0){
+                return divide(a, new IntegerInterval(b.lower + 1, b.upper));
+            }else if(b.lower !== 0 && b.upper === 0){
                 //denominator interval touches 0 ([..., 0])
-                return divide(a, new IntegerInterval(b.lower, b.upper - 1))
+                return divide(a, new IntegerInterval(b.lower, b.upper - 1));
             }
         }
 
@@ -380,16 +380,14 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 		switch(exponent){
 			case 0:
 				return new IntegerInterval(1,1); // speedup case
-			break;
 			case 1:
 				return a; // speedup case
-			break;
 			default:
                 //more complicated crap
-                if(exponent % 2 != 0){
+                if(exponent % 2 !== 0){
                     //odd exponent
                     return new IntegerInterval(Math.pow(a.lower, exponent), Math.pow(a.upper, exponent));
-                }else if (exponent % 2 == 0){
+                }else if (exponent % 2 === 0){
                     //exponent is even
                     if(a.lower >= 0){
                         return new IntegerInterval(Math.pow(a.lower, exponent), Math.pow(a.upper, exponent));
@@ -414,15 +412,12 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
         switch(n){
             case 0:
                 return new IntegerInterval(0, 0);
-                break;
             case 1:
                 return a;
-                break;
             case -1:
                 return invert(a);
-                break;
             default:
-                if(n % 2 != 0){
+                if(n % 2 !== 0){
                     //n is odd
                     return new IntegerInterval(Math.ceil(MathUtil.nthroot(a.lower, n)), Math.floor(MathUtil.nthroot(a.upper, n)));
                 }else{

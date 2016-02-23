@@ -1,18 +1,18 @@
 /**
  *	A floating point variable in Craft
- *	This class not only creates new Floating Variables for Scalar arithmetic in Craft, but also
- *	handles performing common scalar arithmetic operations to floating variables
+ *	This class not only creates new Floating Variables for Scalar Arithmatic in Craft, but also
+ *	handles performing common scalar arithmatic operations to floating variables
  */
 
-define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticConstraints'], function(Inheritance, Variable, Interval, MathUtil, ScalarArithmeticConstraints){
-    //For ease of reference later, split the properties of the ScalarArithmeticConstraints
+define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticConstraints'], function(Inheritance, Variable, Interval, MathUtil, ScalarArithmaticConstraints){
+    //For ease of reference later, split the properties of the ScalarArithmaticConstraints
     //module.
-    SumConstraint = ScalarArithmeticConstraints.SumConstraint;
-    DifferenceConstraint = ScalarArithmeticConstraints.DifferenceConstraint;
-    ProductConstraint = ScalarArithmeticConstraints.ProductConstraint;
-    ConstantProductConstraint = ScalarArithmeticConstraints.ConstantProductConstraint;
-    QuotientConstraint = ScalarArithmeticConstraints.QuotientConstraint;
-    PowerConstraint = ScalarArithmeticConstraints.PowerConstraint;
+    SumConstraint = ScalarArithmaticConstraints.SumConstraint;
+    DifferenceConstraint = ScalarArithmaticConstraints.DifferenceConstraint;
+    ProductConstraint = ScalarArithmaticConstraints.ProductConstraint;
+    ConstantProductConstraint = ScalarArithmaticConstraints.ConstantProductConstraint;
+    QuotientConstraint = ScalarArithmaticConstraints.QuotientConstraint;
+    PowerConstraint = ScalarArithmaticConstraints.PowerConstraint;
 
     //'Static' method constructors for making common variations on a Floating Point Variable.
     /**
@@ -24,7 +24,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
      */
     var makeInfinateFloatVariable = function(name, p){
         return new FloatVariable(name, p, Interval.allValues);
-    }
+    };
 
     /**
      * 'Static' method for making a float variable with two provided bounds
@@ -37,7 +37,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
      */
     var makeFloatVariableWithBounds = function(name, p, lower, upper){
         return new FloatVariable(name, p, new Interval(lower, upper));
-    }
+    };
 
     /**
      * 'Static' method for memorizing a 'make constant' function.
@@ -51,16 +51,16 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
     var constant = function(p, c){
         var funct = function(){makeFloatVariableWithBounds(c.toString(), p, c, c);};
         return p.memorize("constant", funct, c);
-    }
+    };
 
     var FloatVariable = Variable.extend({
         /**
          * Create a new Float Varible and register that float variable with a CSP
          *
-         * @param  {String} name         Name of the float variable
-         * @param  {CSP} p            Constraint satisfaction problem to associate with this float variable
+         * @param  {String} name           Name of the float variable
+         * @param  {CSP} p                 Constraint satisfaction problem to associate with this float variable
          * @param  {Interval} initialValue Initial bounds of this float variable
-         * @return {FloatVariable}              A new float variable to use with the CSP
+         * @return {FloatVariable}         A new float variable to use with the CSP
          */
         init : function(name, p, initialValue){
             this._super(name, p, p.intervalUndoStack, initialValue);
@@ -96,7 +96,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
                 this._super(v);
             }else if (v.constructor === Number){
                 //This is our final condition-- also Javascript is awesome
-                this.mustBeContainedInInterval(new Interval(v, v))
+                this.mustBeContainedInInterval(new Interval(v, v));
             }
         },
 
@@ -114,28 +114,36 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
          * Adds a constraint that this float variable must be greater than or
          * equal to the provided parameter
          * This is equivelent to mustBeContainedInRange(low, Number.POSITIVE_INFINITY)
-         * @param  {Number} low The lower bound, what we're constraining this variable to equal or be greater than
+         * @param  {Variable or Number} low The lower bound, what we're constraining this variable to equal or be greater than
          */
         mustBeGreaterThanOrEqualTo : function(low){
-            this.mustBeContainedInInterval(new Interval(low, Number.POSITIVE_INFINITY))
+            if (low instanceof Variable){
+                this.mustBeContainedInRange(low.value().upper, Number.POSITIVE_INFINITY);
+            }else if (low.constructor === Number){
+                this.mustBeContainedInInterval(new Interval(low, Number.POSITIVE_INFINITY));
+            }
         },
 
         /**
          * Adds a constraint that this float variable must be less than or
          * equal to the provided parameter
          * This is equivelent to mustBeContainedInRange(Number.NEGATIVE_INFINITY, high)
-         * @param  {Number} high the upper bound, we're constraining the float variable to be equal to or less than
+         * @param  {Variable or Number} high the upper bound, we're constraining the float variable to be equal to or less than
          *                       this number
          */
         mustBeLessThanOrEqualTo : function(high){
-            this.mustBeContainedInInterval(new Interval(Number.NEGATIVE_INFINITY, high))
+            if (high instanceof Variable){
+              this.mustBeContainedInRange(Number.NEGATIVE_INFINITY, high.value().lower);
+            }else if (high.constructor === Number){
+                this.mustBeContainedInInterval(new Interval(Number.NEGATIVE_INFINITY, high));
+            }
         },
         /**
          * Add a constraint that this float variable must be contained by a particular
          * interval
          * Although this function can be used externally, is intended to not be.
          * This keeps Craftjs from ever having to expose the Interval object / class
-         * @param  {Number} i the bounds that this variable must be in ([i.lower(), i.upper()])
+         * @param  {Interval} i the bounds that this variable must be in ([i.lower(), i.upper()])
          */
         mustBeContainedInInterval : function(i){
             this.csp.assertConfigurationPhase();
@@ -143,7 +151,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
             if(intersection.empty()){
                 throw "Argument out of current range of variable";
             }
-            this.currentValue.setInitialValue(intersection)
+            this.currentValue.setInitialValue(intersection);
         },
 
         /**
@@ -163,7 +171,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
             }
             var oldValue = this.value();
             if(!restriction.contains(this.value())){
-                var newValue = Interval.intersection(this.currentValue.get(), restriction);
+                var newValue = Interval.intersection(this.value(), restriction);
                 if(newValue.nearlyUnique()){
                     var mid = newValue.midpoint();
                     newValue = new Interval(mid, mid);
@@ -175,7 +183,8 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
                     fail[0] = true;
                 }else{
                     var propagate = (newValue.width() / this.value().width()) < 0.99;
-                    this.currentValue.set(newValue);
+                    console.log(this.canonicalVariable());
+                    this.canonicalVariable().currentValue.set(newValue);
                     if(propagate){
                         for(var index = 0, len = this.constraints.length; index < len; index++){
                             this.constraints[index].queuePropigation(this);
@@ -202,38 +211,38 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
          * @param  {[boolean]} fail        pass-by-ref failure bool (will be set to true if we can't narrow)
          */
         narrowToQuotient : function(numerator, denominator, fail){
-            if(denominator.isZero()){
-                //Denominator is [0,0], so quotent is the empty set
-                fail[0] = !numerator.containsZero();
-            }else if(numerator.isZero()){
-                if(!denominator.containsZero()){
-                    //Quotent is [0,0].
-                    this.narrowTo(new Interval(0,0), fail);
-                }
-            }else if(!denominator.containsZero()){
-                this.narrowTo(Interval.multiply(numerator, denominator.reciprocal()), fail);
-            //three cases: crosses zero, [a, 0] and [0, b]
-            }else if(denominator.lower == 0){
-                if (numerator.upper <= 0){
-                    this.narrowTo(new Interval(Number.NEGATIVE_INFINITY, numerator.upper / denominator.upper), fail);
-                }else if(numerator.lower >= 0){
-                    this.narrowTo(new Interval(numerator.lower / denominator.upper, Number.POSITIVE_INFINITY), fail);
-                }
-            }else if(denominator.upper == 0){
-                if(numerator.upper <= 0){
-                    this.narrowTo(new Interval(numerator.upper / denominator.lower, Number.POSITIVE_INFINITY), fail);
-                }else if(numerator.lower >= 0){
-                    this.narrowTo(new Interval(Number.NEGATIVE_INFINITY, numerator.lower / denominator.lower), fail);
-                }
-            }else if(numerator.upper < 0){
-                var lowerHalf = new Interval(Number.NEGATIVE_INFINITY, numerator.upper / denominator.upper);
-                var upperHalf = new Interval(numerator.upper / denominator.lower, Number.POSITIVE_INFINITY);
-                this.narrowToUnion(lowerHalf, upperHalf, fail);
-            }else if(numerator.lower > 0){
-                var lowerHalf = new Interval(Number.NEGATIVE_INFINITY, numerator.lower / denominator.lower);
-                var upperHalf = new Interval(numerator.lower / denominator.upper, Number.POSITIVE_INFINITY);
-                this.narrowToUnion(lowerHalf, upperHalf, fail);
+          if(denominator.isZero()){
+            //Denominator is [0,0], so quotent is the empty set
+            fail[0] = !numerator.containsZero();
+          }else if(numerator.isZero()){
+            if(!denominator.containsZero()){
+              //Quotent is [0,0].
+              this.narrowTo(new Interval(0,0), fail);
             }
+          }else if(!denominator.containsZero()){
+            this.narrowTo(Interval.multiply(numerator, denominator.reciprocal()), fail);
+          //three cases: crosses zero, [a, 0] and [0, b]
+          }else if(denominator.lower === 0){
+            if (numerator.upper <= 0){
+              this.narrowTo(new Interval(Number.NEGATIVE_INFINITY, numerator.upper / denominator.upper), fail);
+            }else if(numerator.lower >= 0){
+              this.narrowTo(new Interval(numerator.lower / denominator.upper, Number.POSITIVE_INFINITY), fail);
+            }
+          }else if(denominator.upper === 0){
+            if(numerator.upper <= 0){
+              this.narrowTo(new Interval(numerator.upper / denominator.lower, Number.POSITIVE_INFINITY), fail);
+            }else if(numerator.lower >= 0){
+              this.narrowTo(new Interval(Number.NEGATIVE_INFINITY, numerator.lower / denominator.lower), fail);
+            }
+          }else if(numerator.upper < 0){
+            var lowerHalf = new Interval(Number.NEGATIVE_INFINITY, numerator.upper / denominator.upper);
+            var upperHalf = new Interval(numerator.upper / denominator.lower, Number.POSITIVE_INFINITY);
+            this.narrowToUnion(lowerHalf, upperHalf, fail);
+          }else if(numerator.lower > 0){
+            var lowerHalf = new Interval(Number.NEGATIVE_INFINITY, numerator.lower / denominator.lower);
+            var upperHalf = new Interval(numerator.lower / denominator.upper, Number.POSITIVE_INFINITY);
+            this.narrowToUnion(lowerHalf, upperHalf, fail);
+          }
         },
 
         /**
@@ -257,7 +266,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
                 restriction = Interval.invert(sqrt);
             }else{
                 //current value is strictly positive
-                restriction = sqrt
+                restriction = sqrt;
             }
 
             this.narrowTo(restriction, fail);
@@ -281,7 +290,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
             this.narrowTo(new Interval(randElement, randElement), fail);
             yield false;
 
-            if(Math.floor(Math.random() * 2) == 0){
+            if(Math.floor(Math.random() * 2) === 0){
                 this.csp.pushChoice("Lower half {0} to {1}", [this.name, this.value().lowerHalf()]);
                 this.narrowTo(this.value().lowerHalf(), fail);
                 yield false;
@@ -319,7 +328,11 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
          *                      variable
          */
         uniqueValue : function(){
+          if(this.fowardingPointer){
+            return this.forwardingPointer.value().uniqueValue();
+          }else{
             return this.value().uniqueValue();
+          }
         }
     });
 
@@ -370,7 +383,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
             var difference = new FloatVariable("difference", a.csp, Interval.subtract(a.value(), b.value()));
             new DifferenceConstraint(difference, a, b);
             return difference;
-        }
+        };
         return a.csp.memorize("-", funct, [a, b]);
     }
     FloatVariable.subtract = subtract;
@@ -388,7 +401,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
             var product = new FloatVariable("product", a.csp, Interval.multiply(a.value(), b.value()));
             new ProductConstraint(product, a, b);
             return product;
-        }
+        };
         return a.csp.memorize("*", funct, [a, b]);
     }
     FloatVariable.multiply = multiply;
@@ -406,7 +419,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
             var product = new FloatVariable("product", a.csp, Interval.multiplyIntervalByConstant(a.value(), k));
             new ConstantProductConstraint(product, a, k);
             return product;
-        }
+        };
         return a.csp.memorize("*", funct, [a, k]);
     }
     FloatVariable.multiplyVariableByConstant = multiplyVariableByConstant;
@@ -424,7 +437,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
             var quotient = new FloatVariable("quotient", a.csp, Interval.divide(a.value(), b.value()));
             new QuotientConstraint(quotient, a, b);
             return quotient;
-        }
+        };
         return a.csp.memorize("/", funct, [a, b]);
     }
     FloatVariable.divide = divide;
@@ -442,7 +455,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
             var power = new FloatVariable("power", a.csp, Interval.pow(a.value(), exponent));
             new PowerConstraint(power, a, exponent);
             return power;
-        }
+        };
         return a.csp.memorize("^", funct, [a, exponent]);
     }
     FloatVariable.pow = pow;

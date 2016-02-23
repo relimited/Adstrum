@@ -5,7 +5,7 @@ define(['inheritance', 'undoStack', 'restorable'], function(Inheritance, UndoSta
         it("Testing Initialized Values", function(){
             var s = new UndoStack();
             var a = new Restorable(s, 0);
-            expect(a.get() == 0).toBe(true);
+            expect(a.get() === 0).toBe(true);
         });
 
         it("Testing setting a restorable", function(){
@@ -34,7 +34,7 @@ define(['inheritance', 'undoStack', 'restorable'], function(Inheritance, UndoSta
             s.restore(mark3);
             expect(a.get() == 3).toBe(true);
             s.restore(mark1);
-            expect(a.get() == 0).toBe(true);
-        })
+            expect(a.get() === 0).toBe(true);
+        });
     });
 });

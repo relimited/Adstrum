@@ -16,12 +16,9 @@ define(["inheritance", "undoStack", "memoTable"], function(Inheritance, UndoStac
 	 */
 	function strFormat(string, args){
     	return string.replace(/{(\d+)}/g, function(match, number) {
-      		return typeof args[number] != 'undefined'
-        		? args[number]
-        		: match
-      		;
+      		return typeof args[number] != 'undefined' ? args[number] : match;
     	});
-	};
+	}
 
 	var csp = Class.extend({
 		/**
@@ -49,7 +46,7 @@ define(["inheritance", "undoStack", "memoTable"], function(Inheritance, UndoStac
 		 * @return {Number} The number of variables currently in the CSP
 		 */
 		variableCount : function(){
-			this.variables.length;
+			return this.variables.length;
 		},
 
 		/**
@@ -57,7 +54,7 @@ define(["inheritance", "undoStack", "memoTable"], function(Inheritance, UndoStac
 		 * @return {Number} The number of constraints currently in the CSP
 		 */
 		constraintCount : function(){
-			this.constraintCount.length;
+			return this.constraintCount.length;
 		},
 
 		/**
@@ -70,43 +67,43 @@ define(["inheritance", "undoStack", "memoTable"], function(Inheritance, UndoStac
 			console.log("New Solution");
 
 			this.startSolutionPhase();
-      		this.choiceStack.length = 0; //NOTE: if we can ensure that nothing else references choiceStack, then choiceStack = [] is faster
-      		this.solverSteps = 0;
+      this.choiceStack.length = 0; //NOTE: if we can ensure that nothing else references choiceStack, then choiceStack = [] is faster
+      this.solverSteps = 0;
 
-      		this.intervalUndoStack.restore(0);
-      		try{
-          		this.clearPendingQueue();
-          		//trying to eke out speed wherever we can, see
-          		//http://stackoverflow.com/questions/9329446/for-each-over-an-array-in-javascript
-          		for (var index = 0, len = this.constraints.length; index < len; ++index){
-          			this.pending.push(this.constraints[index]);
-          		}
+      this.intervalUndoStack.restore(0);
+      //try{
+      	this.clearPendingQueue();
+        //trying to eke out speed wherever we can, see
+        //http://stackoverflow.com/questions/9329446/for-each-over-an-array-in-javascript
+        for (var index = 0, len = this.constraints.length; index < len; ++index){
+        	this.pending.push(this.constraints[index]);
+        }
 
-          		var fail = [false]; //pass by ref assurence.  TODO: optimize
-          		this.makeConsistent(fail);
-          		if (fail[0]){
-          			throw "Initial configuration is unsatisfiable.";
-        		}
+        var fail = [false]; //pass by ref assurence.  TODO: optimize
+        this.makeConsistent(fail);
+        if (fail[0]){
+        	throw "Initial configuration is unsatisfiable.";
+        }
 
-          		//trying to eke out speed wherever we can, see
-          		//http://stackoverflow.com/questions/9329446/for-each-over-an-array-in-javascript
-          		for(var index = 0, len = this.canonicalVariables.length; index < len; ++index){
-          			this.canonicalVariables[index].initializeStartingWidth();
-          		}
+        //trying to eke out speed wherever we can, see
+        //http://stackoverflow.com/questions/9329446/for-each-over-an-array-in-javascript
+        for(var index = 0, len = this.canonicalVariables.length; index < len; ++index){
+        	this.canonicalVariables[index].initializeStartingWidth();
+        }
 
 				var solutionGen = this.solutions();
-          		if (solutionGen.next().done){
-          			throw "No solution found";
-          		}
-			}catch (e){
+        	if (solutionGen.next().done){
+          	throw "No solution found";
+          }
+			/* }catch (e){
       			var retMsg = [];
         		for(var index = 0, len = this.choiceStack.length; index < len; ++index){
         			retMsg.push(this.choiceStack[index]);
           			retMsg.push("\n");
         		}
 				retMsg.push(e);
-        		throw retMsg.join("");
-    		}
+        throw retMsg.join("");
+    	} */
 		},
 
 		/**
@@ -125,7 +122,7 @@ define(["inheritance", "undoStack", "memoTable"], function(Inheritance, UndoStac
 			}
 
 			var v = this.chooseVariable();
-      		if (v == null){
+      		if (v === null){
       			yield true;
       		}else{
         		var mark = this.intervalUndoStack.markStack();

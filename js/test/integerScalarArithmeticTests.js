@@ -504,7 +504,7 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             power.mustEqual(4);
 
             p.testConsistency();
-            expect(new IntegerInterval(-2, 2).equals(a.value())).toBe(true)
+            expect(new IntegerInterval(-2, 2).equals(a.value())).toBe(true);
         });
     });
 });

@@ -260,7 +260,7 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
             var k = 0;
             var product = FloatVariable.multiplyVariableByConstant(a, k);
             a.mustEqual(0.5);
-            
+
             p.testConsistency();
             assertUnique(product, 0);
         });
@@ -441,8 +441,8 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
             power.mustEqual(4);
 
             p.testConsistency();
-            expect(new Interval(-2, 2).equals(a.value())).toBe(true)
-        })
+            expect(new Interval(-2, 2).equals(a.value())).toBe(true);
+        });
 
     });
 });

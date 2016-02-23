@@ -9,12 +9,12 @@ define(['inheritance', 'memoTable', 'csp', 'floatVariable', 'mathUtil'], functio
             console.log("Caching Test");
             console.log("======================================");
             var i = 0;
-            var f = function(){return i + 1};
+            var f = function(){return i + 1;};
             var t = new MemoTable();
-            expect(t.memorize("x", f, [1]) == t.memorize("x", f, [1])).toBe(true)
+            expect(t.memorize("x", f, [1]) == t.memorize("x", f, [1])).toBe(true);
             i=i+1;
-            expect(t.memorize("x", f, [1]) == t.memorize("x", f, [2])).toBe(false)
-        })
+            expect(t.memorize("x", f, [1]) == t.memorize("x", f, [2])).toBe(false);
+        });
 
         it("Equality Constraint Test 1", function(){
             console.log("======================================");
@@ -34,13 +34,13 @@ define(['inheritance', 'memoTable', 'csp', 'floatVariable', 'mathUtil'], functio
                 expect(MathUtil.nearlyEqual(sum.uniqueValue(), (a.uniqueValue() + b.uniqueValue()))).toBe(true);
                 expect(c.value().equals(b.value())).toBe(true);
             }
-        })
+        });
 
         it("Equality Constraint Test 2", function(){
             console.log("======================================");
             console.log("Equality Constraint Test 2");
             console.log("======================================");
-            var p = new CSP()
+            var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
             var c = FloatVariable.makeInfinateFloatVariable("c", p);
@@ -53,6 +53,6 @@ define(['inheritance', 'memoTable', 'csp', 'floatVariable', 'mathUtil'], functio
                 expect(MathUtil.nearlyEqual(sum.uniqueValue(), (a.uniqueValue() + b.uniqueValue()))).toBe(true);
                 expect(c.value().equals(b.value())).toBe(true);
             }
-        })
-    })
+        });
+    });
 });
