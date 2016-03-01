@@ -131,6 +131,62 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
             assertUnique(b, 0.5);
         });
 
+        it("Sum Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Sum Test w/ constant A term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 0.5;
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
+            var sum = FloatVariable.add(a, b);
+            b.mustEqual(0.25);
+
+            p.testConsistency();
+            assertUnique(sum, 0.75);
+        });
+
+        it("Sum B Term Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Sum B Term Test w/ constant A term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 0.5;
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
+            var sum = FloatVariable.add(a, b);
+            sum.mustEqual(1);
+
+            p.testConsistency();
+            assertUnique(b, 0.5);
+        });
+
+        it("Sum Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Sum Test");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var b = 0.25;
+            var sum = FloatVariable.add(a, b);
+            a.mustEqual(0.5);
+
+            p.testConsistency();
+            assertUnique(sum, 0.75);
+        });
+
+        it("Sum A term Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Sum A Term Test");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var b = 0.5;
+            var sum = FloatVariable.add(a, b);
+            sum.mustEqual(1);
+
+            p.testConsistency();
+            assertUnique(a, 0.5);
+        });
+
         it("Difference Test", function(){
             console.log("======================================");
             console.log("Difference Test");
@@ -174,6 +230,62 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
 
             p.testConsistency();
             assertUnique(b, 0.25);
+        });
+
+        it("Difference Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Difference Test");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 0.5;
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
+            var difference = FloatVariable.subtract(a, b);
+            b.mustEqual(0.25);
+
+            p.testConsistency();
+            assertUnique(difference, 0.25);
+        });
+
+        it("Difference B Term Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Difference B Term Test");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 0.5;
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
+            var difference = FloatVariable.subtract(a, b);
+            difference.mustEqual(0.25);
+
+            p.testConsistency();
+            assertUnique(b, 0.25);
+        });
+
+        it("Difference Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Difference Test w/ constant B term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var b = 0.25;
+            var difference = FloatVariable.subtract(a, b);
+            a.mustEqual(0.5);
+
+            p.testConsistency();
+            assertUnique(difference, 0.25);
+        });
+
+        it("Difference A Term Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Difference A Term Test w/ constant B term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var b = 0.5;
+            var difference = FloatVariable.subtract(a, b);
+            difference.mustEqual(0.5);
+
+            p.testConsistency();
+            assertUnique(a, 1);
         });
 
         it("Product Test", function(){
@@ -230,7 +342,7 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var k = 4;
-            var product = FloatVariable.multiplyVariableByConstant(a, k);
+            var product = FloatVariable.multiply(a, k);
 
             a.mustEqual(0.5);
             p.testConsistency();
@@ -244,7 +356,7 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var k = 4;
-            var product = FloatVariable.multiplyVariableByConstant(a, k);
+            var product = FloatVariable.multiply(a, k);
             product.mustEqual(2);
 
             p.testConsistency();
@@ -258,7 +370,7 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var k = 0;
-            var product = FloatVariable.multiplyVariableByConstant(a, k);
+            var product = FloatVariable.multiply(a, k);
             a.mustEqual(0.5);
 
             p.testConsistency();
@@ -272,7 +384,63 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
             var p = new CSP();
             var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
             var k = 0;
-            var product = FloatVariable.multiplyVariableByConstant(a, k);
+            var product = FloatVariable.multiply(a, k);
+            product.mustEqual(0);
+
+            p.testConsistency();
+            expect(new Interval(0, 1).equals(a.value())).toBe(true);
+        });
+
+        it("Const Product Test, reversed arguments", function(){
+            console.log("======================================");
+            console.log("Const Product Test, reversed arguments");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var k = 4;
+            var product = FloatVariable.multiply(k, a);
+
+            a.mustEqual(0.5);
+            p.testConsistency();
+            assertUnique(product, 2);
+        });
+
+        it("Const Product A Term Test, reversed arguments", function(){
+            console.log("======================================");
+            console.log("Const Product A Term Test, reversed arguments");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var k = 4;
+            var product = FloatVariable.multiply(k, a);
+            product.mustEqual(2);
+
+            p.testConsistency();
+            assertUnique(a, 0.5);
+        });
+
+        it("Const Product k=0 Test, reversed arguments", function(){
+            console.log("======================================");
+            console.log("Const Product k=0 Test, reversed arguments");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var k = 0;
+            var product = FloatVariable.multiply(k, a);
+            a.mustEqual(0.5);
+
+            p.testConsistency();
+            assertUnique(product, 0);
+        });
+
+        it("Const Product k=0 A Term Test, reversed arguments", function(){
+            console.log("======================================");
+            console.log("Const Product k=0 A Term Test, reversed arguments");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var k = 0;
+            var product = FloatVariable.multiply(k, a);
             product.mustEqual(0);
 
             p.testConsistency();
@@ -325,6 +493,66 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
 
             p.testConsistency();
             assertUnique(b, 2);
+        });
+
+        it("Quotient Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Quotient Test");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 0.5;
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 1);
+            var quotent = FloatVariable.divide(a, b);
+
+            b.mustEqual(0.5);
+
+            p.testConsistency();
+            assertUnique(quotent, 1);
+        });
+
+        it("Quotent B Term Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Quotient B Term Test");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 0.5;
+            var b = FloatVariable.makeFloatVariableWithBounds("b", p, 0, 3);
+            var quotent = FloatVariable.divide(a, b);
+
+            quotent.mustEqual(0.25);
+
+            p.testConsistency();
+            assertUnique(b, 2);
+        });
+
+        it("Quotient Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Quotient Test w/ constant B term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 1);
+            var b = 0.5
+            var quotent = FloatVariable.divide(a, b);
+
+            a.mustEqual(0.5);
+
+            p.testConsistency();
+            assertUnique(quotent, 1);
+        });
+
+        it("Quotent A Term Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Quotient A Term Test w/ constant B term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = FloatVariable.makeFloatVariableWithBounds("a", p, 0, 3);
+            var b = 0.5;
+            var quotent = FloatVariable.divide(a, b);
+
+            quotent.mustEqual(0.5);
+
+            p.testConsistency();
+            assertUnique(a, 0.25);
         });
 
         it("Odd Power Negative Tests", function(){
@@ -444,5 +672,14 @@ define(['inheritance', 'csp', 'floatVariable', 'mathUtil', 'interval'], function
             expect(new Interval(-2, 2).equals(a.value())).toBe(true);
         });
 
+        it("Constant Construction Test", function(){
+          console.log("=========================================");
+          console.log("Testing Sum With Constant");
+          console.log("=========================================");
+          var p = new CSP();
+          var b = FloatVariable.makeFloatConstant("b", p, 0.5);
+
+          expect(new Interval(0.5, 0.5).equals(b.value())).toBe(true);
+        });
     });
 });

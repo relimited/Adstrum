@@ -115,6 +115,7 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
     });
     constraints.ProductConstraint = ProductConstraint;
 
+    /*
     var ConstantProductConstraint = Constraint.extend({
         init : function(product, a, k){
             this._super(product.csp);
@@ -139,7 +140,7 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
                 //number to inf * 0 = 0.
                 //So, under practical cases, we've already narrowed the product to 0 at this point,
                 //the value of a doesn't matter.
-                //FIXME: can't wait to spend 4 hours finding the bug this introduces.
+                //... still waiting for the bug that I'm sure this introduced to rear its head
                 if(this.k !== 0){
                     this.a.narrowTo(Interval.multiplyIntervalByConstant(this.product.value(), (1 / this.k)), fail);
                 }
@@ -151,6 +152,7 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         }
     });
     constraints.ConstantProductConstraint = ConstantProductConstraint;
+    */
 
     var QuoitentConstraint = Constraint.extend({
         init : function(quotient, a, b){

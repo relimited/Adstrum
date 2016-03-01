@@ -146,6 +146,62 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             assertUnique(b, 1);
         });
 
+        it("Integer Sum Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Sum Test w/ constant A term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 1;
+            var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 2);
+            var sum = IntegerVariable.add(a, b);
+            b.mustEqual(1);
+
+            p.testConsistency();
+            assertUnique(sum, 2);
+        });
+
+        it("Integer Sum B Term Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Sum B Term Test w/ constant A term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 1;
+            var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 2);
+            var sum = IntegerVariable.add(a, b);
+            sum.mustEqual(2);
+
+            p.testConsistency();
+            assertUnique(b, 1);
+        });
+
+        it("Integer Sum Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Sum Test w/ constant B term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
+            var b = 1;
+            var sum = IntegerVariable.add(a, b);
+            a.mustEqual(1);
+
+            p.testConsistency();
+            assertUnique(sum, 2);
+        });
+
+        it("Integer Sum A term Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Sum A Term Test w/ constant B term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
+            var b = 1;
+            var sum = IntegerVariable.add(a, b);
+            sum.mustEqual(2);
+
+            p.testConsistency();
+            assertUnique(a, 1);
+        });
+
         it("Integer Difference Test", function(){
             console.log("======================================");
             console.log("Difference Test");
@@ -189,6 +245,62 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
 
             p.testConsistency();
             assertUnique(b, 1);
+        });
+
+        it("Integer Difference Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Difference Test w/ constant A term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 2;
+            var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 2);
+            var difference = IntegerVariable.subtract(a, b);
+            b.mustEqual(1);
+
+            p.testConsistency();
+            assertUnique(difference, 1);
+        });
+
+        it("Integer Difference B Term Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Difference B Term Test w/ constant A term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 2;
+            var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 2);
+            var difference = IntegerVariable.subtract(a, b);
+            difference.mustEqual(1);
+
+            p.testConsistency();
+            assertUnique(b, 1);
+        });
+
+        it("Integer Difference Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Difference Test w/ constant B term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
+            var b = 1;
+            var difference = IntegerVariable.subtract(a, b);
+            a.mustEqual(2);
+
+            p.testConsistency();
+            assertUnique(difference, 1);
+        });
+
+        it("Integer Difference A Term Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Difference A Term Test w/ constant B term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
+            var b = 1;
+            var difference = IntegerVariable.subtract(a, b);
+            difference.mustEqual(1);
+
+            p.testConsistency();
+            assertUnique(a, 2);
         });
 
         it("Integer Product Test", function(){
@@ -245,7 +357,7 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             var p = new CSP();
             var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
             var k = 4;
-            var product = IntegerVariable.multiplyVariableByConstant(a, k);
+            var product = IntegerVariable.multiply(a, k);
 
             a.mustEqual(1);
             p.testConsistency();
@@ -259,7 +371,35 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
             var p = new CSP();
             var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
             var k = 4;
-            var product = IntegerVariable.multiplyVariableByConstant(a, k);
+            var product = IntegerVariable.multiply(a, k);
+            product.mustEqual(8);
+
+            p.testConsistency();
+            assertUnique(a, 2);
+        });
+
+        it("Integer Const Product Test, reversed arguments", function(){
+            console.log("======================================");
+            console.log("Const Product Test, reversed arguments");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
+            var k = 4;
+            var product = IntegerVariable.multiply(k, a);
+
+            a.mustEqual(1);
+            p.testConsistency();
+            assertUnique(product, 4);
+        });
+
+        it("Integer Const Product A Term Test, reversed arguments", function(){
+            console.log("======================================");
+            console.log("Const Product A Term Test, reversed arguments");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
+            var k = 4;
+            var product = IntegerVariable.multiply(k, a);
             product.mustEqual(8);
 
             p.testConsistency();
@@ -316,12 +456,12 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
 
         it("Integer Const Product k=0 test", function(){
             console.log("======================================");
-            console.log("Const Product A Term Test");
+            console.log("Const Product k=0 Test");
             console.log("======================================");
             var p = new CSP();
             var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
             var k = 0;
-            var product = IntegerVariable.multiplyVariableByConstant(a, k);
+            var product = IntegerVariable.multiply(a, k);
             a.mustEqual(2);
 
             p.testConsistency();
@@ -330,12 +470,40 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
 
         it("Integer Const Product k=0 A Term test", function(){
             console.log("======================================");
-            console.log("Const Product A Term Test");
+            console.log("Const Product k=0 A Term Test");
             console.log("======================================");
             var p = new CSP();
             var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
             var k = 0;
-            var product = IntegerVariable.multiplyVariableByConstant(a, k);
+            var product = IntegerVariable.multiply(a, k);
+            product.mustEqual(0);
+
+            p.testConsistency();
+            expect(new IntegerInterval(0, 2).equals(a.value())).toBe(true);
+        });
+
+        it("Integer Const Product k=0 test, reversed arguments", function(){
+            console.log("======================================");
+            console.log("Const Product k=0 Test, reversed arguments");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
+            var k = 0;
+            var product = IntegerVariable.multiply(k, a);
+            a.mustEqual(2);
+
+            p.testConsistency();
+            assertUnique(product, 0);
+        });
+
+        it("Integer Const Product k=0 A Term test, reversed arguments", function(){
+            console.log("======================================");
+            console.log("Const Product k=0 A Term Test, reversed arguments");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 2);
+            var k = 0;
+            var product = IntegerVariable.multiply(k, a);
             product.mustEqual(0);
 
             p.testConsistency();
@@ -388,6 +556,65 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
 
             p.testConsistency();
             assertUnique(b, 1);
+        });
+
+        it("Integer Quotient Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Quotient Test");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 4;
+            var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 2);
+            var quotent = IntegerVariable.divide(a, b);
+            b.mustEqual(2);
+
+            p.testConsistency();
+            assertUnique(quotent, 2);
+        });
+
+        it("Integer Quotent B Term Test w/ constant A term", function(){
+            console.log("======================================");
+            console.log("Quotient B Term Test");
+            console.log("======================================");
+            var p = new CSP();
+            var a = 2;
+            var b = IntegerVariable.makeIntVariableWithBounds("b", p, 0, 3);
+            var quotent = IntegerVariable.divide(a, b);
+
+            quotent.mustEqual(2);
+
+            p.testConsistency();
+            assertUnique(b, 1);
+        });
+
+        it("Integer Quotient Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Quotient Test w/ constant B term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 4);
+            var b = 2;
+            var quotent = IntegerVariable.divide(a, b);
+
+            a.mustEqual(4);
+
+            p.testConsistency();
+            assertUnique(quotent, 2);
+        });
+
+        it("Integer Quotent A Term Test w/ constant B term", function(){
+            console.log("======================================");
+            console.log("Quotient A Term Test w/ constant B term");
+            console.log("======================================");
+            var p = new CSP();
+            var a = IntegerVariable.makeIntVariableWithBounds("a", p, 0, 3);
+            var b = 1;
+            var quotent = IntegerVariable.divide(a, b);
+
+            quotent.mustEqual(2);
+
+            p.testConsistency();
+            assertUnique(a, 2);
         });
 
         it("Integer Odd Power Negative Test", function(){
@@ -505,6 +732,16 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
 
             p.testConsistency();
             expect(new IntegerInterval(-2, 2).equals(a.value())).toBe(true);
+        });
+
+        it("Integer Constant Construction Test", function(){
+          console.log("=========================================");
+          console.log("Testing Constant Construction");
+          console.log("=========================================");
+          var p = new CSP();
+          var b = IntegerVariable.makeIntConstant("b", p, 5);
+
+          expect(new IntegerInterval(5, 5).equals(b.value())).toBe(true);
         });
     });
 });

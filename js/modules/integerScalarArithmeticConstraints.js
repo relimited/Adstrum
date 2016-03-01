@@ -137,6 +137,7 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
     });
     intConstraints.ProductConstraint = IntProductConstraint;
 
+    /*
     var IntConstantProductConstraint = ScalarArithmeticConstraints.ConstantProductConstraint.extend({
         init : function(product, a, k){
             this._super(product, a, k);
@@ -176,7 +177,8 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
         },
     });
     intConstraints.ConstantProductConstraint = IntConstantProductConstraint;
-
+    */
+   
     var IntQuoitentConstraint = ScalarArithmeticConstraints.QuotientConstraint.extend({
         init : function(quotient, a, b){
             this._super(quotient, a, b);

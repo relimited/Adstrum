@@ -22,21 +22,21 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
      */
     var makeIntVariableWithBounds = function(name, p, lower, upper){
         return new IntVariable(name, p, new IntegerInterval(lower, upper));
-    }
+    };
 
     /**
-     * 'Static' method for memorizing a 'make constant' function.
+     * Constructor for creating a new integer constant.
      *
-     * @TODO: this is currently unused by Craftjs, untested, and mostly still a stub.
+     @param    {String} name the name the CSP will use to refer to this constant
      * @param  {CSP} p The constraint satisifaction problem to associate this constant with
      * @param  {Number} c The value of the constant to create
      * @return {Variable}   the memorized value for the 'constant' function in the CSP's memo table.
      *                           which will be a int Variable with the correct bounds.
      */
-    var constant = function(p, c){
-        var funct = function(){makeIntVariableWithBounds(c.toString(), p, c, c);};
-        return p.memorize("constant", funct, c);
-    }
+    var makeIntConstant = function(name, p, c){
+        var funct = function(){return makeIntVariableWithBounds(name, p, c, c);};
+        return p.memorize("constant", funct, [c]);
+    };
 
     var IntVariable = FloatVariable.extend({
         /**
@@ -66,7 +66,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
             if(intersection.empty()){
                 throw "Argument out of current range of variable";
             }
-            this.currentValue.setInitialValue(intersection)
+            this.currentValue.setInitialValue(intersection);
         },
 
         /**
@@ -139,10 +139,10 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
                 //It might be a loss of clarity from the implementing papers
                 //to only search here and take it out of the IntegerInterval class, but it will speed up
                 //division.
-                console.log("Starting integer divisor consistency check, NaN/undefined warnings may ensue ...")
+                console.log("Starting integer divisor consistency check, NaN/undefined warnings may ensue ...");
                 var potential = numerator.findDivisors(denominator);
-                console.log("... finished check, NaN/undefined warnings are bad now.")
-                if(potential.lower == undefined || potential.upper == undefined ||
+                console.log("... finished check, NaN/undefined warnings are bad now.");
+                if(potential.lower === undefined || potential.upper === undefined ||
                     Number.isNaN(potential.lower) || Number.isNaN(potential.upper)){
                     fail[0] = true;
                     console.log("Unable to find potential integer quotents for " + numerator + "/" + denominator);
@@ -173,7 +173,7 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
          * @param  {[boolean]} fail   pass-by-ref failure bool (will be set to true if we can't narrow)
          */
         narrowToSignedSqrt : function(square, fail){
-            console.log("[WARN PROMOTE] Narrowing to a signed sqrt with an IntVariable promotes a result with floating point intervals")
+            console.log("[WARN PROMOTE] Narrowing to a signed sqrt with an IntVariable promotes a result with floating point intervals");
             return this._super(square, fail);
         }
     });
@@ -183,112 +183,172 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
     // int variables
 
     /**
-     * Coerce passed in int variable to a primative.  If we've already
-     * solved the CSP problem, then this will coerce to the value of the variable
-     * that satifies the CSP.
-     * @param  {intVariable} v variable to coerce to a primative
-     * @return {Number}   a primative representation of this int var.
+     * Check the type of the parameters and convert Numbers to IntegerVariable
+     * constants.
+     * This function throws an error if provided with two Numbers, as there is
+     * no CSP reference for it to use to promote them to FloatVariables.
+     * @param {IntegerVariable or Number} a first parameter to check
+     * @param {IntegerVariable or Number} b second parameter to check
+     * @return {Object}                   an object containing two properties,
+     *                                    a and b, which contain the sanitized
+     *                                    versions of the input params.
      */
+    function checkParams(a, b){
+      var sanitizedParams = {};
+      if(typeof(a) == "number"){
+        //a is a Number
+        if(typeof(b) == "number"){
+          //both params are JS numbers-- in this case, we don't have a CSP reference, and can't do much of anything.
+          throw "Two plain javascript numbers we passed to a craft multiply function!";
+        }else if(b.csp !== undefined){
+          //first param is a JS number, the second is a variable.
+          if(Number.isInteger(a)){
+            sanitizedParams.a = IntVariable.makeIntConstant(a.toString(), b.csp, a);
+            sanitizedParams.b = b;
+          }else{
+            throw "First parameter was not an integer!";
+          }
+        }else{
+          throw "Unable to get a valid type on second argument!";
+        }
+      }else if(a.csp !== undefined){
+        //TODO: not the best way to check if a is a Craft variable, but it does fit the JS way
+        if(typeof(b) == "number"){
+          //first param is a variable, second is a JS Number
+          if(Number.isInteger(b)){
+            sanitizedParams.a = a;
+            sanitizedParams.b = IntVariable.makeIntConstant(b.toString(), a.csp, b);
+          }else{
+            throw "Second parameter was not an integer!"
+          }
 
-     //TODO coerce is down until further notice.  This is due to a huge bug in
-     //the way I'm using uniqueValue().
-    //function coerceToPrimative(v){
-    //    return v.uniqueValue();
-    //}
-    //IntVariable.coerceToPrimative = coerceToPrimative;
+        }else if(b.csp !== undefined){
+          //both arguments are already Craft variable objects
+          sanitizedParams.a = a;
+          sanitizedParams.b = b;
+        }else{
+          throw "Unable to get valid type on second argument!";
+        }
+      }else{
+        throw "Unable to get valid type on first argument!";
+      }
+
+      return sanitizedParams;
+    }
 
     /**
-     * Add two int variables together.  This also adds a new constraint
-     * to the CSP.
-     * @param {intVariable} a First operand of addition
-     * @param {intVariable} b Second operand of addition
+     * Handles the internal logic of subtraction to seperate it from an interface.
+     * Adds a new constraint to the CSP.
+     * @param  {IntegerVariable} a first operand of addition
+     * @param  {IntegerVariable} b second operand of addition
+     * @return {integerVariable}   the sum of a and b
+     */
+    function internalAdd(a, b){
+      var funct = function(){
+          var sum = new IntVariable("sum", a.csp, IntegerInterval.add(a.value(), b.value()));
+          new IntSumConstraint(sum, a, b);
+          return sum;
+      };
+      return a.csp.memorize("+", funct, [a, b]);
+    }
+    /**
+     * Add two int variables together (a + b). Both operands can not be
+     * numbers, as then Craftjs has no CSP to associate.
+     * @param {intVariable or Number} a First operand of addition
+     * @param {intVariable or Number} b Second operand of addition
      * @return {intVariable}      the sum of a and b.  This is a set of bounds that
      *                                  a + b must be in
      */
     function add(a, b){
-        var funct = function(){
-            var sum = new IntVariable("sum", a.csp, IntegerInterval.add(a.value(), b.value()));
-            new IntSumConstraint(sum, a, b);
-            return sum;
-        };
-        return a.csp.memorize("+", funct, [a, b]);
+      var sanitizedParams = checkParams(a, b);
+      return internalAdd(sanitizedParams.a, sanitizedParams.b);
     }
     IntVariable.add = add;
 
     /**
-     * Subtract two int variables together (a - b).  This also adds a new constraint to
-     * the CSP
-     * @param  {intVariable} a First operand to subtraction
-     * @param  {intVariable} b Second operand to subtraction
+     * Handles the internal logic of subtraction to seperate it from an interface.
+     * Adds a new constraint to the CSP
+     * @param  {IntVariable} a First operand of subtraction
+     * @param  {IntVariable} b Second operand of subtraction
+     * @return {IntVariable}   the difference of a from b.
+     */
+    function internalSubtract(a, b){
+      var funct = function(){
+          var difference = new IntVariable("difference", a.csp, IntegerInterval.subtract(a.value(), b.value()));
+          new IntDifferenceConstraint(difference, a, b);
+          return difference;
+      };
+      return a.csp.memorize("-", funct, [a, b]);
+    }
+    /**
+     * Subtract two int variables together (a - b). Both operands can not be
+     * numbers, as then Craftjs has no CSP to associate.
+     * @param  {intVariable or Number} a First operand to subtraction
+     * @param  {intVariable or Number} b Second operand to subtraction
      * @return {intVariable}   the difference of a from b.  This is a set of bounds that
      *                               a - b must be in
      */
     function subtract(a, b){
-        var funct = function(){
-            var difference = new IntVariable("difference", a.csp, IntegerInterval.subtract(a.value(), b.value()));
-            new IntDifferenceConstraint(difference, a, b);
-            return difference;
-        }
-        return a.csp.memorize("-", funct, [a, b]);
+      var sanitizedParams = checkParams(a, b);
+      return internalSubtract(sanitizedParams.a, sanitizedParams.b);
     }
     IntVariable.subtract = subtract;
 
     /**
-     * Multiply two int variables together (a * b).  This also adds a new constraint to
+     * Internal logic for multiplcation.  This also adds a new constraint to
      * the CSP
-     * @param  {intVariable} a First operand to multipulcation
-     * @param  {intVariable} b Second operand to multipulcaiton
+     * @param  {IntegerVariable} a First operand in multiplcation
+     * @param  {IntegerVariable} b Second operand in multiplcation
+     * @return {IntegerVariable}   a variable that holds the result of a * b
+     */
+    function internalMultiply(a, b){
+      var funct = function(){
+          var product = new IntVariable("product", a.csp, IntegerInterval.multiply(a.value(), b.value()));
+          new IntProductConstraint(product, a, b);
+          return product;
+      };
+      return a.csp.memorize("*", funct, [a, b]);
+    }
+    /**
+     * Multiply two int variables together (a * b). Both operands can not be
+     * numbers, as then Craftjs has no CSP to associate
+     * @param  {IntegerVariable or Number} a First operand to multipulcation
+     * @param  {IntegerVariable or Number} b Second operand to multipulcaiton
      * @return {intVariable}   the product of a and b.  This is the set of bounds that
      *                               a * b must be in
      */
     function multiply(a, b){
-        var funct = function(){
-            var product = new IntVariable("product", a.csp, IntegerInterval.multiply(a.value(), b.value()));
-            new IntProductConstraint(product, a, b);
-            return product;
-        }
-        return a.csp.memorize("*", funct, [a, b]);
+      var sanitizedParams = checkParams(a, b);
+      return internalMultiply(sanitizedParams.a, sanitizedParams.b);
     }
     IntVariable.multiply = multiply;
 
     /**
-     * Multiply a int variable by a constant (a * k).  This also adds a constraint to
-     * the CSP.
-     * @param  {Number} k The constant value to multiply a intVariable by.
-     *                    K will get floored to the nearest int (use a float variable to allow for floating point k's)
-     * @param  {intVariable} a the int variable part of the multipulcation
-     * @return {intVariable}   the product of a * k.  This is the set of bounds that
-     *                               a * k must be in.
+     * Internal logic for division.  This is wrapped by the divide function in
+     * the interface.  This also adds a constraint to the CSP.
+     * @param  {IntegerVariable} a first operand in division
+     * @param  {IntegerVariable} b second operand in division
+     * @return {IntegerVariable}   a variable that holds the result of a / b.
      */
-    function multiplyVariableByConstant(a, k){
-        if(!Number.isInteger(k)){
-            console.log("k: ", k);
-            throw "Unable to set up integer problem, k is floating point.  See console for details."
-        }
-        var funct = function(){
-            var product = new IntVariable("product", a.csp, IntegerInterval.multiplyIntervalByConstant(a.value(), k));
-            new IntConstantProductConstraint(product, a, k);
-            return product;
-        }
-        return a.csp.memorize("*", funct, [a, k]);
+    function internalDivide(a, b){
+      var funct = function(){
+          var quotient = new IntVariable("quotient", a.csp, IntegerInterval.divide(a.value(), b.value()));
+          new IntQuotientConstraint(quotient, a, b);
+          return quotient;
+      };
+      return a.csp.memorize("/", funct, [a, b]);
     }
-    IntVariable.multiplyVariableByConstant = multiplyVariableByConstant;
-
     /**
-     * Divide two Integer variables (a / b).  This also adds a constraint to
-     * the CSP.
-     * @param  {IntegerVariable} a the first operand for division
-     * @param  {IntegerVariable} b second operand for division
+     * Divide two Integer variables (a / b). Both operands can not be
+     * numbers, as then Craftjs has no CSP to associate.
+     * @param  {IntegerVariable or Number} a the first operand for division
+     * @param  {IntegerVariable or Number} b second operand for division
      * @return {IntegerVariable}   the quotient of a / b.  This is the set of bounds that
      *                               a / b must be in.
      */
     function divide(a, b){
-        var funct = function(){
-            var quotient = new IntVariable("quotient", a.csp, IntegerInterval.divide(a.value(), b.value()));
-            new IntQuotientConstraint(quotient, a, b);
-            return quotient;
-        }
-        return a.csp.memorize("/", funct, [a, b]);
+      var sanitizedParams = checkParams(a, b);
+      return internalDivide(sanitizedParams.a, sanitizedParams.b);
     }
     IntVariable.divide = divide;
 
@@ -305,14 +365,14 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
             var power = new IntVariable("power", a.csp, IntegerInterval.pow(a.value(), exponent));
             new IntPowerConstraint(power, a, exponent);
             return power;
-        }
+        };
         return a.csp.memorize("^", funct, [a, exponent]);
     }
     IntVariable.pow = pow;
 
     //append static constructors.
     IntVariable.makeIntVariableWithBounds =  makeIntVariableWithBounds;
-    IntVariable.constant = constant;
+    IntVariable.makeIntConstant = makeIntConstant;
 
     return IntVariable;
 });
