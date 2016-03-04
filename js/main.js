@@ -16,7 +16,8 @@ require.config({
         'searchHint' : './modules/searchHint',
         'undoStack' : './modules/undoStack',
         'variable' : './modules/variable',
-        'dictionary' : './shared/dictionary'
+        'dictionary' : './shared/dictionary',
+        'formatTools' : './shared/formatTools'
     }
 });
 
