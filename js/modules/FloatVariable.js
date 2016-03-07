@@ -48,9 +48,9 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
      * @return {FloatVariable}   the memorized value for the 'constant' function in the CSP's memo table.
      *                           which will be a Float Variable with the correct bounds.
      */
-    var constant = function(p, c){
-        var funct = function(){makeFloatVariableWithBounds(c.toString(), p, c, c);};
-        return p.memorize("constant", funct, c);
+    var makeFloatConstant = function(name, p, c){
+        var funct = function(){return makeFloatVariableWithBounds(name, p, c, c);};
+        return p.memorize("constant", funct, [c]);
     };
 
     var FloatVariable = Variable.extend({
@@ -337,113 +337,173 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
     // floating point variables
 
     /**
-     * Coerce passed in floating point variable to a primative.  If we've already
-     * solved the CSP problem, then this will coerce to the value of the variable
-     * that satifies the CSP.
-     * @param  {FloatVariable} v variable to coerce to a primative
-     * @return {Number}   a primative representation of this floating point var.
+     * Check the type of the parameters and convert Numbers to FloatVariable
+     * constants.
+     * This function throws an error if provided with two Numbers, as there is
+     * no CSP reference for it to use to promote them to FloatVariables
+     * @param {FloatVariable or Number} a first parameter to check
+     * @param {FloatVariable or Number} b second parameter to check
+     * @return {Object}                   an object containing two properties,
+     *                                    a and b, which contain the sanitized
+     *                                    versions of the input params.
      */
-    function coerceToPrimative(v){
-        return v.uniqueValue();
+    function checkParams(a, b){
+      var sanitizedParams = {};
+      if(typeof(a) == "number"){
+        //a is a Number
+        if(typeof(b) == "number"){
+          //both params are JS numbers-- in this case, we don't have a CSP reference, and can't do much of anything.
+          throw "Two plain javascript numbers we passed to a craft multiply function!";
+        }else if(b.csp !== undefined){
+          //first param is a JS number, the second is a variable.
+          sanitizedParams.a = FloatVariable.makeFloatConstant(a.toString(), b.csp, a);
+          sanitizedParams.b = b;
+        }else{
+          throw "Unable to get a valid type on second argument!";
+        }
+      }else if(a.csp !== undefined){
+        //TODO: not the best way to check if a is a Craft variable, but it does fit the JS way
+        if(typeof(b) == "number"){
+          //first param is a variable, second is a JS Number
+          sanitizedParams.a = a;
+          sanitizedParams.b = FloatVariable.makeFloatConstant(b.toString(), a.csp, b);
+
+        }else if(b.csp !== undefined){
+          sanitizedParams.a = a;
+          sanitizedParams.b = b;
+        }else{
+          throw "Unable to get valid type on second argument!";
+        }
+      }else{
+        throw "Unable to get valid type on first argument!";
+      }
+
+      return sanitizedParams;
     }
-    FloatVariable.coerceToPrimative = coerceToPrimative;
 
     /**
-     * Add two floating point variables together.  This also adds a new constraint
-     * to the CSP.
-     * @param {FloatVariable} a First operand of addition
-     * @param {FloatVariable} b Second operand of addition
+     * Internal logic for addition.  Seperating this from the interface.
+     * Adds a new constraint to the CSP.
+     * @param  {FloatVariable} a First operand of addition
+     * @param  {FloatVariable} b Second operand of addition
+     * @return {FloatVariable}   the sum of a and b.
+     */
+    function internalAdd(a, b){
+      var funct = function(){
+          var sum = new FloatVariable("sum", a.csp, Interval.add(a.value(), b.value()));
+          new SumConstraint(sum, a, b);
+          return sum;
+      };
+      return a.csp.memorize("+", funct, [a, b]);
+    }
+    /**
+     * Add two floating point variables together (a + b). Error thrown if both
+     * a and b are of type Number.
+     * @param {FloatVariable or Number} a First operand of addition
+     * @param {FloatVariable or Number} b Second operand of addition
      * @return {FloatVariable}      the sum of a and b.  This is a set of bounds that
      *                                  a + b must be in
      */
     function add(a, b){
-        var funct = function(){
-            var sum = new FloatVariable("sum", a.csp, Interval.add(a.value(), b.value()));
-            new SumConstraint(sum, a, b);
-            return sum;
-        };
-        return a.csp.memorize("+", funct, [a, b]);
+      var sanitizedParams = checkParams(a, b);
+      return internalAdd(sanitizedParams.a, sanitizedParams.b);
     }
     FloatVariable.add = add;
 
     /**
-     * Subtract two floating point variables together (a - b).  This also adds a new constraint to
-     * the CSP
-     * @param  {FloatVariable} a First operand to subtraction
-     * @param  {FloatVariable} b Second operand to subtraction
+     * Handles the internal logic of subtraction to seperate it from an interface.
+     * Adds a new constraint to the CSP
+     * @param  {floatVariable} a First operand of subtraction
+     * @param  {floatVariable} b Second operand of subtraction
+     * @return {floatVariable}   the difference of a from b.
+     */
+    function internalSubtract(a, b){
+      var funct = function(){
+          var difference = new FloatVariable("difference", a.csp, Interval.subtract(a.value(), b.value()));
+          new DifferenceConstraint(difference, a, b);
+          return difference;
+      };
+      return a.csp.memorize("-", funct, [a, b]);
+    }
+    /**
+     * Subtract two floating point variables together (a - b). Error thrown if
+     * both a and b are of type Number.
+     * @param  {FloatVariable or Number} a First operand to subtraction
+     * @param  {FloatVariable or Number} b Second operand to subtraction
      * @return {FloatVariable}   the difference of a from b.  This is a set of bounds that
      *                               a - b must be in
      */
     function subtract(a, b){
-        var funct = function(){
-            var difference = new FloatVariable("difference", a.csp, Interval.subtract(a.value(), b.value()));
-            new DifferenceConstraint(difference, a, b);
-            return difference;
-        };
-        return a.csp.memorize("-", funct, [a, b]);
+      var sanitizedParams = checkParams(a, b);
+      return internalSubtract(sanitizedParams.a, sanitizedParams.b);
     }
     FloatVariable.subtract = subtract;
 
     /**
-     * Multiply two floating point variables together (a * b).  This also adds a new constraint to
-     * the CSP
-     * @param  {FloatVariable} a First operand to multipulcation
-     * @param  {FloatVariable} b Second operand to multipulcaiton
+     * Internal logic for multiplcation.  This is wrapped by the multiply function
+     * in the API
+     * @param  {FloatVariable} a First operand in multiplcation
+     * @param  {FloatVariable} b Second operand in multiplcation
+     * @return {FloatVariable}   a variable that holds the result of a * b
+     */
+    function internalMultiply(a, b){
+      var funct = function(){
+        var product = new FloatVariable("product", a.csp, Interval.multiply(a.value(), b.value()));
+        new ProductConstraint(product, a, b);
+        return product;
+      };
+      return a.csp.memorize("*", funct, [a, b]);
+    }
+    /**
+     * Multiply two floating point variables together (a * b). Both operands
+     * can not be numbers, as then Craftjs has no CSP to associate
+     * with the op.
+     * @param  {FloatVariable or Number} a First operand to multipulcation
+     * @param  {FloatVariable or Number} b Second operand to multipulcaiton
      * @return {FloatVariable}   the product of a and b.  This is the set of bounds that
      *                               a * b must be in
      */
     function multiply(a, b){
-        var funct = function(){
-            var product = new FloatVariable("product", a.csp, Interval.multiply(a.value(), b.value()));
-            new ProductConstraint(product, a, b);
-            return product;
-        };
-        return a.csp.memorize("*", funct, [a, b]);
+      var sanitizedParams = checkParams(a, b);
+      return internalMultiply(sanitizedParams.a, sanitizedParams.b);
     }
     FloatVariable.multiply = multiply;
 
     /**
-     * Multiply a floating point variable by a constant (a * k).  This also adds a constraint to
-     * the CSP.
-     * @param  {Number} k The constant value to multiply a FloatVariable by.
-     * @param  {FloatVariable} a the float variable part of the multipulcation
-     * @return {FloatVariable}   the product of a * k.  This is the set of bounds that
-     *                               a * k must be in.
+     * Internal logic for division.  This is wrapped by the divide function in
+     * the interface.  This also adds a constraint to the CSP.
+     * @param  {floatVariable} a first operand in division
+     * @param  {floatVariable} b second operand in division
+     * @return {floatVariable}   a variable that holds the result of a / b.
      */
-    function multiplyVariableByConstant(a, k){
-        var funct = function(){
-            var product = new FloatVariable("product", a.csp, Interval.multiplyIntervalByConstant(a.value(), k));
-            new ConstantProductConstraint(product, a, k);
-            return product;
-        };
-        return a.csp.memorize("*", funct, [a, k]);
+    function internalDivide(a, b){
+      var funct = function(){
+          var quotient = new FloatVariable("quotient", a.csp, Interval.divide(a.value(), b.value()));
+          new QuotientConstraint(quotient, a, b);
+          return quotient;
+      };
+      return a.csp.memorize("/", funct, [a, b]);
     }
-    FloatVariable.multiplyVariableByConstant = multiplyVariableByConstant;
-
     /**
-     * Divide two floating point variables (a / b).  This also adds a constraint to
-     * the CSP.
-     * @param  {FloatVariable} a the first operand for division
-     * @param  {FloatVariable} b second operand for division
+     * Divide two floating point variables (a / b).  Error thrown if both a and b
+     * are of type Number.
+     * @param  {FloatVariable or Number} a the first operand for division
+     * @param  {FloatVariable or Number} b second operand for division
      * @return {FloatVariable}   the quotient of a / b.  This is the set of bounds that
      *                               a / b must be in.
      */
     function divide(a, b){
-        var funct = function(){
-            var quotient = new FloatVariable("quotient", a.csp, Interval.divide(a.value(), b.value()));
-            new QuotientConstraint(quotient, a, b);
-            return quotient;
-        };
-        return a.csp.memorize("/", funct, [a, b]);
+        var sanitizedParams = checkParams(a, b);
+        return internalDivide(sanitizedParams.a, sanitizedParams.b);
     }
     FloatVariable.divide = divide;
 
     /**
      * Raise a floating point variable to a power (a ^ exponent).  This also adds a
      * constraint to the CSP.
-     * @param  {FloatVariable} a        the base of the pow equation.
+     * @param  {FloatVariable} a The base of the pow equation.
      * @param  {Number} exponent The exponent of the pow
-     * @return {FloatVariable}          the result of a ^ exponent.  This is the set of bounds that
+     * @return {FloatVariable}   The result of a ^ exponent.  This is the set of bounds that
      *                                      a ^ exponent must be in.
      */
     function pow(a, exponent){
@@ -459,7 +519,7 @@ define(['inheritance', 'variable', 'interval', 'mathUtil', 'scalarArithmeticCons
     //append static constructors.
     FloatVariable.makeInfinateFloatVariable = makeInfinateFloatVariable;
     FloatVariable.makeFloatVariableWithBounds =  makeFloatVariableWithBounds;
-    FloatVariable.constant = constant;
+    FloatVariable.makeFloatConstant = makeFloatConstant;
 
     return FloatVariable;
 });
