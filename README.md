@@ -66,6 +66,12 @@ var m = IntegerVariable.makeIntVariableWithBounds('m', p, -100, 100);
 var intercept = IntegerVariable.makeIntVariableWithBounds('intercept', p, -100, 100);
 ```
 
+Craftjs can also create constants:
+```javascript
+var floatConstant = FloatVariable.makeFloatConstant('flConst', p, 0.5);
+var intConstant = IntegerVariable.makeIntConstant('intConst', p, 7);
+```
+
 Now that we've got our independent variables figured out, lets add constraints.
 Quad is constrained to be the a squared plus b, so let us tell Craftjs that.
 ```javascript
@@ -83,22 +89,31 @@ are:
 FloatVariable.add(a, b) --> a + b
 FloatVariable.subtract(a, b) --> a - b
 FloatVariable.multiply(a, b) --> a * b
-FloatVariable.multiplyIntervalByConstant(a, k) --> a * k (where k is a Number)
 FloatVariable.divide(a, b) --> a / b
 FloatVariable.pow(a, exponent) --> a ^ exponent (where exponent is a Number)
 ```
+
 For Integers, the same sorts of ops look like:
 ```
 IntegerVariable.add(a, b) --> a + b
 IntegerVariable.subtract(a, b) --> a - b
 IntegerVariable.multiply(a, b) --> a * b
-IntegerVariable.multiplyIntervalByConstant(a, k) --> a * k (where k is a Number)
 IntegerVariable.divide(a, b) --> a / b
 IntegerVariable.pow(a, exponent) --> a ^ exponent (where exponent is a Number)
 ```
-Note that, for integers, Craftjs will throw errors if `k` or `exponent` are
-floating point.  If these need to be floats, use the operations in `FloatVariable`
-instead.
+
+For both these cases, `a` and `b` can be variables or plain Javascript numbers.
+```javascript
+var example = FloatVariable.makeFloatVariableWithBounds('ex', p, 0, 1);
+FloatVariable.add(1, example);
+FloatVariable.add(example, 1);
+```
+Both of the above cases are valid.  Craftjs will promote numbers to constants
+automagically.  This is also true for `IntegerVariables`.
+
+Note that, for integers, Craftjs will throw errors if any provided argument is
+a floating point number.  If you need to use floats, use the operations in FloatVariable
+instead.  Future work will allow to constrain floating point operations to the integer space.
 
 If you're familiar with reverse polish syntax, this probably rings a few bells.
 It's also important to note that Craftjs does not enforce order of operations--
@@ -113,10 +128,12 @@ quad.mustBeContainedInRange(10, 20);
 Craftjs has some other constraints to add to `FloatVariable` or `IntegerVariable`s:
 ```
 .mustBeContainedIn(low, high) --> variable must be within the specified range
-.mustEqual(Number Or Variable) --> variable must equal the provided Number
-.mustBeLessThanOrEqualTo(Number Or Variable) --> variable must be less than or equal to the provided Number
-.mustBeGreaterThanOrEqualTo(Number Or Variable) --> variable must be greater than or equal to the provided number
+.mustEqual(Number Or Variable) --> variable must equal the provided Number or Variable
+.mustBeLessThanOrEqualTo(Number Or Variable) --> variable must be less than or equal to the provided Number or Variable
+.mustBeGreaterThanOrEqualTo(Number Or Variable) --> variable must be greater than or equal to the provided number or Variable
 ```
+with the usual caveat of Craftjs having undefined behavior if you mix variable types (i.e. `FloatVariable.mustEqual(IntegerVariable)`
+or the other way around)
 
 Now that we've set up the CSP, we can start getting solutions to it.  Craftjs gets one
 solution to the CSP at a time, and does not make any promises about not returning the same solution twice.
