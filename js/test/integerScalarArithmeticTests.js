@@ -743,5 +743,126 @@ define(['inheritance', 'csp', 'floatVariable', 'integerVariable', 'mathUtil', 'i
 
           expect(new IntegerInterval(5, 5).equals(b.value())).toBe(true);
         });
+
+
+        it("Sum All FloatVar 2 arg Test", function(){
+          console.log("==========================================");
+          console.log("Testing sum out operation with 2 vars");
+          console.log("==========================================");
+          var p = new CSP();
+          var argArray = [];
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("a", p, 0, 5));
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("b", p, 0, 5));
+          var sum = IntegerVariable.sumAll(argArray);
+          argArray[1].mustEqual(2);
+          argArray[0].mustEqual(2);
+
+          p.testConsistency();
+          assertUnique(sum, 4);
+        });
+
+        it("Sum All FloatVar 2 arg Test (first arg test)", function(){
+          console.log("==========================================");
+          console.log("Testing sum out operation with 2 vars (first arg test)");
+          console.log("==========================================");
+          var p = new CSP();
+          var argArray = [];
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("a", p, 0, 5));
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("b", p, 0, 5));
+          var sum = IntegerVariable.sumAll(argArray);
+          sum.mustEqual(4);
+          argArray[0].mustEqual(2);
+
+          p.testConsistency();
+          assertUnique(argArray[1], 2);
+        });
+
+        it("Sum All FloatVar 2 arg Test (second arg test)", function(){
+          console.log("==========================================");
+          console.log("Testing sum out operation with 2 vars (first arg test)");
+          console.log("==========================================");
+          var p = new CSP();
+          var argArray = [];
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("a", p, 0, 5));
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("b", p, 0, 5));
+          var sum = IntegerVariable.sumAll(argArray);
+          sum.mustEqual(4);
+          argArray[1].mustEqual(2);
+
+          p.testConsistency();
+          assertUnique(argArray[0], 2);
+        });
+
+        it("Sum All unconstrained FloatVar 3 arg Test", function(){
+          console.log("==========================================");
+          console.log("Testing sum out operation with 3 vars");
+          console.log("==========================================");
+          var p = new CSP();
+          var argArray = [];
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("a", p, 0, 5));
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("b", p, 0, 5));
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("c", p, 0, 5));
+          var sum = IntegerVariable.sumAll(argArray);
+
+          for(var i = 0; i < 1000; i++){
+              p.newSolution();
+              expect(MathUtil.nearlyEqual(sum.uniqueValue(), (argArray[0].uniqueValue() + argArray[1].uniqueValue() + argArray[2].uniqueValue()))).toBe(true);
+          }
+        });
+
+        it("Sum All semi-constrained FloatVar 3 arg Test", function(){
+          console.log("==========================================");
+          console.log("Testing sum out operation with 3 vars");
+          console.log("==========================================");
+          var p = new CSP();
+          var argArray = [];
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("a", p, 0, 5));
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("b", p, 0, 5));
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("c", p, 0, 5));
+          var sum = IntegerVariable.sumAll(argArray);
+          sum.mustEqual(10);
+
+          for(var i = 0; i < 1000; i++){
+              p.newSolution();
+              expect(MathUtil.nearlyEqual(sum.uniqueValue(), 10)).toBe(true);
+              expect(MathUtil.nearlyEqual(sum.uniqueValue(), (argArray[0].uniqueValue() + argArray[1].uniqueValue() + argArray[2].uniqueValue()))).toBe(true);
+          }
+        });
+
+        it("Sum All unconstrained FloatVar 3 arg Test w/ a const", function(){
+          console.log("==========================================");
+          console.log("Testing sum out operation with 3 vars w/ a const");
+          console.log("==========================================");
+          var p = new CSP();
+          var argArray = [];
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("a", p, 0, 5));
+          argArray.push(IntegerVariable.makeIntConstant("b", p, 3));
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("c", p, 0, 5));
+          var sum = IntegerVariable.sumAll(argArray);
+
+          for(var i = 0; i < 1000; i++){
+              p.newSolution();
+              expect(MathUtil.nearlyEqual(sum.uniqueValue(), (argArray[0].uniqueValue() + argArray[1].uniqueValue() + argArray[2].uniqueValue()))).toBe(true);
+          }
+        });
+
+        it("Sum All semi-constrained IntVar 3 arg Test w/ a const", function(){
+          console.log("==========================================");
+          console.log("Testing sum out operation with 3 vars w/ a const");
+          console.log("==========================================");
+          var p = new CSP();
+          var argArray = [];
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("a", p, 0, 5));
+          argArray.push(IntegerVariable.makeIntConstant("b", p, 3));
+          argArray.push(IntegerVariable.makeIntVariableWithBounds("c", p, 0, 5));
+          var sum = IntegerVariable.sumAll(argArray);
+          sum.mustEqual(10);
+
+          for(var i = 0; i < 1000; i++){
+              p.newSolution();
+              expect(MathUtil.nearlyEqual(sum.uniqueValue(), 10)).toBe(true);
+              expect(MathUtil.nearlyEqual(sum.uniqueValue(), (argArray[0].uniqueValue() + argArray[1].uniqueValue() + argArray[2].uniqueValue()))).toBe(true);
+          }
+        });
     });
 });

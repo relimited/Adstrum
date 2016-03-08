@@ -266,6 +266,56 @@ define(['inheritance', 'integerInterval', 'floatVariable', 'mathUtil', 'integerS
     IntVariable.add = add;
 
     /**
+     * Recusrively sum out an array of IntVariable (or Numbers that will get
+     * promoted to numbers)
+     * @param  {Array} array  Array of FloatVariables or Numbers
+     * @param  {IntVariable} curSum current summed out variable
+     * @param  {Number} idx    current index in the array
+     * @return {IntVariable}        FloatVariable that contains all the required constraints
+     */
+    function recusriveSum(array, curSum, idx){
+      if(idx >= array.length){
+        return curSum;
+      }
+      curSum = IntVariable.add(curSum, array[idx]);
+      idx = idx + 1;
+      recusriveSum(array, curSum, idx);
+      return curSum;
+    }
+
+    /**
+     * internal logic for summing out an array
+     * @param  {Array} v an array of IntVariables or floating point numbers to sum out
+     * @return {IntVariable}   A FloatVariable that represents the running sum
+     */
+    function internalSum(v){
+      var startSum = IntVariable.add(v[0], v[1]);
+      return recusriveSum(v, startSum, 2);
+    }
+
+    /**
+     * Sums out a provided array of IntVariables and/or Numbers by promoting numbers
+     * to constants and adding every element of the array.
+     * @param  {Array of IntVariables or Numbers} v
+     * @return {IntVariable}   variable constrained to the sum of all members of v
+     */
+    function sumAll(v){
+      // check that v is an Array
+      if(v.constructor !== Array){
+        throw "Argument to sumAll is not an array!";
+      }
+
+      //check that every element is a Craftjs variable and/or a Number
+      for(var index = 0, len = v.length; index < len; ++index){
+        if(v[index].csp === undefined && !(v[index] instanceof Number)){
+          throw "Some parts of this array aren't numbers or Variables!";
+        }
+      }
+      return internalSum(v);
+    }
+    IntVariable.sumAll = sumAll;
+
+    /**
      * Handles the internal logic of subtraction to seperate it from an interface.
      * Adds a new constraint to the CSP
      * @param  {IntVariable} a First operand of subtraction
