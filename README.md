@@ -91,6 +91,7 @@ FloatVariable.subtract(a, b) --> a - b
 FloatVariable.multiply(a, b) --> a * b
 FloatVariable.divide(a, b) --> a / b
 FloatVariable.pow(a, exponent) --> a ^ exponent (where exponent is a Number)
+FloatVariable.sumAll(v) --> the summation of all FloatVariables in v (where v is an array of FloatVariables and/or Numbers)
 ```
 
 For Integers, the same sorts of ops look like:
@@ -100,6 +101,7 @@ IntegerVariable.subtract(a, b) --> a - b
 IntegerVariable.multiply(a, b) --> a * b
 IntegerVariable.divide(a, b) --> a / b
 IntegerVariable.pow(a, exponent) --> a ^ exponent (where exponent is a Number)
+IntegerVariable.sumAll(v) --> the summation of all IntegerVariables in v (where v is an array of IntegerVariables and/or Numbers)
 ```
 
 For both these cases, `a` and `b` can be variables or plain Javascript numbers.
@@ -111,7 +113,7 @@ FloatVariable.add(example, 1);
 Both of the above cases are valid.  Craftjs will promote numbers to constants
 automagically.  This is also true for `IntegerVariables`.
 
-Note that, for integers, Craftjs will throw errors if any provided argument is
+Note that, for Integers, Craftjs will throw errors if any provided argument is
 a floating point number.  If you need to use floats, use the operations in FloatVariable
 instead.  Future work will allow to constrain floating point operations to the integer space.
 
@@ -128,9 +130,9 @@ quad.mustBeContainedInRange(10, 20);
 Craftjs has some other constraints to add to `FloatVariable` or `IntegerVariable`s:
 ```
 .mustBeContainedIn(low, high) --> variable must be within the specified range
-.mustEqual(Number Or Variable) --> variable must equal the provided Number or Variable
-.mustBeLessThanOrEqualTo(Number Or Variable) --> variable must be less than or equal to the provided Number or Variable
-.mustBeGreaterThanOrEqualTo(Number Or Variable) --> variable must be greater than or equal to the provided number or Variable
+.mustEqual({Number Or Variable}) --> variable must equal the provided Number or Variable
+.mustBeLessThanOrEqualTo({Number Or Variable}) --> variable must be less than or equal to the provided Number or Variable
+.mustBeGreaterThanOrEqualTo({Number Or Variable}) --> variable must be greater than or equal to the provided number or Variable
 ```
 with the usual caveat of Craftjs having undefined behavior if you mix variable types (i.e. `FloatVariable.mustEqual(IntegerVariable)`
 or the other way around)
@@ -145,7 +147,7 @@ var quad_value = quad.uniqueValue();
 ```
 
 The important bit here is that `CSP` doesn't return any solutions, it just modifies the `FloatVariable`
-objects that it knows about, and they contain the values that satisfy the constraints.
+or `IntegerVariable` objects that it knows about, and they contain the values that satisfy the constraints.
 `uniqueValue()` returns a Javascript primitive `Number`, so you can safely plug them
 into whatever other part of your program you want to.  To get another solution,
 call `newSolution()` again.
@@ -156,6 +158,8 @@ The examples folder (html page is in /example and relevant javascript is in js/e
 There is a program that also draws circles in a square to show off how to use Integer constraints.  If Craftjs isn't expressive enough to your liking, Craftjs can do rejection sampling to get more complicated constrained solutions, as seen in the final example.
 
 ## Features to Add
+-- CommonJS and Require.js support
+
 -- Mixed CSPs, able to handle both Reals and Ints.
 
 -- Vectors, for both Reals and Integers.
@@ -168,11 +172,8 @@ There is a program that also draws circles in a square to show off how to use In
 
 ## Known Problems
 #### bugs
-The original Craft ensures that `cspObj.narrowTo()` also adds the relevant constraints while `cspObj` is in
-the configuration phase.  Craftjs does not do this, and uses `mustBeContainedIn()` to add contain-based constraints.
-
 Take care when assigning variable names.  The names "a", "b", "sum", "difference", "product", "quotient" and "power" may get overwritten by the solver and end up getting assigned to the wrong constraints.  The more descriptive a name is, the more useful it is overall.  The internal variable representation will get tweaked in a future release to prevent this from happening.
 
 #### other
-Craftjs is very much in development.  This is an alpha build (0.22, at time of writing this disclamer), and may be bug-ridden.
+Craftjs is very much in development.  This is an alpha build (0.221, at time of writing this disclamer), and may be bug-ridden.
 Please, add an issue tag for any bugs you find.
