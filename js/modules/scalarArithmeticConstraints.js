@@ -12,9 +12,9 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         },
 
         canonicalizeVariables : function(){
-            sum = this.registerCanonical(this.sum);
-            a = this.registerCanonical(this.a);
-            b = this.registerCanonical(this.b);
+            this.sum = this.registerCanonical(this.sum);
+            this.a = this.registerCanonical(this.a);
+            this.b = this.registerCanonical(this.b);
         },
 
         propagate : function(fail){
