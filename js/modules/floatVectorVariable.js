@@ -36,7 +36,7 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
       =========================PRIVATE HELPER FUNCTIONS=================
     */
     recusriveMagnitudeOp = function(array, curSum, idx){
-      if(idx == array.length){
+      if(idx >= array.length){
         return curSum;
       }else{
         curSum = Interval.add(curSum, array[idx].value().square());
@@ -168,34 +168,6 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
      }
      FloatVectorVariable.add = vectorAdd;
 
-     //summing out all the values in a vector
-     function internalVectorSum(v){
-       var recursiveSum = function(array, curSum, idx){
-         if(idx == array.length){
-           return curSum;
-         }
-         curSum = FloatVariable.add(curSum, v.vars[idx]);
-         idx = idx + 1;
-         recursiveSum(array, curSum, idx);
-       };
-
-       var funct = function(){
-         var startSum = FloatVariable.add(v.vars[0], v.vars[1]);
-         var result = recusriveSum(v, startSum, idx);
-         return result;
-       };
-       return v.getCSP().memorize("sumOut", funct, [v]);
-     }
-
-     function vectorSum(v){
-       if(checkFloatVector(v)){
-         return internalVectorSum(v);
-       }else{
-         throw "Invalid arguments provided for summing out a vector";
-       }
-     }
-     FloatVectorVariable.sumOut(v);
-
      //subtraction
      function internalVectorSubtract(a, b){
          var funct = function(){
@@ -287,7 +259,7 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
            var productVar = new FloatVectorVariable("product", a.getCSP(), productArray);
 
            //sum all elements in the productVector
-           var sum = FloatVectorVariable.sumOut(productVar);
+           var sum = FloatVariable.sumAll(productVar.vars);
            new DotProductConstraint(sum, a, b);
            return sum;
          };

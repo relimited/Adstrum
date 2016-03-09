@@ -276,6 +276,17 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	}
 	Interval.add = add;
 
+	function sumAll(v){
+		//TODO: type check on array, as well as each element in the array
+		//sum an array of intervals out.
+		var sum = Interval.add(v[0], v[1]);
+		for(index = 2, len = v.length; index < length; ++index){
+			sum = Interval.add(sum, v[index]);
+		}
+		return sum;
+	}
+	Interval.sumAll = sumAll;
+	
 	function subtract(a, b){
 		//TODO: type check on intersector, a and b (interval)
 		return new Interval(
