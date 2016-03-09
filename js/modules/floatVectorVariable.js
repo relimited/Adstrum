@@ -13,7 +13,7 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
 
 
     makeFloatVectorFromBBox = function(name, p, b){
-        return makeFloatVectorFromDoubles(name, p, [b.x, b.y, b.z]);
+        return makeFloatVectorFromIntervals(name, p, [b.x, b.y, b.z]);
     };
 
     makeFloatVectorFromDoubles = function(name, p, array){
