@@ -12,7 +12,6 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		 * @return {Interval}            A new Craftjs interval such that [lower, upper]
 		 */
 		init : function(lowerBound, upperBound){
-
 			if(Number.isNaN(lowerBound)){
 				throw "Interval lower bound is not a number";
 			}else if(Number.isNaN(upperBound)){
@@ -280,13 +279,13 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		//TODO: type check on array, as well as each element in the array
 		//sum an array of intervals out.
 		var sum = Interval.add(v[0], v[1]);
-		for(index = 2, len = v.length; index < length; ++index){
+		for(var index = 2, len = v.length; index < len; ++index){
 			sum = Interval.add(sum, v[index]);
 		}
 		return sum;
 	}
 	Interval.sumAll = sumAll;
-	
+
 	function subtract(a, b){
 		//TODO: type check on intersector, a and b (interval)
 		return new Interval(
@@ -409,7 +408,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	Interval.invPower = invPower;
 
 	function positiveSqrt(a){
-		if(a.lower <= 0){
+		if(a.lower < 0){
 			throw "Attempt to take square root of a negative interval.";
 		}
 		return new Interval(Math.sqrt(a.lower), Math.sqrt(a.upper));

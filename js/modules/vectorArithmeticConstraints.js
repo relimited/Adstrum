@@ -25,45 +25,39 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
       //multiplied together
       var termProducts = [];
       for(var index = 0, len = this.a.vars.length; index < len; ++index){
-         termProducts.push(Interval.multiply(this.a.vars[i].value(), this.b.vars[i].value()));
+         termProducts.push(Interval.multiply(this.a.vars[index].value(), this.b.vars[index].value()));
       }
 
       if(this.narrowedVariable != this.product){
         this.product.narrowTo(Interval.sumAll(termProducts), fail);
-        if(fail){
+        if(fail[0]){
           return;
         }
       }
-      //now compile the interval lists from both the a vector and the b vector
-      //(as there was a fast fail option)
-      var aIntervals = [];
-      var bIntervals = [];
-      for(var index = 0, len = this.a.vars.length; index < len; ++index){
-          aIntervals.push(this.a.vars[index].value());
-          bIntervals.push(this.b.vars[index].value());
-      }
-
+      
       for(var index = 0, len = this.a.vars.length; index < len; ++index){
         if(this.narrowedVariable != this.a.vars[index]){
-          var relevantTermProducts = termProducts.slice(0, index).concatinate(termProducts.slice(index + 1, termProducts.length));
+          var relevantTermProducts = termProducts.slice(0, index);
+          relevantTermProducts = relevantTermProducts.concat(termProducts.slice(index + 1, termProducts.length));
           this.a.vars[index].narrowToQuotient(
             Interval.subtract( this.product.value(), Interval.sumAll(relevantTermProducts)),
             this.b.vars[index].value(),
             fail
           );
-          if(fail){
+          if(fail[0]){
             return;
           }
         }
 
         if(this.narrowedVariable != this.b.vars[index]){
-          var relevantTermProducts = termProducts.slice(0, index).concatinate(termProducts.slice(index + 1, termProducts.length));
+          var relevantTermProducts = termProducts.slice(0, index);
+          relevantTermProducts = relevantTermProducts.concat(termProducts.slice(index + 1, termProducts.length));
           this.b.vars[index].narrowToQuotient(
             Interval.subtract( this.product.value(), Interval.sumAll(relevantTermProducts)),
             this.a.vars[index].value(),
             fail
           );
-          if(fail){
+          if(fail[0]){
             return;
           }
         }
@@ -88,7 +82,7 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
       this.vector.canonicalizeAndRegisterConstraint(this);
     },
 
-    propagate : function(){
+    propagate : function(fail){
       //start by compiling a list of squares on the vector values
       var squares = [];
       for(index = 0, len = this.vector.vars.length; index < len; ++index){
@@ -97,16 +91,17 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
 
       if(this.narrowedVariable != this.magnitude){
         this.magnitude.narrowTo(Interval.positiveSqrt(Interval.sumAll(squares)), fail);
-        if(fail){
+        if(fail[0]){
           return;
         }
       }
 
       var squaredMagnitude = this.magnitude.value().square();
       for(index = 0, len = this.vector.vars.length; index < len; ++index){
-        var relevantSquares = squares.slice(0, index).concatinate(squares.slice(index + 1, squares.length));
-        this.vector[index].NarrowToSignedSqrt(Interval.subtract(squaredMagnitude, Interval.sumAll(relevantSquares)), fail);
-        if(fail){
+        var relevantSquares = squares.slice(0, index);
+        relevantSquares = relevantSquares.concat(squares.slice(index + 1, squares.length));
+        this.vector.vars[index].narrowToSignedSqrt(Interval.subtract(squaredMagnitude, Interval.sumAll(relevantSquares)), fail);
+        if(fail[0]){
           return;
         }
       }
@@ -117,4 +112,6 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
     }
   });
   constraints.MagnitudeConstraint = MagnitudeConstraint;
+
+  return constraints;
 });

@@ -5,16 +5,17 @@
  * Starting point for geometric constraints as well.  Vectors are also where
  * sum constraints and various statistics constraints will live (because they already organize sets of variables)
  */
-define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inheritance, FloatVariable, Interval, FormatTools){
+define(['inheritance', 'floatVariable', 'vectorArithmeticConstraints', 'interval', 'formatTools'], function(Inheritance, FloatVariable, VectorArithmeticConstraints, Interval, FormatTools){
 
+  var MagnitudeConstraint = VectorArithmeticConstraints.MagnitudeConstraint;
+  var DotProductConstraint = VectorArithmeticConstraints.DotProductConstraint;
   /*
     =================CONSTRUCTORS====================================
    */
-
-
     makeFloatVectorFromBBox = function(name, p, b){
         return makeFloatVectorFromIntervals(name, p, [b.x, b.y, b.z]);
     };
+
 
     makeFloatVectorFromDoubles = function(name, p, array){
         var list = [];
@@ -36,11 +37,15 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
       =========================PRIVATE HELPER FUNCTIONS=================
     */
     recusriveMagnitudeOp = function(array, curSum, idx){
+      //bootstrap the recusion
       if(idx >= array.length){
         return curSum;
+      }else if(idx === 0){
+        curSum = array[0].value().square();
+        return recusriveMagnitudeOp(array, curSum, ++idx);
       }else{
         curSum = Interval.add(curSum, array[idx].value().square());
-        recusriveMagnitudeOp(array, curSum, ++idx);
+        return recusriveMagnitudeOp(array, curSum, ++idx);
       }
     };
 
@@ -50,10 +55,10 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
           //trying to eke out speed wherever we can, see
           //http://stackoverflow.com/questions/9329446/for-each-over-an-array-in-javascript
           for(var index = 0, len = array.length; index < len; ++index){
-            if(array[i].csp){
-              this.vars.push(array[i]);
+            if(array[index].csp){
+              this.vars.push(array[index]);
             }else{
-              this.vars.push(new FloatVariable(name + "[" + i + "]", p, array[i]));
+              this.vars.push(new FloatVariable(name + "[" + index + "]", p, array[index]));
             }
           }
 
@@ -65,18 +70,19 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
         },
 
         magnitude : function(){
+          var ref = this;
           var funct = function(){
             var magnitude = new FloatVariable(
               "magnitude",
-              this.getCSP(),
+              ref.getCSP(),
               Interval.positiveSqrt(
-                recusriveMagnitudeOp(this.vars, 0, 0)
+                recusriveMagnitudeOp(ref.vars, 0, 0)
               )
             );
-            new MagnitudeConstraint(magnitude, this);
+            new MagnitudeConstraint(magnitude, ref);
             return magnitude;
           };
-          return this.getCSP().memorize("magnitude", funct, [this]);
+          return ref.getCSP().memorize("magnitude", funct, [ref]);
         },
 
         toString : function(){
@@ -132,7 +138,7 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
     function checkFloatVector(v){
       if(v.vars){
         for(var index = 0, len = v.vars.length; index < len; ++index){
-          if(v[index].csp === undefined){
+          if(v.vars[index].csp === undefined){
             return false;
           }
         }
@@ -149,7 +155,7 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
          var funct = function(){
            var sumArray = [];
            for(var index = 0, len = a.vars.length; index < len; ++index){
-             sumArray.push(FloatVariable.sum(a.vars[i], b.vars[i]));
+             sumArray.push(FloatVariable.sum(a.vars[index], b.vars[index]));
            }
              var result = new FloatVectorVariable("sum", a.getCSP(), sumArray);
              return result;
@@ -173,7 +179,7 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
          var funct = function(){
            var differenceArray = [];
            for(var index = 0, len = a.vars.length; index < len; ++index){
-             differenceArray.push(FloatVariable.subtract(a.vars[i], b.vars[i]));
+             differenceArray.push(FloatVariable.subtract(a.vars[index], b.vars[index]));
            }
            var result = new FloatVectorVariable("difference", a.getCSP(), differenceArray);
            return result;
@@ -197,7 +203,7 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
         var scalarMultiplyArray = [];
          var funct = function(){
            for(var index = 0, len = v.vars.length; index < len; ++index){
-             scalarMultiplyArray.push(FloatVariable.multiply(s, v.vars[i]));
+             scalarMultiplyArray.push(FloatVariable.multiply(s, v.vars[index]));
            }
             var result = new FloatVectorVariable("scalar product", v.getCSP(), scalarMultiplyArray);
             return result;
@@ -229,7 +235,7 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
          var scalarDivisionArray = [];
          var funct = function(){
            for(var index = 0, len = v.vars.length; index < len; ++index){
-             scalarDivisionArray.push(FloatVariable.divide(v.vars[i], s));
+             scalarDivisionArray.push(FloatVariable.divide(v.vars[index], s));
            }
              var result = new FloatVectorVariable("scalar quotient", v.getCSP(), scalarDivisionArray);
              return result;
@@ -254,7 +260,7 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
          var funct = function(){
            //start by calculating all individual elements products
            for(var index = 0, len = a.vars.length; index < len; ++index){
-             productArray.push(FloatVariable.multiply(a.vars[i], b.vars[i]));
+             productArray.push(FloatVariable.multiply(a.vars[index], b.vars[index]));
            }
            var productVar = new FloatVectorVariable("product", a.getCSP(), productArray);
 
@@ -275,5 +281,10 @@ define(['inheritance', 'floatVariable', 'interval', 'formatTools'], function(Inh
      }
      FloatVectorVariable.dotProduct = dotProduct;
 
-     return VectorFloatVariable;
+     //and append constructors to the object, you dingus.
+     FloatVectorVariable.makeFloatVectorFromBBox = makeFloatVectorFromBBox;
+     FloatVectorVariable.makeFloatVectorFromDoubles = makeFloatVectorFromDoubles;
+     FloatVectorVariable.makeFloatVectorFromVariables = makeFloatVectorFromVariables;
+
+     return FloatVectorVariable;
 });

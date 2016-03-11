@@ -1,7 +1,7 @@
 /*
   Unit tests for floating point vector arithmetic
  */
-define(['inheritance', 'csp', 'floatVariable', 'vectorFloatVariable', 'boundingBox', 'mathUtil', 'interval'], function(Inheritance, CSP, FloatVariable, VectorFloatVariable, BoundingBox, MathUtil, Interval){
+define(['inheritance', 'csp', 'floatVariable', 'floatVectorVariable', 'boundingBox', 'mathUtil', 'interval'], function(Inheritance, CSP, FloatVariable, FloatVectorVariable, BoundingBox, MathUtil, Interval){
   describe("Testing Vector Arithmetic", function(){
       var box = new BoundingBox(new Interval(-1, 1), new Interval(-1, 1), new Interval(-1, 1));
 
@@ -14,7 +14,7 @@ define(['inheritance', 'csp', 'floatVariable', 'vectorFloatVariable', 'boundingB
         var p = new CSP();
         var eX = new FloatVectorVariable.makeFloatVectorFromDoubles("eX", p, [1, 0, 0]);
         var unknown = new FloatVectorVariable.makeFloatVectorFromBBox("unknown", p, box);
-        var dot = FloatVectorVariable.dotProduct(ex, unknown);
+        var dot = FloatVectorVariable.dotProduct(eX, unknown);
         dot.mustEqual(0);
 
         for(var index = 0, len = 1000; index < len; ++index){
