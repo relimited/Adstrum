@@ -155,7 +155,7 @@ define(['inheritance', 'floatVariable', 'vectorArithmeticConstraints', 'interval
          var funct = function(){
            var sumArray = [];
            for(var index = 0, len = a.vars.length; index < len; ++index){
-             sumArray.push(FloatVariable.sum(a.vars[index], b.vars[index]));
+             sumArray.push(FloatVariable.add(a.vars[index], b.vars[index]));
            }
              var result = new FloatVectorVariable("sum", a.getCSP(), sumArray);
              return result;
@@ -214,13 +214,13 @@ define(['inheritance', 'floatVariable', 'vectorArithmeticConstraints', 'interval
      function scalarMultiply(a, b){
         //fast fail-- did the user supply two vectors?  If so, they're looking
         //for something that isn't scalar multiplcation
-        if(check3Vector(a) && check3Vector(b)){
+        if(checkFloatVector(a) && checkFloatVector(b)){
           throw "Scalar multiplcation is not valid for two vectors";
         }
 
        //find out which term is the vector term and multiply. FloatVariable
        //already has all the logic for coersion, so we don't need to do it here.
-       if(check3Vector(a)){
+       if(checkFloatVector(a)){
          return internalMultiplyScalarByVector(b, a);
        }else if(checkFloatVector(b)){
          return internalMultiplyScalarByVector(a, b);

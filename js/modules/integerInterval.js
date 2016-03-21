@@ -31,7 +31,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
             this.kind = "IntegerInterval";
 
             //conditional compilation is not a thing for Javascript, so we do all of it all the time
-			this.searchHint = SearchHint.none;
+			      this.searchHint = SearchHint.none;
         },
 
         /**
@@ -40,7 +40,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
          * @return {Number} A random integer in this range
          */
         randomElement : function(){
-			var realLower = this.practicalLower();
+			      var realLower = this.practicalLower();
             var range = (this.practicalUpper() - realLower);
             //TODO: assert not NaN and not positive infinity
 
@@ -84,38 +84,37 @@ define(["inheritance", "searchHint", "mathUtil", "csp", "interval"], function(In
 		 */
 		uniqueValue : function(){
 			if(!this.unique){
-                var mid = this.midpoint();
-                if(mid >= this.lower){
-                    //safe to floor
-                    return Math.floor(mid);
-                }else if(mid <= this.upper){
-                    //safe to ceil
-                    return Math.ceil(mid);
-                }
+        var mid = this.midpoint();
+        if(mid >= this.lower){
+          //safe to floor
+          return Math.floor(mid);
+        }else if(mid <= this.upper){
+          //safe to ceil
+          return Math.ceil(mid);
+        }
 			}
 		},
 
-        upperHalf : function(){
-            //if the midpoint is right between two integers (say 2,3 -> midpoint of 2.5)
-            //this won't actually narrow, so we need to check for that case, otherwise
-            //proceed as normal.
-            if(this.width() == 1){
-                return new IntegerInterval(Math.ceil(this.midpoint()), this.upper);
-            }else{
-			    return new IntegerInterval(Math.floor(this.midpoint()), this.upper);
-            }
+    upperHalf : function(){
+      //if the midpoint is right between two integers (say 2,3 -> midpoint of 2.5)
+      //this won't actually narrow, so we need to check for that case, otherwise
+      //proceed as normal.
+      if(this.width() == 1){
+        return new IntegerInterval(Math.ceil(this.midpoint()), this.upper);
+      }else{
+			  return new IntegerInterval(Math.floor(this.midpoint()), this.upper);
+      }
 		},
 
 		lowerHalf : function(){
-            //if the midpoint is right between two integers (say 2,3 -> midpoint of 2.5)
-            //this won't actually narrow, so we need to check for that case, otherwise
-            //proceed as normal.
-            if(this.width() == 1){
-                return new IntegerInterval(this.lower, Math.floor(this.midpoint()));
-            }else{
-			    return new IntegerInterval(this.lower, Math.ceil(this.midpoint()));
-            }
-
+      //if the midpoint is right between two integers (say 2,3 -> midpoint of 2.5)
+      //this won't actually narrow, so we need to check for that case, otherwise
+      //proceed as normal.
+      if(this.width() == 1){
+        return new IntegerInterval(this.lower, Math.floor(this.midpoint()));
+      }else{
+			  return new IntegerInterval(this.lower, Math.ceil(this.midpoint()));
+      }
 		},
 
         /**

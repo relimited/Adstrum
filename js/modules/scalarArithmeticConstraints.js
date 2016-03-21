@@ -115,45 +115,6 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
     });
     constraints.ProductConstraint = ProductConstraint;
 
-    /*
-    var ConstantProductConstraint = Constraint.extend({
-        init : function(product, a, k){
-            this._super(product.csp);
-            this.product = product;
-            this.a = a;
-            this.k = k;
-        },
-
-        canonicalizeVariables : function(){
-            this.product = this.registerCanonical(this.product);
-            this.a = this.registerCanonical(this.a);
-        },
-
-        propagate : function(fail){
-            if(this.narrowedVariable != this.product){
-                this.product.narrowTo(Interval.multiplyIntervalByConstant(this.a.value(), this.k), fail);
-                if(fail[0]){ return; }
-            }
-            if(this.narrowedVariable != this.a){
-                //when k is 0, 1/k doesn't work (it becomes infinity).
-                //In the limit, inf * 0 = 0, and even then the nearest real
-                //number to inf * 0 = 0.
-                //So, under practical cases, we've already narrowed the product to 0 at this point,
-                //the value of a doesn't matter.
-                //... still waiting for the bug that I'm sure this introduced to rear its head
-                if(this.k !== 0){
-                    this.a.narrowTo(Interval.multiplyIntervalByConstant(this.product.value(), (1 / this.k)), fail);
-                }
-            }
-        },
-
-        toString : function(){
-            return "{"+ this.product.name +"}={" + this.a.name + "}*{" + this.k + "}";
-        }
-    });
-    constraints.ConstantProductConstraint = ConstantProductConstraint;
-    */
-
     var QuoitentConstraint = Constraint.extend({
         init : function(quotient, a, b){
             this._super(quotient.csp);
@@ -169,6 +130,17 @@ define(['inheritance', 'constraint', 'interval', 'mathUtil'], function(Inheritan
         },
 
         propagate : function(fail){
+            //several checks here-- b can't be zero.
+            if(this.b.value().isZero()){
+              fail[0] = true;
+              return;
+            }
+
+            //try to force the quotient into a reasonable range
+            if(this.quotient.value().lower === -Number.POSITIVE_INFINITY || this.quotient.value().upper === Number.POSITIVE_INFINITY){
+              this.quotient.narrowTo(new Interval(this.quotient.value().practicalLower(), this.quotient.value().practicalUpper()));
+            }
+            
             if(this.narrowedVariable != this.quotient){
                 this.quotient.narrowToQuotient(this.a.value(), this.b.value(), fail);
                 if(fail[0]){ return; }

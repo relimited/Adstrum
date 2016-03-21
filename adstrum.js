@@ -1,4 +1,4 @@
-var Craft =
+var Adstrum =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -866,7 +866,7 @@ var Craft =
 	                    fail[0] = true;
 	                }else{
 	                    var propagate = (newValue.width() / this.value().width()) < 0.99;
-	                    console.log(this.canonicalVariable());
+	                    //console.log(this.canonicalVariable());
 	                    this.canonicalVariable().currentValue.set(newValue);
 	                    if(propagate){
 	                        for(var index = 0, len = this.constraints.length; index < len; index++){
@@ -894,38 +894,67 @@ var Craft =
 	         * @param  {[boolean]} fail        pass-by-ref failure bool (will be set to true if we can't narrow)
 	         */
 	        narrowToQuotient : function(numerator, denominator, fail){
+	          //ok, presenting a simplified version of this
+
+	          //fast checks -- if the denominator is zero and the number
 	          if(denominator.isZero()){
 	            //Denominator is [0,0], so quotent is the empty set
 	            fail[0] = !numerator.containsZero();
-	          }else if(numerator.isZero()){
+	            return;
+	          }
+
+	          if(numerator.isZero()){
 	            if(!denominator.containsZero()){
 	              //Quotent is [0,0].
 	              this.narrowTo(new Interval(0,0), fail);
+	              return;
 	            }
-	          }else if(!denominator.containsZero()){
+	          }
+
+	          if(!denominator.containsZero()){
+	            //check to see if we'll overflow JS here-- if so, fail fast
+	            if(1 / denominator.lower === Number.POSITIVE_INFINITY || 1 / denominator.upper === Number.POSITIVE_INFINITY ||
+	               1 / denominator.lower === Number.NEGATIVE_INFINITY || 1 / denominator.upper === Number.NEGATIVE_INFINITY){
+	                 fail[0] = true;
+	                 return;
+	              }
 	            this.narrowTo(Interval.multiply(numerator, denominator.reciprocal()), fail);
+	            return;
+	          }
 	          //three cases: crosses zero, [a, 0] and [0, b]
-	          }else if(denominator.lower === 0){
-	            if (numerator.upper <= 0){
+	          if(denominator.lower === 0){
+	            if (numerator.upper < 0){
 	              this.narrowTo(new Interval(Number.NEGATIVE_INFINITY, numerator.upper / denominator.upper), fail);
 	            }else if(numerator.lower >= 0){
 	              this.narrowTo(new Interval(numerator.lower / denominator.upper, Number.POSITIVE_INFINITY), fail);
 	            }
-	          }else if(denominator.upper === 0){
+	            return;
+	          }
+
+	          if(denominator.upper === 0){
 	            if(numerator.upper <= 0){
 	              this.narrowTo(new Interval(numerator.upper / denominator.lower, Number.POSITIVE_INFINITY), fail);
-	            }else if(numerator.lower >= 0){
+	            }else if(numerator.lower > 0){
 	              this.narrowTo(new Interval(Number.NEGATIVE_INFINITY, numerator.lower / denominator.lower), fail);
 	            }
-	          }else if(numerator.upper < 0){
+	            return;
+	          }
+
+	          if(numerator.upper < 0){
 	            var lowerHalf = new Interval(Number.NEGATIVE_INFINITY, numerator.upper / denominator.upper);
 	            var upperHalf = new Interval(numerator.upper / denominator.lower, Number.POSITIVE_INFINITY);
 	            this.narrowToUnion(lowerHalf, upperHalf, fail);
-	          }else if(numerator.lower > 0){
+	            return;
+	          }
+
+	          if(numerator.lower > 0){
 	            var lowerHalf = new Interval(Number.NEGATIVE_INFINITY, numerator.lower / denominator.lower);
 	            var upperHalf = new Interval(numerator.lower / denominator.upper, Number.POSITIVE_INFINITY);
 	            this.narrowToUnion(lowerHalf, upperHalf, fail);
+	            return;
 	          }
+
+	          return;
 	        },
 
 	        /**
@@ -944,11 +973,16 @@ var Craft =
 	            var restriction;
 	            if (this.value().crossesZero()){
 	                restriction = Interval.unionOfIntersections(this.value(), sqrt, Interval.invert(sqrt));
-	            }else if(this.value().upper <= 0){
+	            }else if(this.value().isZero()){
+	                //this value is zero, so don't do anything.  We need this before the strict
+	                //negative check to catch cases like [x, 0] and miss [0,0], which is
+	                //unsigned.
+	                restriction = sqrt;
+	          }else if(this.value().upper <= 0){
 	                //current value is strictly negative
 	                restriction = Interval.invert(sqrt);
 	            }else{
-	                //current value is strictly positive
+	                //current value is strictly positive ([0, x] or greater).
 	                restriction = sqrt;
 	            }
 
@@ -1073,7 +1107,7 @@ var Craft =
 	     */
 	    function internalAdd(a, b){
 	      var funct = function(){
-	          var sum = new FloatVariable("sum", a.csp, Interval.add(a.value(), b.value()));
+	          var sum = new FloatVariable("(" + a.name + " + " + b.name + ")", a.csp, Interval.add(a.value(), b.value()));
 	          new SumConstraint(sum, a, b);
 	          return sum;
 	      };
@@ -1153,7 +1187,7 @@ var Craft =
 	     */
 	    function internalSubtract(a, b){
 	      var funct = function(){
-	          var difference = new FloatVariable("difference", a.csp, Interval.subtract(a.value(), b.value()));
+	          var difference = new FloatVariable( "(" + a.name + "-" + b.name + ")", a.csp, Interval.subtract(a.value(), b.value()));
 	          new DifferenceConstraint(difference, a, b);
 	          return difference;
 	      };
@@ -1182,7 +1216,7 @@ var Craft =
 	     */
 	    function internalMultiply(a, b){
 	      var funct = function(){
-	        var product = new FloatVariable("product", a.csp, Interval.multiply(a.value(), b.value()));
+	        var product = new FloatVariable("(" + a.name + " * " + b.name + ")", a.csp, Interval.multiply(a.value(), b.value()));
 	        new ProductConstraint(product, a, b);
 	        return product;
 	      };
@@ -1212,7 +1246,7 @@ var Craft =
 	     */
 	    function internalDivide(a, b){
 	      var funct = function(){
-	          var quotient = new FloatVariable("quotient", a.csp, Interval.divide(a.value(), b.value()));
+	          var quotient = new FloatVariable("(" + a.name + " / " + b.name + ")", a.csp, Interval.divide(a.value(), b.value()));
 	          new QuotientConstraint(quotient, a, b);
 	          return quotient;
 	      };
@@ -1242,7 +1276,7 @@ var Craft =
 	     */
 	    function pow(a, exponent){
 	        var funct = function(){
-	            var power = new FloatVariable("power", a.csp, Interval.pow(a.value(), exponent));
+	            var power = new FloatVariable("(" + a.name + "^" + exponent + ")", a.csp, Interval.pow(a.value(), exponent));
 	            new PowerConstraint(power, a, exponent);
 	            return power;
 	        };
@@ -1393,7 +1427,6 @@ var Craft =
 			 * @return {Interval}            A new Craftjs interval such that [lower, upper]
 			 */
 			init : function(lowerBound, upperBound){
-
 				if(Number.isNaN(lowerBound)){
 					throw "Interval lower bound is not a number";
 				}else if(Number.isNaN(upperBound)){
@@ -1487,7 +1520,6 @@ var Craft =
 			},
 
 			isZero : function(){
-				//FIXME: there was weirdness here in the C# code.  Should probably investigate
 				return this.lower === 0 && this.upper === 0;
 			},
 
@@ -1498,13 +1530,24 @@ var Craft =
 
 			randomElement : function(){
 				var realLower = this.practicalLower();
-	            var range = (this.practicalUpper() - realLower);
-	            //TODO: assert not NaN and not positive infinity
+	      var range = (this.practicalUpper() - realLower);
+	      //TODO: assert not NaN and not positive infinity
+	      if(range == Number.POSITIVE_INFINITY || Number.isNaN(range)){
+					console.log(this.practicalLower());
+					console.log(this.practicalUpper());
+					console.log(this);
+					throw "Calculated range is to big!";
+				}
+	      var randomElement = realLower + (Math.random() * range);
+	      //TODO: assert not positive infinity and not negative infinity
+	      if(range == Number.POSITIVE_INFINITY || range == Number.NEGATIVE_INFINITY){
+					console.log(this.practicalLower());
+					console.log(this.practicalUpper());
+					console.log(this);
+					throw "Random element is infinity!";
+				}
 
-	            var randomElement = realLower + (Math.random() * range);
-	            //TODO: assert not positive infinity and not negative infinity
-
-	            return randomElement;
+	      return randomElement;
 			},
 
 			width : function(){
@@ -1526,11 +1569,11 @@ var Craft =
 			},
 
 			midpoint : function(){
-				return (this.practicalLower() + this.practicalUpper()) * 0.5; //Javascript don't give no fucks about floats or not floats.  It's all a number
+				if(this.nearlyUnique()){
+					return this.lower;
+				}
+				return (this.practicalLower() + this.practicalUpper()) * 0.5;
 			},
-
-			//TODO: now I'm in the point where functions should return more intervals, and I'm not so sure how Javascript can handle that.
-			//		I'll need to play around in a fiddle or make a test project or something
 
 			upperHalf : function(){
 				return new Interval(this.midpoint(), this.upper);
@@ -1590,14 +1633,14 @@ var Craft =
 		Interval.maxPracticalDouble = Number.MAX_VALUE * 0.5;
 		Interval.minPracticalDouble = -Number.MAX_VALUE * 0.5; //javascript is weird
 
+		Interval.emptyInterval = new Interval(1, 0); //make an empty interval
 		//special constructors
 		function fromUnsortedBounds(a, b){
-			 if (a > b){
-	         	return new Interval(b, a);
-	         }else{
-	            return new Interval(a, b);
-	         }
-
+			if (a > b){
+	    	return new Interval(b, a);
+	    }else{
+	    	return new Interval(a, b);
+	    }
 		}
 		Interval.fromUnsortedBounds = fromUnsortedBounds;
 
@@ -1633,14 +1676,14 @@ var Craft =
 
 		function unionBound (a, b){
 			if (a.empty()){
-	        	return b;
-	        }
+	    	return b;
+	    }
 
-	        if (b.empty()){
-	        	return a;
-	       }
+	    if (b.empty()){
+	    	return a;
+	    }
 
-	       return new Interval(Math.min(a.lower, b.lower), Math.max(a.upper, b.upper));
+	    return new Interval(Math.min(a.lower, b.lower), Math.max(a.upper, b.upper));
 
 		}
 		Interval.unionBound = unionBound;
@@ -1657,11 +1700,31 @@ var Craft =
 		}
 		Interval.add = add;
 
+		function sumAll(v){
+			//TODO: type check on array, as well as each element in the array
+			//sum an array of intervals out.
+
+			//if the passed in array is only one element long, then return it as the sum.
+			if(v.length == 1){
+				return v[0];
+			}
+
+			//do the first addition...
+			var sum = Interval.add(v[0], v[1]);
+			//recusrively perform the rest of the addition.
+			for(var index = 2, len = v.length; index < len; ++index){
+				sum = Interval.add(sum, v[index]);
+			}
+			//return the sum.
+			return sum;
+		}
+		Interval.sumAll = sumAll;
+
 		function subtract(a, b){
 			//TODO: type check on intersector, a and b (interval)
 			return new Interval(
 	        	propagateNegativeInfinity(a.lower, a.lower - b.upper),
-	            propagatePositiveInfinity(a.upper, a.upper - b.lower));
+	          propagatePositiveInfinity(a.upper, a.upper - b.lower));
 		}
 		Interval.subtract = subtract;
 
@@ -1710,7 +1773,53 @@ var Craft =
 		 */
 		function divide(a, b){
 			//TODO: type check on intersector, a and b (interval)
-			//ReShaper comments here, which may mean I need to do something....
+			//welcome to the greatest case analysis you've ever seen.
+			/*
+			if(!b.containsZero()){
+				//case 1: b does not 0
+				return Interval.multiply(a, b.reciprocal());
+			}else if (a.containsZero() && b.containsZero()){
+				//case 2: both a and b contain 0
+				return Interval.allValues;
+
+			}else if(a.strictlyNegative()){
+				//next 3 cases deal with the universe where the numerator is < 0
+				if(b.lower < b.upper && b.upper === 0){
+					//case 3: denominator is [x, 0]
+					return new Interval(a.upper / b.lower, Number.POSITIVE_INFINITY);
+				}else if(b.crossesZero()){
+					//case 4: denominator is [x, y], where x < 0 and 0 < y
+					throw "Unable to perform this division, result is the union of two seperate intervals";
+				}else if(b.lower < b.upper && b.lower === 0){
+					//case 5: denominator is [0, y]
+					return new Interval(Number.NEGATIVE_INFINITY, a.upper / b.upper);
+				}else{
+					throw "Unsupported case! (" + a + "/" + b + ")";
+				}
+				//moving on
+
+			}else if(a.strictlyPositive()){
+				//next 3 cases deal with the universe where numerator is < 0
+				if(b.lower < b.upper && b.upper === 0){
+					//case 6: denominator is [x, 0]
+					return new Interval(Number.NEGATIVE_INFINITY, a.lower / b.lower);
+				}else if(b.crossesZero()){
+					//case 7: denominator is [x, y], where x < 0 and 0 < y
+					throw "Unable to perform this division, result is the union of two seperate intervals";
+				}else if(b.lower < b.upper && b.lower === 0){
+					//case 8: denominator is [0, y]
+					return new Interval(a.lower / b.upper, Number.POSITIVE_INFINITY);
+				}else{
+					throw "Unsupported case! (" + a + "/" + b + ")";
+				}
+				//moving on
+
+			}else if(!a.containsZero() && b.isZero()){
+				return Interval.emptyInterval;
+			}else{
+				throw "Unsupported case! (" + a + "/" + b + ")";
+			}
+			*/
 			if(b.lower === 0){
 				if(b.upper === 0){
 					return Interval.allValues;
@@ -1779,7 +1888,7 @@ var Craft =
 		Interval.invPower = invPower;
 
 		function positiveSqrt(a){
-			if(a.lower <= 0){
+			if(a.lower < 0){
 				throw "Attempt to take square root of a negative interval.";
 			}
 			return new Interval(Math.sqrt(a.lower), Math.sqrt(a.upper));
@@ -2051,45 +2160,6 @@ var Craft =
 	    });
 	    constraints.ProductConstraint = ProductConstraint;
 
-	    /*
-	    var ConstantProductConstraint = Constraint.extend({
-	        init : function(product, a, k){
-	            this._super(product.csp);
-	            this.product = product;
-	            this.a = a;
-	            this.k = k;
-	        },
-
-	        canonicalizeVariables : function(){
-	            this.product = this.registerCanonical(this.product);
-	            this.a = this.registerCanonical(this.a);
-	        },
-
-	        propagate : function(fail){
-	            if(this.narrowedVariable != this.product){
-	                this.product.narrowTo(Interval.multiplyIntervalByConstant(this.a.value(), this.k), fail);
-	                if(fail[0]){ return; }
-	            }
-	            if(this.narrowedVariable != this.a){
-	                //when k is 0, 1/k doesn't work (it becomes infinity).
-	                //In the limit, inf * 0 = 0, and even then the nearest real
-	                //number to inf * 0 = 0.
-	                //So, under practical cases, we've already narrowed the product to 0 at this point,
-	                //the value of a doesn't matter.
-	                //... still waiting for the bug that I'm sure this introduced to rear its head
-	                if(this.k !== 0){
-	                    this.a.narrowTo(Interval.multiplyIntervalByConstant(this.product.value(), (1 / this.k)), fail);
-	                }
-	            }
-	        },
-
-	        toString : function(){
-	            return "{"+ this.product.name +"}={" + this.a.name + "}*{" + this.k + "}";
-	        }
-	    });
-	    constraints.ConstantProductConstraint = ConstantProductConstraint;
-	    */
-
 	    var QuoitentConstraint = Constraint.extend({
 	        init : function(quotient, a, b){
 	            this._super(quotient.csp);
@@ -2105,6 +2175,17 @@ var Craft =
 	        },
 
 	        propagate : function(fail){
+	            //several checks here-- b can't be zero.
+	            if(this.b.value().isZero()){
+	              fail[0] = true;
+	              return;
+	            }
+
+	            //try to force the quotient into a reasonable range
+	            if(this.quotient.value().lower === -Number.POSITIVE_INFINITY || this.quotient.value().upper === Number.POSITIVE_INFINITY){
+	              this.quotient.narrowTo(new Interval(this.quotient.value().practicalLower(), this.quotient.value().practicalUpper()));
+	            }
+	            
 	            if(this.narrowedVariable != this.quotient){
 	                this.quotient.narrowToQuotient(this.a.value(), this.b.value(), fail);
 	                if(fail[0]){ return; }
@@ -2704,7 +2785,7 @@ var Craft =
 	            this.kind = "IntegerInterval";
 
 	            //conditional compilation is not a thing for Javascript, so we do all of it all the time
-				this.searchHint = SearchHint.none;
+				      this.searchHint = SearchHint.none;
 	        },
 
 	        /**
@@ -2713,7 +2794,7 @@ var Craft =
 	         * @return {Number} A random integer in this range
 	         */
 	        randomElement : function(){
-				var realLower = this.practicalLower();
+				      var realLower = this.practicalLower();
 	            var range = (this.practicalUpper() - realLower);
 	            //TODO: assert not NaN and not positive infinity
 
@@ -2757,38 +2838,37 @@ var Craft =
 			 */
 			uniqueValue : function(){
 				if(!this.unique){
-	                var mid = this.midpoint();
-	                if(mid >= this.lower){
-	                    //safe to floor
-	                    return Math.floor(mid);
-	                }else if(mid <= this.upper){
-	                    //safe to ceil
-	                    return Math.ceil(mid);
-	                }
+	        var mid = this.midpoint();
+	        if(mid >= this.lower){
+	          //safe to floor
+	          return Math.floor(mid);
+	        }else if(mid <= this.upper){
+	          //safe to ceil
+	          return Math.ceil(mid);
+	        }
 				}
 			},
 
-	        upperHalf : function(){
-	            //if the midpoint is right between two integers (say 2,3 -> midpoint of 2.5)
-	            //this won't actually narrow, so we need to check for that case, otherwise
-	            //proceed as normal.
-	            if(this.width() == 1){
-	                return new IntegerInterval(Math.ceil(this.midpoint()), this.upper);
-	            }else{
-				    return new IntegerInterval(Math.floor(this.midpoint()), this.upper);
-	            }
+	    upperHalf : function(){
+	      //if the midpoint is right between two integers (say 2,3 -> midpoint of 2.5)
+	      //this won't actually narrow, so we need to check for that case, otherwise
+	      //proceed as normal.
+	      if(this.width() == 1){
+	        return new IntegerInterval(Math.ceil(this.midpoint()), this.upper);
+	      }else{
+				  return new IntegerInterval(Math.floor(this.midpoint()), this.upper);
+	      }
 			},
 
 			lowerHalf : function(){
-	            //if the midpoint is right between two integers (say 2,3 -> midpoint of 2.5)
-	            //this won't actually narrow, so we need to check for that case, otherwise
-	            //proceed as normal.
-	            if(this.width() == 1){
-	                return new IntegerInterval(this.lower, Math.floor(this.midpoint()));
-	            }else{
-				    return new IntegerInterval(this.lower, Math.ceil(this.midpoint()));
-	            }
-
+	      //if the midpoint is right between two integers (say 2,3 -> midpoint of 2.5)
+	      //this won't actually narrow, so we need to check for that case, otherwise
+	      //proceed as normal.
+	      if(this.width() == 1){
+	        return new IntegerInterval(this.lower, Math.floor(this.midpoint()));
+	      }else{
+				  return new IntegerInterval(this.lower, Math.ceil(this.midpoint()));
+	      }
 			},
 
 	        /**
@@ -3294,48 +3374,6 @@ var Craft =
 	    });
 	    intConstraints.ProductConstraint = IntProductConstraint;
 
-	    /*
-	    var IntConstantProductConstraint = ScalarArithmeticConstraints.ConstantProductConstraint.extend({
-	        init : function(product, a, k){
-	            this._super(product, a, k);
-	        },
-
-	        canonicalizeVariables : function(){
-	            this._super();
-	        },
-
-	        propagate : function(fail){
-	            if(this.narrowedVariable != this.product){
-	                var constraint = IntegerInterval.multiplyIntervalByConstant(this.a.value(), this.k);
-	                this.product.narrowTo(
-	                    new IntegerInterval(
-	                        Math.floor(constraint.lower),
-	                        Math.ceil(constraint.upper)
-	                    ),
-	                fail);
-	                if(fail[0]){ return; }
-	            }
-	            if(this.narrowedVariable != this.a){
-	                //See the comment in real scalar arithmetic constraints, but, when k is 0,
-	                //this.product / k gets rough to narrow on.  In the limit, [-inf, inf] * 0 = 0,
-	                //we've already narrowed the product, and this sounds practical enough, so
-	                //when k = 0, don't narrow a.
-	                //FIXME: I can't wait to find the bug I just introduced with this.
-	                if(this.k !== 0){
-	                    this.a.narrowToQuotient(
-	                        this.product.value(),
-	                        new IntegerInterval(
-	                            Math.floor(this.k),
-	                            Math.ceil(this.k)
-	                        ),
-	                    fail);
-	                }
-	            }
-	        },
-	    });
-	    intConstraints.ConstantProductConstraint = IntConstantProductConstraint;
-	    */
-	   
 	    var IntQuoitentConstraint = ScalarArithmeticConstraints.QuotientConstraint.extend({
 	        init : function(quotient, a, b){
 	            this._super(quotient, a, b);
@@ -3346,6 +3384,12 @@ var Craft =
 	        },
 
 	        propagate : function(fail){
+	          //several checks here-- b can't be zero.
+	          if(this.b.value().isZero()){
+	            fail[0] = true;
+	            return;
+	          }
+
 	            if(this.narrowedVariable != this.quotient){
 	                this.quotient.narrowToQuotient(this.a.value(), this.b.value(), fail);
 	                if(fail[0]){ return; }

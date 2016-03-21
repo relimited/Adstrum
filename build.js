@@ -3,7 +3,7 @@ module.exports = {
     output: {
        // export itself to a global var
        libraryTarget: "var",
-       // name of the global var: "Craft"
+       // name of the global var: "Adstrum"
        library: "Adstrum"
    },
 

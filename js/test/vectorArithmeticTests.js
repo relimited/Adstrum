@@ -10,10 +10,64 @@ define(['inheritance', 'csp', 'floatVariable', 'floatVectorVariable', 'boundingB
           expect(value == v.uniqueValue()).toBe(true);
       };
 
+      it("Vector Addition Tests", function(){
+        var p = new CSP();
+        var v1 = FloatVectorVariable.makeFloatVectorFromBBox("v1", p, box);
+        var v2 = FloatVectorVariable.makeFloatVectorFromBBox("v2", p, box);
+        var sum = FloatVectorVariable.add(v1, v2);
+        for(var index = 0, len = 1000; index < len; ++index){
+          p.newSolution();
+          expect(MathUtil.nearlyEqual((v1.vars[0].uniqueValue() + v2.vars[0].uniqueValue()), sum.vars[0].uniqueValue())).toBe(true);
+          expect(MathUtil.nearlyEqual((v1.vars[1].uniqueValue() + v2.vars[1].uniqueValue()), sum.vars[1].uniqueValue())).toBe(true);
+          expect(MathUtil.nearlyEqual((v1.vars[2].uniqueValue() + v2.vars[2].uniqueValue()), sum.vars[2].uniqueValue())).toBe(true);
+        }
+      });
+
+      it("Vector Subtraction Tests", function(){
+        var p = new CSP();
+        var v1 = FloatVectorVariable.makeFloatVectorFromBBox("v1", p, box);
+        var v2 = FloatVectorVariable.makeFloatVectorFromBBox("v2", p, box);
+        var sum = FloatVectorVariable.subtract(v1, v2);
+        for(var index = 0, len = 1000; index < len; ++index){
+          p.newSolution();
+          expect(MathUtil.nearlyEqual((v1.vars[0].uniqueValue() - v2.vars[0].uniqueValue()), sum.vars[0].uniqueValue())).toBe(true);
+          expect(MathUtil.nearlyEqual((v1.vars[1].uniqueValue() - v2.vars[1].uniqueValue()), sum.vars[1].uniqueValue())).toBe(true);
+          expect(MathUtil.nearlyEqual((v1.vars[2].uniqueValue() - v2.vars[2].uniqueValue()), sum.vars[2].uniqueValue())).toBe(true);
+        }
+      });
+
+      it("Scalar Multiplcation Tests", function(){
+        var p = new CSP();
+          var v1 = FloatVectorVariable.makeFloatVectorFromBBox("v1", p, box);
+          var s = FloatVariable.makeFloatVariableWithBounds("s", p, -1, 1);
+          var product = FloatVectorVariable.scalarMultiply(v1, s);
+
+          for(var index = 0, len = 1000; index < len; ++index){
+            p.newSolution();
+            expect(MathUtil.nearlyEqual((v1.vars[0].uniqueValue() * s.uniqueValue()), product.vars[0].uniqueValue())).toBe(true);
+            expect(MathUtil.nearlyEqual((v1.vars[1].uniqueValue() * s.uniqueValue()), product.vars[1].uniqueValue())).toBe(true);
+            expect(MathUtil.nearlyEqual((v1.vars[2].uniqueValue() * s.uniqueValue()), product.vars[2].uniqueValue())).toBe(true);
+          }
+      });
+
+      it("Divide by a scalar tests", function(){
+        var p = new CSP();
+          var v1 = FloatVectorVariable.makeFloatVectorFromBBox("v1", p, box);
+          var s = FloatVariable.makeFloatVariableWithBounds("s", p, -1, 1);
+          var product = FloatVectorVariable.scalarDivide(v1, s);
+
+          for(var index = 0, len = 1000; index < len; ++index){
+            p.newSolution();
+            expect(MathUtil.nearlyEqual((v1.vars[0].uniqueValue() / s.uniqueValue()), product.vars[0].uniqueValue())).toBe(true);
+            expect(MathUtil.nearlyEqual((v1.vars[1].uniqueValue() / s.uniqueValue()), product.vars[1].uniqueValue())).toBe(true);
+            expect(MathUtil.nearlyEqual((v1.vars[2].uniqueValue() / s.uniqueValue()), product.vars[2].uniqueValue())).toBe(true);
+          }
+      });
+
       it("Dot Product 1 over fixed Tets", function(){
         var p = new CSP();
-        var eX = new FloatVectorVariable.makeFloatVectorFromDoubles("eX", p, [1, 0, 0]);
-        var unknown = new FloatVectorVariable.makeFloatVectorFromBBox("unknown", p, box);
+        var eX = FloatVectorVariable.makeFloatVectorFromDoubles("eX", p, [1, 0, 0]);
+        var unknown = FloatVectorVariable.makeFloatVectorFromBBox("unknown", p, box);
         var dot = FloatVectorVariable.dotProduct(eX, unknown);
         dot.mustEqual(0);
 
@@ -25,8 +79,8 @@ define(['inheritance', 'csp', 'floatVariable', 'floatVectorVariable', 'boundingB
 
       it("Dot Product Test", function(){
         var p = new CSP();
-        var v1 = new FloatVectorVariable.makeFloatVectorFromBBox("v1", p, box);
-        var v2 = new FloatVectorVariable.makeFloatVectorFromBBox("v2", p, box);
+        var v1 = FloatVectorVariable.makeFloatVectorFromBBox("v1", p, box);
+        var v2 = FloatVectorVariable.makeFloatVectorFromBBox("v2", p, box);
         var dot = FloatVectorVariable.dotProduct(v1, v2);
         dot.mustEqual(0);
 
@@ -56,6 +110,22 @@ define(['inheritance', 'csp', 'floatVariable', 'floatVectorVariable', 'boundingB
         }
       });
 
+      it("2D Orthonormal Basis Test", function(){
+        var p = new CSP();
+        var v1 = FloatVectorVariable.makeFloatVectorFromVariables("vec1", [FloatVariable.makeFloatVariableWithBounds("vec1[0]", p, -1, 1), FloatVariable.makeFloatVariableWithBounds("vec1[1]", p, -1, 1)]);
+        var v2 = FloatVectorVariable.makeFloatVectorFromVariables("vec2", [FloatVariable.makeFloatVariableWithBounds("vec2[0]", p, -1, 1), FloatVariable.makeFloatVariableWithBounds("vec2[1]", p, -1, 1)]);
+        v1.magnitude().mustEqual(1);
+        v2.magnitude().mustEqual(1);
+        v1.mustBePerpendicular(v2);
+        for(var index = 0, len = 1000; index < len; ++index){
+          p.newSolution();
+          var actualDot = (v1.vars[0].uniqueValue() * v2.vars[0].uniqueValue()) +
+                          (v1.vars[1].uniqueValue() * v2.vars[1].uniqueValue());
+          expect(MathUtil.nearlyEqual(actualDot, 0)).toBe(true);
+        }
+      });
+
+      /*
       it("Orthonormal Basis Test", function(){
         var p = new CSP();
         //set the CSP for a long, looooong problem.
@@ -109,5 +179,6 @@ define(['inheritance', 'csp', 'floatVariable', 'floatVectorVariable', 'boundingB
           expect(MathUtil.nearlyEqual(actualDot, 0)).toBe(true);
         }
       });
+      */
     });
 });

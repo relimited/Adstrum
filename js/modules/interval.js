@@ -105,7 +105,6 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		},
 
 		isZero : function(){
-			//FIXME: there was weirdness here in the C# code.  Should probably investigate
 			return this.lower === 0 && this.upper === 0;
 		},
 
@@ -116,13 +115,24 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 
 		randomElement : function(){
 			var realLower = this.practicalLower();
-            var range = (this.practicalUpper() - realLower);
-            //TODO: assert not NaN and not positive infinity
+      var range = (this.practicalUpper() - realLower);
+      //TODO: assert not NaN and not positive infinity
+      if(range == Number.POSITIVE_INFINITY || Number.isNaN(range)){
+				console.log(this.practicalLower());
+				console.log(this.practicalUpper());
+				console.log(this);
+				throw "Calculated range is to big!";
+			}
+      var randomElement = realLower + (Math.random() * range);
+      //TODO: assert not positive infinity and not negative infinity
+      if(range == Number.POSITIVE_INFINITY || range == Number.NEGATIVE_INFINITY){
+				console.log(this.practicalLower());
+				console.log(this.practicalUpper());
+				console.log(this);
+				throw "Random element is infinity!";
+			}
 
-            var randomElement = realLower + (Math.random() * range);
-            //TODO: assert not positive infinity and not negative infinity
-
-            return randomElement;
+      return randomElement;
 		},
 
 		width : function(){
@@ -144,11 +154,11 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		},
 
 		midpoint : function(){
-			return (this.practicalLower() + this.practicalUpper()) * 0.5; //Javascript don't give no fucks about floats or not floats.  It's all a number
+			if(this.nearlyUnique()){
+				return this.lower;
+			}
+			return (this.practicalLower() + this.practicalUpper()) * 0.5;
 		},
-
-		//TODO: now I'm in the point where functions should return more intervals, and I'm not so sure how Javascript can handle that.
-		//		I'll need to play around in a fiddle or make a test project or something
 
 		upperHalf : function(){
 			return new Interval(this.midpoint(), this.upper);
@@ -208,14 +218,14 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	Interval.maxPracticalDouble = Number.MAX_VALUE * 0.5;
 	Interval.minPracticalDouble = -Number.MAX_VALUE * 0.5; //javascript is weird
 
+	Interval.emptyInterval = new Interval(1, 0); //make an empty interval
 	//special constructors
 	function fromUnsortedBounds(a, b){
-		 if (a > b){
-         	return new Interval(b, a);
-         }else{
-            return new Interval(a, b);
-         }
-
+		if (a > b){
+    	return new Interval(b, a);
+    }else{
+    	return new Interval(a, b);
+    }
 	}
 	Interval.fromUnsortedBounds = fromUnsortedBounds;
 
@@ -251,14 +261,14 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 
 	function unionBound (a, b){
 		if (a.empty()){
-        	return b;
-        }
+    	return b;
+    }
 
-        if (b.empty()){
-        	return a;
-       }
+    if (b.empty()){
+    	return a;
+    }
 
-       return new Interval(Math.min(a.lower, b.lower), Math.max(a.upper, b.upper));
+    return new Interval(Math.min(a.lower, b.lower), Math.max(a.upper, b.upper));
 
 	}
 	Interval.unionBound = unionBound;
@@ -278,10 +288,19 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	function sumAll(v){
 		//TODO: type check on array, as well as each element in the array
 		//sum an array of intervals out.
+
+		//if the passed in array is only one element long, then return it as the sum.
+		if(v.length == 1){
+			return v[0];
+		}
+
+		//do the first addition...
 		var sum = Interval.add(v[0], v[1]);
+		//recusrively perform the rest of the addition.
 		for(var index = 2, len = v.length; index < len; ++index){
 			sum = Interval.add(sum, v[index]);
 		}
+		//return the sum.
 		return sum;
 	}
 	Interval.sumAll = sumAll;
@@ -290,7 +309,7 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 		//TODO: type check on intersector, a and b (interval)
 		return new Interval(
         	propagateNegativeInfinity(a.lower, a.lower - b.upper),
-            propagatePositiveInfinity(a.upper, a.upper - b.lower));
+          propagatePositiveInfinity(a.upper, a.upper - b.lower));
 	}
 	Interval.subtract = subtract;
 
@@ -339,7 +358,53 @@ define(["inheritance", "searchHint", "mathUtil", "csp"], function(Inheritance, S
 	 */
 	function divide(a, b){
 		//TODO: type check on intersector, a and b (interval)
-		//ReShaper comments here, which may mean I need to do something....
+		//welcome to the greatest case analysis you've ever seen.
+		/*
+		if(!b.containsZero()){
+			//case 1: b does not 0
+			return Interval.multiply(a, b.reciprocal());
+		}else if (a.containsZero() && b.containsZero()){
+			//case 2: both a and b contain 0
+			return Interval.allValues;
+
+		}else if(a.strictlyNegative()){
+			//next 3 cases deal with the universe where the numerator is < 0
+			if(b.lower < b.upper && b.upper === 0){
+				//case 3: denominator is [x, 0]
+				return new Interval(a.upper / b.lower, Number.POSITIVE_INFINITY);
+			}else if(b.crossesZero()){
+				//case 4: denominator is [x, y], where x < 0 and 0 < y
+				throw "Unable to perform this division, result is the union of two seperate intervals";
+			}else if(b.lower < b.upper && b.lower === 0){
+				//case 5: denominator is [0, y]
+				return new Interval(Number.NEGATIVE_INFINITY, a.upper / b.upper);
+			}else{
+				throw "Unsupported case! (" + a + "/" + b + ")";
+			}
+			//moving on
+
+		}else if(a.strictlyPositive()){
+			//next 3 cases deal with the universe where numerator is < 0
+			if(b.lower < b.upper && b.upper === 0){
+				//case 6: denominator is [x, 0]
+				return new Interval(Number.NEGATIVE_INFINITY, a.lower / b.lower);
+			}else if(b.crossesZero()){
+				//case 7: denominator is [x, y], where x < 0 and 0 < y
+				throw "Unable to perform this division, result is the union of two seperate intervals";
+			}else if(b.lower < b.upper && b.lower === 0){
+				//case 8: denominator is [0, y]
+				return new Interval(a.lower / b.upper, Number.POSITIVE_INFINITY);
+			}else{
+				throw "Unsupported case! (" + a + "/" + b + ")";
+			}
+			//moving on
+
+		}else if(!a.containsZero() && b.isZero()){
+			return Interval.emptyInterval;
+		}else{
+			throw "Unsupported case! (" + a + "/" + b + ")";
+		}
+		*/
 		if(b.lower === 0){
 			if(b.upper === 0){
 				return Interval.allValues;
