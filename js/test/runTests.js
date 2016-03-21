@@ -9,19 +9,22 @@ require.config({
         'boundingBox' : '../js/modules/boundingBox',
         'csp' : '../js/modules/csp',
         'constraint' : '../js/modules/constraint',
-        'floatVariable' : '../js/modules/floatVariable',
-        'integerVariable' :'../js/modules/integerVariable',
+        'floatVariable' : '../js/modules/FloatVariable',
+        'integerVariable' : '../js/modules/IntegerVariable',
+        'floatVectorVariable' : '../js/modules/floatVectorVariable',
         'interval' : '../js/modules/interval',
         'integerInterval' : '../js/modules/integerInterval',
         'mathUtil' : '../js/modules/mathUtil',
         'memoTable' : '../js/modules/memoTable',
         'restorable' : '../js/modules/restorable',
         'scalarArithmeticConstraints' : '../js/modules/scalarArithmeticConstraints',
-        'integerScalarArithmeticConstraints' : '../js/modules/integerScalarArithmeticConstraints',
+        'integerScalarArithmeticConstraints': '../js/modules/integerScalarArithmeticConstraints',
+        'vectorArithmeticConstraints' : '../js/modules/vectorArithmeticConstraints',
         'searchHint' : '../js/modules/searchHint',
         'undoStack' : '../js/modules/undoStack',
         'variable' : '../js/modules/variable',
-        'dictionary' : '../js/shared/dictionary'
+        'dictionary' : '../js/shared/dictionary',
+        'formatTools' : '../js/shared/formatTools'
     },
     shim: {
         'jasmine-html': {
@@ -36,7 +39,7 @@ require.config({
 
 //bootstrap Jasmine
 require(['jasmine-boot'], function () {
-    require(["../js/test/canonicalizationTests.js", "../js/test/intervalTests.js", "../js/test/integerIntervalTests.js", "../js/test/restorableTests.js", "../js/test/scalarArithmeticTests.js", "../js/test/integerScalarArithmeticTests", "../js/test/constraintTests.js"], function(CanonicalizationTests, IntervalTests, integerIntervalTests, RestorableTests, ScalarArithmeticTests, IntegerScalarArithmeticTests, ConstraintTests){'use strict';
+    require(["../js/test/canonicalizationTests.js", "../js/test/intervalTests.js", "../js/test/integerIntervalTests.js", "../js/test/restorableTests.js", "../js/test/scalarArithmeticTests.js", "../js/test/integerScalarArithmeticTests", "../js/test/vectorArithmeticTests", "../js/test/constraintTests.js"], function(CanonicalizationTests, IntervalTests, integerIntervalTests, RestorableTests, ScalarArithmeticTests, IntegerScalarArithmeticTests, VectorArithmeticTests, ConstraintTests){'use strict';
         window.onload();
     });
 });

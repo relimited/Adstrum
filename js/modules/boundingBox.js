@@ -4,7 +4,7 @@
  *
  * TODO: Currently, this isn't used for anything in Craftjs.  It will be, though.
  */
-define(["inhertiance"], function(Inheritance){
+define(["inheritance"], function(Inheritance){
 	var BoundingBox = Class.extend({
 		/**
 		 * Constructor for the BoundingBox class.  Makes a new bounding box.

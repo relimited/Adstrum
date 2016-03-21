@@ -4,9 +4,9 @@
  */
 
  //gonna expose library based things
- var FloatVariable = Craft.FloatVariable;
- var IntegerVariable = Craft.IntegerVariable;
- var CSP = Craft.CSP;
+ var FloatVariable = Adstrum.FloatVariable;
+ var IntegerVariable = Adstrum.IntegerVariable;
+ var CSP = Adstrum.CSP;
 
 var canvas = document.getElementById("demoCanvas");
 var ctx = canvas.getContext('2d');

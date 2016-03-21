@@ -137,48 +137,6 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
     });
     intConstraints.ProductConstraint = IntProductConstraint;
 
-    /*
-    var IntConstantProductConstraint = ScalarArithmeticConstraints.ConstantProductConstraint.extend({
-        init : function(product, a, k){
-            this._super(product, a, k);
-        },
-
-        canonicalizeVariables : function(){
-            this._super();
-        },
-
-        propagate : function(fail){
-            if(this.narrowedVariable != this.product){
-                var constraint = IntegerInterval.multiplyIntervalByConstant(this.a.value(), this.k);
-                this.product.narrowTo(
-                    new IntegerInterval(
-                        Math.floor(constraint.lower),
-                        Math.ceil(constraint.upper)
-                    ),
-                fail);
-                if(fail[0]){ return; }
-            }
-            if(this.narrowedVariable != this.a){
-                //See the comment in real scalar arithmetic constraints, but, when k is 0,
-                //this.product / k gets rough to narrow on.  In the limit, [-inf, inf] * 0 = 0,
-                //we've already narrowed the product, and this sounds practical enough, so
-                //when k = 0, don't narrow a.
-                //FIXME: I can't wait to find the bug I just introduced with this.
-                if(this.k !== 0){
-                    this.a.narrowToQuotient(
-                        this.product.value(),
-                        new IntegerInterval(
-                            Math.floor(this.k),
-                            Math.ceil(this.k)
-                        ),
-                    fail);
-                }
-            }
-        },
-    });
-    intConstraints.ConstantProductConstraint = IntConstantProductConstraint;
-    */
-   
     var IntQuoitentConstraint = ScalarArithmeticConstraints.QuotientConstraint.extend({
         init : function(quotient, a, b){
             this._super(quotient, a, b);
@@ -189,6 +147,12 @@ define(['inheritance', 'integerInterval', 'mathUtil', 'scalarArithmeticConstrain
         },
 
         propagate : function(fail){
+          //several checks here-- b can't be zero.
+          if(this.b.value().isZero()){
+            fail[0] = true;
+            return;
+          }
+
             if(this.narrowedVariable != this.quotient){
                 this.quotient.narrowToQuotient(this.a.value(), this.b.value(), fail);
                 if(fail[0]){ return; }
