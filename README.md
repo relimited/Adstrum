@@ -209,8 +209,6 @@ There is a program that also draws circles in a square to show off how to use In
 
 -- Mixed CSPs, able to handle both Reals and Ints.
 
--- Vectors, for both Reals and Integers.
-
 -- Some calling interface (perhaps an equation parser?) to make setting up problems easier.
 
 -- Various optimizations to speed up finding solutions.
@@ -222,5 +220,5 @@ There is a program that also draws circles in a square to show off how to use In
 Take care when assigning variable names.  The names "a", "b", "sum", "difference", "product", "quotient" and "power" may get overwritten by the solver and end up getting assigned to the wrong constraints.  The more descriptive a name is, the more useful it is overall.  The internal variable representation will get tweaked in a future release to prevent this from happening.
 
 #### other
-Adstrum is very much in development.  This is an alpha build (0.221, at time of writing this disclamer), and may be bug-ridden.
+Adstrum is very much in development.  This is an alpha build (0.23, at time of writing this disclamer), and may be bug-ridden.
 Please, add an issue tag for any bugs you find.
